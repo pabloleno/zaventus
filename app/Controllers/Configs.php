@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-require 'mysqldump/autoload.php';
+require_once APPPATH . 'ThirdParty/mysqldump/autoload.php';
 
 use Ifsnop\Mysqldump as IMysqldump;
 
