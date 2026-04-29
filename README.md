@@ -1,100 +1,240 @@
-# CodeIgniter 4 Development
+# NX Gestão
 
-[![Build Status](https://travis-ci.org/codeigniter4/CodeIgniter4.svg?branch=develop)](https://travis-ci.org/codeigniter4/CodeIgniter4)
-[![Coverage Status](https://coveralls.io/repos/github/codeigniter4/CodeIgniter4/badge.svg?branch=develop)](https://coveralls.io/github/codeigniter4/CodeIgniter4?branch=develop)
-[![Downloads](https://poser.pugx.org/codeigniter4/framework/downloads)](https://packagist.org/packages/codeigniter4/framework)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/codeigniter4/CodeIgniter4)](https://packagist.org/packages/codeigniter4/framework)
-[![GitHub stars](https://img.shields.io/github/stars/codeigniter4/CodeIgniter4)](https://packagist.org/packages/codeigniter4/framework)
-[![GitHub license](https://img.shields.io/github/license/codeigniter4/CodeIgniter4)](https://github.com/codeigniter4/CodeIgniter4/blob/develop/license.txt)
-[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg?style=flat)](https://github.com/codeigniter4/CodeIgniter4/pulls)
-<br>
+ERP web para pequenas empresas, desenvolvido em **PHP 8.2+**, **CodeIgniter 4.7.2** e **MySQL/MariaDB**. O sistema centraliza vendas, PDV, estoque, financeiro, cadastros, relatórios gerenciais, controle fiscal e permissões de usuários em uma única aplicação.
 
-## What is CodeIgniter?
+## Visão Geral
 
-CodeIgniter is a PHP full-stack web framework that is light, fast, flexible, and secure.
-More information can be found at the [official site](http://codeigniter.com).
+O NX Gestão foi pensado para operações comerciais que precisam controlar produtos, clientes, vendedores, fornecedores, caixa, contas, orçamento, pedidos, vendas e indicadores do negócio sem depender de planilhas separadas.
 
-This repository holds the source code for CodeIgniter 4 only.
-Version 4 is a complete rewrite to bring the quality and the code into a more modern version,
-while still keeping as many of the things intact that has made people love the framework over the years.
+Principais áreas do sistema:
 
-More information about the plans for version 4 can be found in [the announcement](http://forum.codeigniter.com/thread-62615.html) on the forums.
+- **Dashboard inicial** com indicadores, caixas abertos e resumo operacional.
+- **PDV** com seleção de caixa aberto, produtos, clientes, vendedores, descontos e formas de pagamento.
+- **Venda rápida** para operações simplificadas.
+- **Histórico de vendas** com detalhamento, impressão e emissão fiscal.
+- **Financeiro** com abertura/fechamento de caixa, lançamentos, retiradas, despesas, contas a pagar e contas a receber.
+- **DRE** com apuração de faturamento, impostos, despesas variáveis, despesas fixas, gastos com pessoas e pró-labore por período.
+- **Estoque** com produtos, categorias, fornecedores, reposições, saída de mercadorias, inventário e controle de validade.
+- **Orçamentos e pedidos** para registrar etapas antes da venda.
+- **Cadastros gerais** de clientes, fornecedores, funcionários, vendedores, técnicos e serviços/mão de obra.
+- **Ordens de serviço** com equipamentos, peças, serviços e pagamentos.
+- **Relatórios** de vendas, estoque, financeiro, contas, clientes, fornecedores, funcionários e vendedores.
+- **Controle fiscal** com configurações e registros de NFe/NFCe.
+- **Usuários e permissões** por módulo e funcionalidade.
+- **Backup de banco de dados** via tela de configurações.
 
-### Documentation
+## Funcionalidades
 
-The [User Guide](https://codeigniter4.github.io/userguide/) is the primary documentation for CodeIgniter 4.
+### Vendas, PDV e OS
 
-The current **in-progress** User Guide can be found [here](https://codeigniter4.github.io/CodeIgniter4/).
-As with the rest of the framework, it is a work in progress, and will see changes over time to structure, explanations, etc.
+- PDV vinculado a um caixa aberto.
+- Inclusão de produtos por código de barras ou seleção por nome.
+- Ajuste de quantidade, valor unitário e desconto dos itens.
+- Associação da venda a cliente, vendedor e forma de pagamento.
+- Venda rápida para fluxo mais simples.
+- Histórico completo de vendas.
+- Emissão, impressão, cancelamento e reemissão fiscal quando configurado.
+- Ordens de serviço com técnicos, equipamentos, peças, serviços e pagamentos.
 
-You might also be interested in the [API documentation](https://codeigniter4.github.io/api/) for the framework components.
+### Estoque e Produtos
 
-## Important Change with index.php
+- Cadastro de produtos com categoria, fornecedor, unidade, localização, código de barras, NCM, CSOSN, CFOP, validade e imagem.
+- Upload e troca de imagem do produto em `public/assets/img/produtos`.
+- Pesquisa de produto por nome ou código de barras.
+- Controle de quantidade e quantidade mínima.
+- Margem de lucro, valor de custo, valor de venda e lucro.
+- Reposição de estoque.
+- Saída de mercadorias.
+- Inventário de estoque.
+- Importação/apoio a cadastro e reposição de produtos via XML.
 
-index.php is no longer in the root of the project! It has been moved inside the *public* folder,
-for better security and separation of components.
+### Financeiro
 
-This means that you should configure your web server to "point" to your project's *public* folder, and
-not to the project root. A better practice would be to configure a virtual host to point there. A poor practice would be to point your web server to the project root and expect to enter *public/...*, as the rest of your logic and the
-framework are exposed.
+- Abertura, fechamento e reabertura de caixas.
+- Lançamentos financeiros vinculados ao caixa.
+- Retiradas do caixa.
+- Despesas classificadas por tipo.
+- Contas a pagar.
+- Contas a receber.
+- Pagamentos de clientes.
+- Orçamentos e pedidos.
+- Relatório DRE por período.
 
-**Please** read the user guide for a better explanation of how CI4 works!
-The user guide updating and deployment is a bit awkward at the moment, but we are working on it!
+### Relatórios e Indicadores
 
-## Repository Management
+O sistema possui relatórios operacionais e gerenciais, incluindo:
 
-CodeIgniter is developed completely on a volunteer basis. As such, please give up to 7 days
-for your issues to be reviewed. If you haven't heard from one of the team in that time period,
-feel free to leave a comment on the issue so that it gets brought back to our attention.
+- Vendas: histórico completo, por cliente e por vendedor.
+- Estoque: produtos, estoque mínimo, inventário e validade dos produtos.
+- Financeiro: faturamento diário, faturamento detalhado, lançamentos, retiradas e despesas.
+- Administrativo: contas a pagar, contas a receber e DRE.
+- Geral: clientes, fornecedores, funcionários e vendedores.
+- Gráficos para análise, como o relatório de faturamento diário.
 
-We use Github issues to track **BUGS** and to track approved **DEVELOPMENT** work packages.
-We use our [forum](http://forum.codeigniter.com) to provide SUPPORT and to discuss
-FEATURE REQUESTS.
+### Usuários e Permissões
 
-If you raise an issue here that pertains to support or a feature request, it will
-be closed! If you are not sure if you have found a bug, raise a thread on the forum first -
-someone else may have encountered the same thing.
+O controle de acesso é configurado por usuário em formato granular. É possível liberar ou bloquear módulos e funcionalidades como:
 
-Before raising a new Github issue, please check that your bug hasn't already
-been reported or fixed.
+- Vendas: venda rápida, PDV, pesquisa de produtos e histórico de vendas.
+- Controle geral: clientes, fornecedores, funcionários e vendedores.
+- Estoque: produtos, reposições, saídas e categorias.
+- Financeiro: caixas, lançamentos, retiradas, despesas, contas, orçamentos, pedidos, DRE, inventário e fiscal.
+- Relatórios: vendas, estoque, financeiro e geral.
+- Configurações: NFe, NFCe, empresa, sistema, usuários e backup de dados.
 
-We use pull requests (PRs) for CONTRIBUTIONS to the repository.
-We are looking for contributions that address one of the reported bugs or
-approved work packages.
+Os menus são exibidos conforme as permissões do usuário autenticado.
 
-Do not use a PR as a form of feature request.
-Unsolicited contributions will only be considered if they fit nicely
-into the framework roadmap.
-Remember that some components that were part of CodeIgniter 3 are being moved
-to optional packages, with their own repository.
+### Fiscal
 
-## Contributing
+- Configuração de NFe e NFCe.
+- Upload de certificado digital `.pfx`.
+- Controle fiscal de NFe/NFCe emitidas.
+- Impressão de DANFE/cupom fiscal quando a emissão está disponível.
+- Armazenamento de chave, XML, protocolo, status e mensagens de erro.
 
-We **are** accepting contributions from the community!
+## Tecnologias
 
-We will try to manage the process somewhat, by adding a ["help wanted" label](https://github.com/codeigniter4/CodeIgniter4/labels/help%20wanted) to those that we are
-specifically interested in at any point in time. Join the discussion for those issues and let us know
-if you want to take the lead on one of them.
+- PHP `^8.2`
+- CodeIgniter `4.7.2`
+- MySQL/MariaDB
+- MySQLi/PDO
+- Bootstrap/AdminLTE no painel
+- Chart.js em relatórios
+- Biblioteca `sped-nfe` para recursos fiscais
+- Biblioteca `mysqldump-php` para backup do banco
 
-At this time, we are not looking for out-of-scope contributions, only those that would be considered part of our controlled evolution!
+## Requisitos
 
-Please read the [*Contributing to CodeIgniter*](https://github.com/codeigniter4/CodeIgniter4/blob/develop/CONTRIBUTING.md) section in the user guide.
+Ambiente mínimo recomendado:
 
-## Server Requirements
+- PHP 8.2 ou superior.
+- MySQL ou MariaDB.
+- Servidor web Apache/Nginx apontando para a pasta `public`.
+- Extensões PHP:
+  - `intl`
+  - `mbstring`
+  - `mysqli`
+  - `pdo_mysql`
+  - `curl`
+  - `xml`
+  - `simplexml`
+  - `openssl`
+  - `fileinfo`
+  - `json`
 
-PHP version 7.2 or higher is required, with the following extensions installed:
+Para hospedagem compartilhada, confirme se o plano permite configurar o document root para `public/` ou criar redirecionamento equivalente.
 
+## Configuração
 
-- [intl](http://php.net/manual/en/intl.requirements.php)
-- [libcurl](http://php.net/manual/en/curl.requirements.php) if you plan to use the HTTP\CURLRequest library
-- [mbstring](http://php.net/manual/en/mbstring.installation.php)
+As principais configurações ficam no arquivo `.env`.
 
-Additionally, make sure that the following extensions are enabled in your PHP:
+Exemplo de banco local:
 
-- json (enabled by default - don't turn it off)
-- xml (enabled by default - don't turn it off)
-- [mysqlnd](http://php.net/manual/en/mysqlnd.install.php)
+```ini
+CI_ENVIRONMENT = development
 
-## Running CodeIgniter Tests
+app.baseURL = 'http://local.nxgestao.com'
 
-Information on running the CodeIgniter test suite can be found in the [README.md](tests/README.md) file in the tests directory.
+database.default.hostname = localhost
+database.default.database = nxgestao
+database.default.username = root
+database.default.password =
+database.default.DBDriver = MySQLi
+```
+
+Em produção, ajuste:
+
+```ini
+CI_ENVIRONMENT = production
+app.baseURL = 'https://seudominio.com'
+```
+
+## Instalação Local
+
+1. Clone o repositório:
+
+```bash
+git clone https://github.com/plrbxx/nxgestao.git
+```
+
+2. Configure o servidor web para apontar para:
+
+```text
+public/
+```
+
+3. Configure o `.env` com os dados do banco.
+
+4. Importe o banco MySQL do ambiente de implantação ou de um backup válido.
+
+5. Garanta permissão de escrita nas pastas:
+
+```text
+writable/
+public/assets/img/produtos/
+```
+
+6. Acesse a URL configurada no `app.baseURL`.
+
+## Observações Sobre Banco de Dados
+
+O projeto depende de um banco MySQL/MariaDB com as tabelas do ERP. O repositório não deve ser usado como substituto de backup de banco: dados de clientes, vendas, produtos, contas e fiscal precisam ser preservados por rotina própria.
+
+O sistema possui uma rotina de backup em:
+
+```text
+/configs/backupDataBase
+```
+
+Ela gera um arquivo SQL em:
+
+```text
+writable/backup_mysql/BACKUP_DATABASE_SISTEMA.sql
+```
+
+## Estrutura Principal
+
+```text
+app/Controllers/        Controllers dos módulos do ERP
+app/Models/             Models das tabelas do sistema
+app/Views/              Telas e relatórios
+app/Config/             Configurações da aplicação
+app/ThirdParty/         Bibliotecas embarcadas
+public/                 Document root público
+public/assets/          CSS, JS, imagens e arquivos públicos
+system/                 Núcleo CodeIgniter 4.7.2
+writable/               Logs, cache, uploads, backups e arquivos gerados
+```
+
+## Módulos no Código
+
+Controllers principais:
+
+- `Pdv`, `VendaRapida`, `Vendas`, `Orcamentos`, `Pedidos`
+- `Caixas`, `Lancamentos`, `Retiradas`, `Despesas`, `ContasPagar`, `ContasReceber`
+- `Produtos`, `Reposicoes`, `SaidaDeMercadorias`, `InventarioDoEstoque`, `CategoriasDosProdutos`
+- `Clientes`, `Fornecedores`, `Funcionarios`, `Vendedores`, `Tecnicos`
+- `OrdensDeServicos`, `ServicosMaoDeObra`, `PagamentosDoCliente`
+- `Relatorios`, `RelatorioDRE`
+- `NFe`, `Pdv`, `ControleFiscal`, `ImprimeDanfe`
+- `Login`, `Configs`, `Inicio`
+
+## Segurança e Operação
+
+- Use HTTPS em produção.
+- Mantenha PHP e CodeIgniter atualizados.
+- Restrinja permissões de arquivos sensíveis como `.env`.
+- Faça backup recorrente do banco e dos arquivos enviados.
+- Evite expor a raiz do projeto; o servidor deve apontar para `public/`.
+- Revise permissões dos usuários antes de entregar o sistema a clientes.
+
+## Status Atual
+
+- Framework: CodeIgniter 4.7.2
+- PHP alvo: 8.2+
+- Banco: MySQL/MariaDB
+- Projeto voltado a pequenas empresas com venda, financeiro, estoque, relatórios e fiscal.
+
+## Licença
+
+Este projeto utiliza CodeIgniter, distribuído sob licença MIT. Verifique também as licenças das bibliotecas embarcadas em `app/ThirdParty` e `system/ThirdParty`.
