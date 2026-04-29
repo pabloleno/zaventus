@@ -29,9 +29,30 @@
             {
               $controle_de_acesso = $session->get('controle_de_acesso');
               $array_c_a = json_decode($controle_de_acesso);
+
+              $menu_visivel = static function ($modulo, array $permissoes): bool {
+                if (!isset($modulo->modulo) || (int) $modulo->modulo !== 1) {
+                  return false;
+                }
+
+                foreach ($permissoes as $permissao) {
+                  if (isset($modulo->{$permissao}) && (int) $modulo->{$permissao} === 1) {
+                    return true;
+                  }
+                }
+
+                return false;
+              };
+
+              $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']);
+              $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
+              $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
+              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'orcamentos', 'pedidos', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
+              $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
+              $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
             ?>
 
-              <?php if($array_c_a->vendas->modulo == 1): ?>
+              <?php if($exibe_menu_vendas): ?>
                 <li id="2.m" class="nav-item dropdown">
                   <a id="2.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Vendas e OS</a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -61,7 +82,7 @@
                 </li>
               <?php endif; ?>
               
-              <?php if($array_c_a->controle_geral->modulo == 1): ?>
+              <?php if($exibe_menu_controle_geral): ?>
                 <li id="3.m" class="nav-item dropdown">
                   <a id="3.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Controle Geral</a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -92,7 +113,7 @@
                 </li>
               <?php endif; ?>
               
-              <?php if($array_c_a->estoque->modulo == 1): ?>
+              <?php if($exibe_menu_estoque): ?>
                 <li id="4.m" class="nav-item dropdown">
                   <a id="4.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Estoque</a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -117,7 +138,7 @@
                 </li>
               <?php endif; ?>
               
-              <?php if($array_c_a->financeiro->modulo == 1): ?>
+              <?php if($exibe_menu_financeiro): ?>
                 <li id="5.m" class="nav-item dropdown">
                   <a id="5.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Financeiro</a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -185,7 +206,7 @@
                 </li>
               <?php endif; ?>
               
-              <?php if($array_c_a->relatorios->modulo == 1): ?>
+              <?php if($exibe_menu_relatorios): ?>
                 <li id="7.m" class="nav-item dropdown">
                   <a id="7.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Relatórios</a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
@@ -263,7 +284,7 @@
 
           <!-- Right navbar links -->
           <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
-            <?php if($array_c_a->configs->modulo == 1): ?>
+            <?php if($exibe_menu_configs): ?>
               <li id="11.m" class="nav-item dropdown">
                 <a id="11.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle">Configs</a>
                 <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
