@@ -133,7 +133,7 @@ class Inicio extends Controller
         $tema = $session->get('tema');
 
         echo view('templates/header', $data);
-        if($tema == 1)
+        if((int) $tema === 0)
         {
             echo view('dashboard/index');
         }

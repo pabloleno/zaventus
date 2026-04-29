@@ -52,16 +52,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 </head>
 
 <?php
-    if($session->get('tema') == 0)
-    {
-        ?>
-            <body class="hold-transition layout-top-nav text-sm">
-                <div class="wrapper">
-        <?php
-
-            include 'navbar_tema_1.php';
-    }
-    else
+    if((int) $session->get('tema') === 0)
     {
         ?>
             <body class="sidebar-mini control-sidebar-open text-sm">
@@ -71,5 +62,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
             include 'navbar_tema_0.php';
             include 'sidebar_tema_0.php';
     }
+    else
+    {
+        ?>
+            <body class="hold-transition layout-top-nav text-sm">
+                <div class="wrapper">
+        <?php
+
+            include 'navbar_tema_1.php';
+    }
 ?>
-        

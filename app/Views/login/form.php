@@ -743,15 +743,6 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">financeiro</label>
-                                            <select class="form-control" id="financeiro" name="financeiro">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
                                             <label for="">Geral</label>
                                             <select class="form-control" id="geral" name="geral">
                                                 <option value="1">Sim</option>

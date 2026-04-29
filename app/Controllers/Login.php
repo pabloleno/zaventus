@@ -98,77 +98,73 @@ class Login extends Controller
     {
         $dados = $this->request->getvar();
 
-        $aux = "";
-        if(isset($dados['modulo_vendas']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '{"vendas":{"modulo":1,"venda_rapida":'.$dados['venda_rapida'].',"pdv":'.$dados['pdv'].',"pesq_produto":'.$dados['pesq_produto'].',"hist_de_vendas":'.$dados['hist_de_vendas'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux = '{"vendas":{"modulo":0,"venda_rapida":1,"pdv":1,"pesq_produto":1,"hist_de_vendas":1}';
+        $permitir = static function (array $dados, string $modulo, string $permissao): int {
+            if (!isset($dados[$modulo])) {
+                return 0;
+            }
+
+            return isset($dados[$permissao]) ? (int) $dados[$permissao] : 0;
+        };
+
+        $dados['controle_de_acesso'] = json_encode([
+            'vendas' => [
+                'modulo'          => isset($dados['modulo_vendas']) ? 1 : 0,
+                'venda_rapida'    => $permitir($dados, 'modulo_vendas', 'venda_rapida'),
+                'pdv'             => $permitir($dados, 'modulo_vendas', 'pdv'),
+                'pesq_produto'    => $permitir($dados, 'modulo_vendas', 'pesq_produto'),
+                'hist_de_vendas'  => $permitir($dados, 'modulo_vendas', 'hist_de_vendas'),
+            ],
+            'controle_geral' => [
+                'modulo'       => isset($dados['modulo_controle_geral']) ? 1 : 0,
+                'clientes'     => $permitir($dados, 'modulo_controle_geral', 'clientes'),
+                'fornecedores' => $permitir($dados, 'modulo_controle_geral', 'fornecedores'),
+                'funcionarios' => $permitir($dados, 'modulo_controle_geral', 'funcionarios'),
+                'vendedores'   => $permitir($dados, 'modulo_controle_geral', 'vendedores'),
+            ],
+            'estoque' => [
+                'modulo'                => isset($dados['modulo_estoque']) ? 1 : 0,
+                'produtos'              => $permitir($dados, 'modulo_estoque', 'produtos'),
+                'reposicoes'            => $permitir($dados, 'modulo_estoque', 'reposicoes'),
+                'saida_de_mercadorias'  => $permitir($dados, 'modulo_estoque', 'saida_de_mercadorias'),
+                'categorias_do_produto' => $permitir($dados, 'modulo_estoque', 'categorias_do_produto'),
+            ],
+            'financeiro' => [
+                'modulo'                => isset($dados['modulo_financeiro']) ? 1 : 0,
+                'caixas'                => $permitir($dados, 'modulo_financeiro', 'caixas'),
+                'lancamentos'           => $permitir($dados, 'modulo_financeiro', 'lancamentos'),
+                'retiradas_do_caixa'    => $permitir($dados, 'modulo_financeiro', 'retiradas_do_caixa'),
+                'despesas'              => $permitir($dados, 'modulo_financeiro', 'despesas'),
+                'contas_a_pagar'        => $permitir($dados, 'modulo_financeiro', 'contas_a_pagar'),
+                'contas_a_receber'      => $permitir($dados, 'modulo_financeiro', 'contas_a_receber'),
+                'orcamentos'            => $permitir($dados, 'modulo_financeiro', 'orcamentos'),
+                'pedidos'               => $permitir($dados, 'modulo_financeiro', 'pedidos'),
+                'relatorio_dre'         => $permitir($dados, 'modulo_financeiro', 'relatorio_dre'),
+                'inventario_do_estoque' => $permitir($dados, 'modulo_financeiro', 'inventario_do_estoque'),
+                'controle_fiscal'       => $permitir($dados, 'modulo_financeiro', 'controle_fiscal'),
+            ],
+            'relatorios' => [
+                'modulo'     => isset($dados['modulo_relatorios']) ? 1 : 0,
+                'vendas'     => $permitir($dados, 'modulo_relatorios', 'vendas'),
+                'estoque'    => $permitir($dados, 'modulo_relatorios', 'estoque'),
+                'financeiro' => $permitir($dados, 'modulo_relatorios', 'financeiro'),
+                'geral'      => $permitir($dados, 'modulo_relatorios', 'geral'),
+            ],
+            'configs' => [
+                'modulo'          => isset($dados['modulo_configs']) ? 1 : 0,
+                'nfe'             => $permitir($dados, 'modulo_configs', 'nfe'),
+                'nfce'            => $permitir($dados, 'modulo_configs', 'nfce'),
+                'empresa'         => $permitir($dados, 'modulo_configs', 'empresa'),
+                'sistema'         => $permitir($dados, 'modulo_configs', 'sistema'),
+                'usuarios'        => $permitir($dados, 'modulo_configs', 'usuarios'),
+                'backup_de_dados' => $permitir($dados, 'modulo_configs', 'backup_de_dados'),
+            ],
+        ]);
+        if (!isset($dados['id_login'])) {
+            $dados['tema'] = 0;
+        } elseif (!isset($dados['tema'])) {
+            unset($dados['tema']);
         }
 
-        if(isset($dados['modulo_controle_geral']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"controle_geral":{"modulo":1,"clientes":'.$dados['clientes'].',"fornecedores":'.$dados['fornecedores'].',"funcionarios":'.$dados['funcionarios'].',"vendedores":'.$dados['vendedores'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"controle_geral":{"modulo":0,"clientes":1,"fornecedores":1,"funcionarios":1,"vendedores":1}';
-        }
-
-        if(isset($dados['modulo_estoque']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"estoque":{"modulo":1,"produtos":'.$dados['produtos'].',"reposicoes":'.$dados['reposicoes'].',"saida_de_mercadorias":'.$dados['saida_de_mercadorias'].',"categorias_do_produto":'.$dados['categorias_do_produto'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"estoque":{"modulo":0,"produtos":1,"reposicoes":1,"saida_de_mercadorias":1,"categorias_do_produto":1}';
-        }
-        
-        if(isset($dados['modulo_financeiro']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"financeiro":{"modulo":1,"caixas":'.$dados['caixas'].',"lancamentos":'.$dados['lancamentos'].',"retiradas_do_caixa":'.$dados['retiradas_do_caixa'].',"despesas":'.$dados['despesas'].', "contas_a_pagar":'.$dados['contas_a_pagar'].',"contas_a_receber":'.$dados['contas_a_receber'].',"orcamentos":'.$dados['orcamentos'].',"pedidos":'.$dados['pedidos'].',"relatorio_dre":'.$dados['relatorio_dre'].',"inventario_do_estoque":'.$dados['inventario_do_estoque'].',"controle_fiscal":'.$dados['controle_fiscal'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"financeiro":{"modulo":0,"caixas":1,"lancamentos":1,"retiradas_do_caixa":1,"despesas":1,"contas_a_pagar":1,"contas_a_receber":1,"orcamentos":1,"pedidos":1,"relatorio_dre":1,"inventario_do_estoque":1,"controle_fiscal":1}';
-        }
-
-        if(isset($dados['modulo_relatorios']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"relatorios":{"modulo":1,"vendas":'.$dados['vendas'].',"estoque":'.$dados['estoque'].',"financeiro":'.$dados['financeiro'].',"geral":'.$dados['geral'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"relatorios":{"modulo":0,"vendas":1,"estoque":1,"financeiro":1,"geral":1}';
-        }
-
-        if(isset($dados['modulo_configs']))
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"configs":{"modulo":1,"nfe":'.$dados['nfe'].',"nfce":'.$dados['nfce'].',"empresa":'.$dados['empresa'].',"sistema":'.$dados['sistema'].',"usuarios":'.$dados['usuarios'].',"backup_de_dados":'.$dados['backup_de_dados'].'}';
-        }
-        else
-        {
-            if($aux != ""){$aux .= ",";}
-            $aux .= '"configs":{"modulo":0,"nfe":1,"nfce":1,"empresa":1,"sistema":1,"usuarios":1,"backup_de_dados":1}';
-        }
-
-        $aux .= "}";
-
-        $dados['controle_de_acesso'] = $aux;
-        $dados['tema'] = $dados['tema'] ?? 0;
         $this->login_model->save($dados);
 
         $session = session();
@@ -204,7 +200,7 @@ class Login extends Controller
             $session->set('usuario', $login['usuario']);
             $session->set('primeiro_nome', $login['primeiro_nome']);
             $session->set('nome_fantasia', $empresa['nome_fantasia']);
-            $session->set('tema', $login['tema']);
+            $session->set('tema', ((int) ($login['tema'] ?? 0) === 1) ? 1 : 0);
             $session->set('controle_de_acesso', $login['controle_de_acesso']);
 
             // Guarda o último acesso do usuário
