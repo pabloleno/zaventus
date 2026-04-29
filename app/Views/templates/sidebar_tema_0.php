@@ -260,7 +260,6 @@
                             <?php if($array_c_a->relatorios->estoque == 1): ?>
                                 <li class="nav-item"><a id="7.4" href="/relatorios/produtos" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Produtos</p></a></li>
                                 <li class="nav-item"><a id="7.5" href="/relatorios/estoqueMinimo" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Produtos - Est. Minimo</p></a></li>
-                                <li class="nav-item"><a id="7.6" href="/inventarioDoEstoque" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Produtos - Inventario</p></a></li>
                                 <li class="nav-item"><a id="7.7" href="/relatorios/validadeDosProdutos" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Produtos - Hist. de Validade</p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->relatorios->financeiro == 1): ?>
@@ -271,7 +270,6 @@
                                 <li class="nav-item"><a id="8.1" href="/relatorios/despesas" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Financeiro - Despesas</p></a></li>
                                 <li class="nav-item"><a id="8.2" href="/relatorios/contasPagar" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Admin. - Contas a Pagar</p></a></li>
                                 <li class="nav-item"><a id="8.3" href="/relatorios/contasReceber" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Admin. - Contas a Receber</p></a></li>
-                                <li class="nav-item"><a id="8.4" href="/relatorioDRE" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Admin. - DRE</p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->relatorios->geral == 1): ?>
                                 <li class="nav-item"><a id="8.5" href="/relatorios/clientes" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Geral - Clientes</p></a></li>

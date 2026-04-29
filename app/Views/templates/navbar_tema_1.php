@@ -233,7 +233,6 @@
                         <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
                           <li><a id="7.4" tabindex="-1" href="/relatorios/produtos" class="dropdown-item">Produtos</a></li>
                           <li><a id="7.5" tabindex="-1" href="/relatorios/estoqueMinimo" class="dropdown-item">Estoque Mínimo</a></li>
-                          <li><a id="7.6" tabindex="-1" href="/inventarioDoEstoque" class="dropdown-item">Inventário</a></li>
                           <li><a id="7.7" tabindex="-1" href="/relatorios/validadeDosProdutos" class="dropdown-item">Validade de produto</a></li>
                           </li>
                         </ul>
@@ -253,7 +252,6 @@
                           <li><a id="8.1" tabindex="-1" href="/relatorios/despesas" class="dropdown-item">Despesas</a></li>
                           <li><a id="8.2" tabindex="-1" href="/relatorios/contasPagar" class="dropdown-item">Contas à Pagar</a></li>
                           <li><a id="8.3" tabindex="-1" href="/relatorios/contasReceber" class="dropdown-item">Contas à Receber</a></li>
-                          <li><a id="8.4" tabindex="-1" href="/relatorioDRE" class="dropdown-item">DRE</a></li>
                           </li>
                         </ul>
                       </li>
