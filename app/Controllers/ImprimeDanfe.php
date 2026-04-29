@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use CodeIgniter\Controller;
+use App\Libraries\ThirdPartyComposerLoader;
 use App\Models\NFeModel;
 use App\Models\NFCeModel;
 
@@ -16,7 +17,7 @@ class ImprimeDanfe extends Controller
 
     function __construct()
     {
-        require_once APPPATH."ThirdParty/sped-da/vendor/autoload.php";
+        ThirdPartyComposerLoader::loadWithoutPsrLog(APPPATH . "ThirdParty/sped-da/vendor/autoload.php");
 
         $this->nfe_model = new NFeModel();
         $this->nfce_model = new NFCeModel();

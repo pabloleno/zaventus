@@ -14,6 +14,7 @@ use App\Models\ProdutoModel;
 use App\Models\ProdutoPdvModel;
 use App\Models\VendaModel;
 use App\Models\VendedorModel;
+use App\Libraries\ThirdPartyComposerLoader;
 use CodeIgniter\Controller;
 
 use NFePHP\NFe\Make;
@@ -41,7 +42,7 @@ class Pdv extends Controller
 
     function __construct()
     {
-        require_once APPPATH."ThirdParty/sped-nfe/vendor/autoload.php";
+        ThirdPartyComposerLoader::loadWithoutPsrLog(APPPATH . "ThirdParty/sped-nfe/vendor/autoload.php");
 
         $this->links = [
             'menu' => '2.m',

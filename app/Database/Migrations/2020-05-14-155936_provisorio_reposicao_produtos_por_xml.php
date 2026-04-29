@@ -6,6 +6,10 @@ class ProvisorioReposicaoProdutosPorXml extends Migration
 {
 	public function up()
 	{
+		if ($this->db->tableExists('provisorio_reposicao_produtos_por_xml')) {
+			return;
+		}
+
 		$this->forge->addField([
 			'id_produto_provisorio' => [
 				'type'           => 'INT',
@@ -48,6 +52,6 @@ class ProvisorioReposicaoProdutosPorXml extends Migration
 
 	public function down()
 	{
-		$this->forge->dropTable('provisorio_reposicao_produtos_por_xml');
+		$this->forge->dropTable('provisorio_reposicao_produtos_por_xml', true);
 	}
 }

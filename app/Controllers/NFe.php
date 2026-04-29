@@ -9,6 +9,7 @@ use App\Models\ConfigNFeNFCeModel;
 use App\Models\NFeModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\VendaModel;
+use App\Libraries\ThirdPartyComposerLoader;
 use CodeIgniter\Controller;
 
 use NFePHP\NFe\Make;
@@ -40,7 +41,7 @@ class NFe extends Controller
             'subItem' => '6.3'
         ];
 
-        require_once APPPATH."ThirdParty/sped-nfe/vendor/autoload.php";
+        ThirdPartyComposerLoader::loadWithoutPsrLog(APPPATH . "ThirdParty/sped-nfe/vendor/autoload.php");
 
         $this->config_nfe_nfce_model = new ConfigNFeNFCeModel();
         $this->cliente_model = new ClienteModel();

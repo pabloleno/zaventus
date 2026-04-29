@@ -10,3 +10,23 @@
     padding-top: 0px;
     margin-right: 15px
 }
+
+.main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active,
+.main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
+.main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:focus{
+    background: transparent !important;
+    background-color: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    color: #ffffff !important;
+}
+
+.main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active .nav-icon{
+    color: #ffffff !important;
+}
+
+.main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active .fa-circle::before{
+    content: "\f111";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+}
