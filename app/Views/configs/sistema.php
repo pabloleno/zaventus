@@ -83,11 +83,11 @@
                                             $tema = $session->get('tema');
                                             if($tema == 0):
                                             ?>
-                                                <option value="0" selected>Sistema DeskTop</option>
-                                                <option value="1">Sistema Web</option>
+                                                <option value="0" selected>Sistema Web</option>
+                                                <option value="1">Sistema DeskTop</option>
                                             <?php else: ?>
-                                                <option value="0">Sistema DeskTop</option>
-                                                <option value="1" selected>Sistema Web</option>
+                                                <option value="0">Sistema Web</option>
+                                                <option value="1" selected>Sistema DeskTop</option>
                                             <?php endif; ?>
                                         </select>
                                     </div>

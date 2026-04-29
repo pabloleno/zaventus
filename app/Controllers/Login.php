@@ -168,6 +168,7 @@ class Login extends Controller
         $aux .= "}";
 
         $dados['controle_de_acesso'] = $aux;
+        $dados['tema'] = $dados['tema'] ?? 0;
         $this->login_model->save($dados);
 
         $session = session();

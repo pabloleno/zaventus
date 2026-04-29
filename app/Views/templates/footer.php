@@ -61,10 +61,17 @@
         document.getElementById(id).value = valor.replace(',', '.')
     }
 
-    document.getElementById('<?= $links['menu'] ?>').className += " menu-open";
-    document.getElementById('<?= $links['item'] ?>').className += " active";
+    function adicionaClasseMenu(id, classe) {
+        var element = document.getElementById(id);
+        if (element) {
+            element.className += " " + classe;
+        }
+    }
+
+    adicionaClasseMenu('<?= $links['menu'] ?>', 'menu-open');
+    adicionaClasseMenu('<?= $links['item'] ?>', 'active');
     <?php if (isset($links['subItem'])) : ?>
-        document.getElementById('<?= $links['subItem'] ?>').className += " active";
+        adicionaClasseMenu('<?= $links['subItem'] ?>', 'active');
     <?php endif; ?>
 </script>
 </body>

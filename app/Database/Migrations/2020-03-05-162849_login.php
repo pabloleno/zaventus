@@ -36,7 +36,8 @@ class Login extends Migration
 
 			'tema' => [
 				'type'       => 'INT',
-				'constraint' => 2
+				'constraint' => 2,
+				'default'    => 0
 			],
 
 			'controle_de_acesso' => [

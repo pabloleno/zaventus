@@ -283,7 +283,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a id="5.11" href="/inventarioDoEstoque" class="nav-link">
+                            <a id="7.6" href="/inventarioDoEstoque" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Produtos - Inventário</p>
                             </a>
@@ -408,7 +408,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="/configs/backupDataBase" class="nav-link">
+                            <a id="11.6" href="/configs/backupDataBase" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Backup Dados</p>
                             </a>
