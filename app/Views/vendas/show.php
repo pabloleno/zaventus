@@ -11,15 +11,20 @@
             <div class="modal-body">
                 <div id="cupom-nao-fiscal">
                     <p style='text-align: center'>
-                        <b><?= $empresa['nome_fantasia'] ?></b><br>
-                        <?= $empresa['razao_social'] ?><br>
-                        <?= $empresa['endereco'] ?><br>
-                        <?= $empresa['telefone'] ?>
+                        <b><?= esc($empresa['nome_fantasia']) ?></b><br>
+                        <?= esc($empresa['razao_social']) ?><br>
+                        <?= esc($empresa['endereco']) ?><br>
+                        <?= esc($empresa['telefone']) ?>
+                    </p>
+
+                    <p style='text-align: center; font-weight: bold; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 6px 0'>
+                        CUPOM NAO FISCAL<br>
+                        NAO E DOCUMENTO FISCAL
                     </p>
 
                     <p>
-                        <b>CNPJ:</b> <?= $empresa['cnpj'] ?><br>
-                        <b>Cliente:</b> <?= $venda['nome_do_cliente'] ?><br>
+                        <b>CNPJ:</b> <?= esc($empresa['cnpj']) ?><br>
+                        <b>Cliente:</b> <?= esc($venda['nome_do_cliente']) ?><br>
                         <?= $venda['data'] ?> às <?= $venda['hora'] ?> - <b>Nº <?= $venda['id_venda'] ?></b>
                     </p>
 
@@ -37,10 +42,10 @@
                         <tbody>
                             <?php foreach($produtos_da_venda as $produto): ?>
                                 <tr>
-                                    <td><?= $produto['id_produto'] ?></td>
-                                    <td><?= $produto['nome'] ?></td>
-                                    <td><?= $produto['quantidade'] ?> x <?= $produto['valor_unitario'] ?></td>
-                                    <td><?= $produto['valor_final'] ?></td>
+                                    <td><?= esc($produto['id_produto']) ?></td>
+                                    <td><?= esc($produto['nome']) ?></td>
+                                    <td><?= esc($produto['quantidade']) ?> x R$ <?= number_format($produto['valor_unitario'], 2, ',', '.') ?></td>
+                                    <td>R$ <?= number_format($produto['valor_final'], 2, ',', '.') ?></td>
                                 </tr>
                             <?php endforeach ?>
                         </tbody>
@@ -49,15 +54,15 @@
                     <hr>
 
                     <p>
-                        <b>Total:</b> <?= $venda['valor_a_pagar'] ?><br>
-                        <b>Recebido:</b> <?= $venda['valor_recebido'] ?><br>
-                        <b>Troco:</b> <?= $venda['troco'] ?><br>
-                        <b>Forma de PGTO:</b> <?= $venda['forma_de_pagamento'] ?>
+                        <b>Total:</b> R$ <?= number_format($venda['valor_a_pagar'], 2, ',', '.') ?><br>
+                        <b>Recebido:</b> R$ <?= number_format($venda['valor_recebido'], 2, ',', '.') ?><br>
+                        <b>Troco:</b> R$ <?= number_format($venda['troco'], 2, ',', '.') ?><br>
+                        <b>Forma de PGTO:</b> <?= esc($venda['forma_de_pagamento']) ?>
                     </p>
                     
                     <hr>
 
-                    <p><b>Vendedor:</b> <?= $venda['nome_do_vendedor'] ?></p>
+                    <p><b>Vendedor:</b> <?= esc($venda['nome_do_vendedor']) ?></p>
 
                     <hr>
 

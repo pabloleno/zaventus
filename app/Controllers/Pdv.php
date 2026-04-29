@@ -87,8 +87,8 @@ class Pdv extends Controller
         $data['id_caixa']            = $id_caixa;
         $data['clientes']            = $this->cliente_model->select('id_cliente, tipo, nome, razao_social')->findAll();
         $data['produtos']            = $this->produto_model->select('id_produto, nome')->findAll();
-        $data['produtos_do_pdv']     = $this->produto_pdv_model->findAll();
-        $data['valor_a_pagar']       = $this->produto_pdv_model->selectSum('valor_final')->first();
+        $data['produtos_do_pdv']     = $this->produto_pdv_model->where('id_caixa', $id_caixa)->findAll();
+        $data['valor_a_pagar']       = $this->produto_pdv_model->selectSum('valor_final')->where('id_caixa', $id_caixa)->first();
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['vendedores']          = $this->vendedor_model->findAll();
 
@@ -101,6 +101,11 @@ class Pdv extends Controller
 
         $produto = $this->produto_model->select('id_produto, nome, unidade, codigo_de_barras, valor_de_venda, NCM, CSOSN, CFOP')->where('codigo_de_barras', $codigo_de_barras)->first();
 
+        if (empty($produto)) {
+            session()->setFlashdata('alert', 'error_produto_nao_encontrado');
+            return redirect()->to("/pdv/start/$id_caixa");
+        }
+
         $quantidade     = 1;
         $valor_unitario = $produto['valor_de_venda'];
         $subtotal       = $quantidade * $valor_unitario;
@@ -119,7 +124,8 @@ class Pdv extends Controller
             'NCM'              => $produto['NCM'],
             'CSOSN'            => $produto['CSOSN'],
             'CFOP'             => $produto['CFOP'],
-            'id_produto'       => $produto['id_produto']
+            'id_produto'       => $produto['id_produto'],
+            'id_caixa'         => $id_caixa
         ]);
 
         return redirect()->to("/pdv/start/$id_caixa");
@@ -129,6 +135,11 @@ class Pdv extends Controller
     {
         $produto = $this->produto_model->select('id_produto, nome, unidade, codigo_de_barras, valor_de_venda, NCM, CSOSN, CFOP')->where('id_produto', $id_produto)->first();
 
+        if (empty($produto)) {
+            session()->setFlashdata('alert', 'error_produto_nao_encontrado');
+            return redirect()->to("/pdv/start/$id_caixa");
+        }
+
         $quantidade     = 1;
         $valor_unitario = $produto['valor_de_venda'];
         $subtotal       = $quantidade * $valor_unitario;
@@ -147,7 +158,8 @@ class Pdv extends Controller
             'NCM'              => $produto['NCM'],
             'CSOSN'            => $produto['CSOSN'],
             'CFOP'             => $produto['CFOP'],
-            'id_produto'       => $produto['id_produto']
+            'id_produto'       => $produto['id_produto'],
+            'id_caixa'         => $id_caixa
         ]);
 
         return redirect()->to("/pdv/start/$id_caixa");
@@ -155,7 +167,7 @@ class Pdv extends Controller
 
     public function removeProdutoDoPdv($id_caixa, $id_produto_pdv)
     {
-        $this->produto_pdv_model->where('id_produto_pdv', $id_produto_pdv)->delete();
+        $this->produto_pdv_model->where('id_caixa', $id_caixa)->where('id_produto_pdv', $id_produto_pdv)->delete();
 
         $session = session();
         $session->setFlashdata('alert', 'success_delete');
@@ -167,7 +179,12 @@ class Pdv extends Controller
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
         
-        $produto = $this->produto_pdv_model->where('id_produto_pdv', $id_produto_pdv)->first();
+        $produto = $this->produto_pdv_model->where('id_caixa', $id_caixa)->where('id_produto_pdv', $id_produto_pdv)->first();
+
+        if (empty($produto)) {
+            session()->setFlashdata('alert', 'error_operacao');
+            return redirect()->to("/pdv/start/$id_caixa");
+        }
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
@@ -175,6 +192,7 @@ class Pdv extends Controller
         $dados['valor_final'] = (($dados['quantidade'] * $produto['valor_unitario']) - $produto['desconto']);
 
         // Atualiza com os novos dados
+        $dados['id_caixa'] = $id_caixa;
         $this->produto_pdv_model->save($dados);
 
         $session = session();
@@ -186,7 +204,12 @@ class Pdv extends Controller
     public function alteraValorUnitarioDoProduto($id_caixa)
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
-        $produto = $this->produto_pdv_model->where('id_produto_pdv', $id_produto_pdv)->first();
+        $produto = $this->produto_pdv_model->where('id_caixa', $id_caixa)->where('id_produto_pdv', $id_produto_pdv)->first();
+
+        if (empty($produto)) {
+            session()->setFlashdata('alert', 'error_operacao');
+            return redirect()->to("/pdv/start/$id_caixa");
+        }
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
@@ -194,6 +217,7 @@ class Pdv extends Controller
         $dados['valor_final'] = (($produto['quantidade'] * $dados['valor_unitario']) - $produto['desconto']);
 
         // Atualiza com os novos dados
+        $dados['id_caixa'] = $id_caixa;
         $this->produto_pdv_model->save($dados);
 
         $session = session();
@@ -205,13 +229,19 @@ class Pdv extends Controller
     public function alteraDescontoDoProduto($id_caixa)
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
-        $produto = $this->produto_pdv_model->where('id_produto_pdv', $id_produto_pdv)->first();
+        $produto = $this->produto_pdv_model->where('id_caixa', $id_caixa)->where('id_produto_pdv', $id_produto_pdv)->first();
+
+        if (empty($produto)) {
+            session()->setFlashdata('alert', 'error_operacao');
+            return redirect()->to("/pdv/start/$id_caixa");
+        }
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
         $dados['valor_final'] = (($produto['quantidade'] * $produto['valor_unitario']) - $dados['desconto']);
 
         // Atualiza com os novos dados
+        $dados['id_caixa'] = $id_caixa;
         $this->produto_pdv_model->save($dados);
 
         $session = session();
@@ -225,7 +255,247 @@ class Pdv extends Controller
         return number_format($valor, 2, '.', '');
     }
 
+    private function normalizaValor($valor, $padrao = 0)
+    {
+        if ($valor === null || $valor === '') {
+            return (float) $padrao;
+        }
+
+        $valor = preg_replace('/[^0-9,.\-]/', '', (string) $valor);
+
+        if (strpos($valor, ',') !== false && strpos($valor, '.') !== false) {
+            $valor = str_replace('.', '', $valor);
+        }
+
+        $valor = str_replace(',', '.', $valor);
+
+        return is_numeric($valor) ? (float) $valor : (float) $padrao;
+    }
+
+    private function formataMoeda($valor)
+    {
+        return 'R$ ' . number_format((float) $valor, 2, ',', '.');
+    }
+
+    private function escapaCupom($valor)
+    {
+        return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
+    }
+
+    private function nomeClienteParaCupom($cliente)
+    {
+        if (empty($cliente)) {
+            return 'Consumidor';
+        }
+
+        return !empty($cliente['nome']) ? $cliente['nome'] : ($cliente['razao_social'] ?? 'Consumidor');
+    }
+
+    private function montaCupomNaoFiscal($empresa, $cliente, $vendedor, $produtos, $venda, $id_venda)
+    {
+        $linhas = '';
+
+        foreach ($produtos as $produto) {
+            $subtotal = $this->normalizaValor($produto['quantidade']) * $this->normalizaValor($produto['valor_unitario']);
+
+            $linhas .= "
+                <tr>
+                    <td>{$this->escapaCupom($produto['id_produto'])}</td>
+                    <td>{$this->escapaCupom($produto['nome'])}</td>
+                    <td>{$this->escapaCupom($produto['quantidade'])} x {$this->formataMoeda($produto['valor_unitario'])}</td>
+                    <td>{$this->formataMoeda($subtotal)}</td>
+                </tr>
+            ";
+        }
+
+        $nomeCliente = $this->nomeClienteParaCupom($cliente);
+        $nomeVendedor = !empty($vendedor['nome']) ? $vendedor['nome'] : 'Nao informado';
+        $data = date('d/m/Y', strtotime($venda['data']));
+        $hora = date('H:i', strtotime($venda['hora']));
+
+        return "
+            <p style='text-align: center'>
+                <b>{$this->escapaCupom($empresa['nome_fantasia'] ?? '')}</b><br>
+                {$this->escapaCupom($empresa['razao_social'] ?? '')}<br>
+                {$this->escapaCupom($empresa['endereco'] ?? '')}<br>
+                {$this->escapaCupom($empresa['telefone'] ?? '')}
+            </p>
+
+            <p style='text-align: center; font-weight: bold; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 6px 0'>
+                CUPOM NAO FISCAL<br>
+                NAO E DOCUMENTO FISCAL
+            </p>
+
+            <p>
+                <b>CNPJ:</b> {$this->escapaCupom($empresa['cnpj'] ?? '')}<br>
+                <b>Cliente:</b> {$this->escapaCupom($nomeCliente)}<br>
+                {$data} as {$hora} - <b>No {$this->escapaCupom($id_venda)}</b>
+            </p>
+
+            <hr>
+
+            <table width='100%'>
+                <thead>
+                    <tr>
+                        <th>Cod.</th>
+                        <th>Desc.</th>
+                        <th>Qtd X Unit.</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {$linhas}
+                </tbody>
+            </table>
+
+            <hr>
+
+            <p>
+                <b>Total:</b> {$this->formataMoeda($venda['valor_a_pagar'])}<br>
+                <b>Recebido:</b> {$this->formataMoeda($venda['valor_recebido'])}<br>
+                <b>Troco:</b> {$this->formataMoeda($venda['troco'])}<br>
+                <b>Forma de PGTO:</b> {$this->escapaCupom($venda['forma_de_pagamento'])}
+            </p>
+
+            <hr>
+
+            <p><b>Vendedor:</b> {$this->escapaCupom($nomeVendedor)}</p>
+
+            <hr>
+
+            <p style='text-align: center'>
+                ____________________________
+                <br>
+                Assinatura do Cliente
+            </p>
+        ";
+    }
+
     public function finalizaVenda($id_caixa)
+    {
+        $db = \Config\Database::connect();
+        $dados = $this->request->getVar();
+        $produtos_do_pdv = $this->produto_pdv_model->where('id_caixa', $id_caixa)->findAll();
+        $transacao_iniciada = false;
+
+        try {
+            if (empty($produtos_do_pdv)) {
+                throw new \RuntimeException('Nenhum produto foi encontrado no caixa atual.');
+            }
+
+            $cliente = $this->cliente_model->where('id_cliente', $dados['id_cliente'] ?? null)->first();
+            if (empty($cliente)) {
+                throw new \RuntimeException('Cliente invalido para finalizar a venda.');
+            }
+
+            $vendedor = $this->vendedor_model->where('id_vendedor', $dados['id_vendedor'] ?? null)->first();
+            if (empty($vendedor)) {
+                throw new \RuntimeException('Vendedor invalido para finalizar a venda.');
+            }
+
+            $desconto = $this->normalizaValor($dados['desconto'] ?? 0);
+            $total_dos_itens = 0;
+
+            foreach ($produtos_do_pdv as $produto) {
+                $total_dos_itens += $this->normalizaValor($produto['valor_final']);
+            }
+
+            $valor_a_pagar = max(0, $total_dos_itens - $desconto);
+            $valor_recebido = $this->normalizaValor($dados['valor_recebido'] ?? '', $valor_a_pagar);
+            $troco = max(0, $valor_recebido - $valor_a_pagar);
+
+            if ($valor_recebido < $valor_a_pagar) {
+                throw new \RuntimeException('Valor recebido menor que o valor a pagar.');
+            }
+
+            $venda = [
+                'valor_a_pagar' => $valor_a_pagar,
+                'desconto' => $desconto,
+                'valor_recebido' => $valor_recebido,
+                'troco' => $troco,
+                'forma_de_pagamento' => $dados['forma_de_pagamento'] ?? '',
+                'data' => date('Y-m-d'),
+                'hora' => date('H:i:s'),
+                'id_cliente' => $cliente['id_cliente'],
+                'id_vendedor' => $vendedor['id_vendedor'],
+                'id_caixa' => $id_caixa
+            ];
+
+            $db->transBegin();
+            $transacao_iniciada = true;
+
+            $id_venda = $this->venda_model->insert($venda);
+            if (empty($id_venda)) {
+                throw new \RuntimeException('Nao foi possivel registrar a venda.');
+            }
+
+            foreach ($produtos_do_pdv as $produto) {
+                $produto_do_estoque = $this->produto_model->where('id_produto', $produto['id_produto'])->first();
+                if (empty($produto_do_estoque)) {
+                    throw new \RuntimeException("Produto {$produto['id_produto']} nao encontrado no estoque.");
+                }
+
+                $quantidade = $this->normalizaValor($produto['quantidade']);
+                if ($quantidade <= 0) {
+                    throw new \RuntimeException("Quantidade invalida para o produto {$produto['nome']}.");
+                }
+
+                if ($this->normalizaValor($produto_do_estoque['quantidade']) < $quantidade) {
+                    throw new \RuntimeException("Estoque insuficiente para o produto {$produto['nome']}.");
+                }
+
+                $item_da_venda = [
+                    'nome' => $produto['nome'],
+                    'unidade' => $produto['unidade'],
+                    'codigo_de_barras' => $produto['codigo_de_barras'],
+                    'quantidade' => $quantidade,
+                    'valor_unitario' => $this->normalizaValor($produto['valor_unitario']),
+                    'subtotal' => $this->normalizaValor($produto['subtotal']),
+                    'desconto' => $this->normalizaValor($produto['desconto']),
+                    'valor_final' => $this->normalizaValor($produto['valor_final']),
+                    'NCM' => $produto['NCM'],
+                    'CSOSN' => $produto['CSOSN'],
+                    'CFOP' => $produto['CFOP'],
+                    'id_venda' => $id_venda,
+                    'id_produto' => $produto['id_produto']
+                ];
+
+                if (!$this->produto_da_venda_model->insert($item_da_venda)) {
+                    throw new \RuntimeException("Nao foi possivel registrar o produto {$produto['nome']} na venda.");
+                }
+
+                $nova_qtd = $this->normalizaValor($produto_do_estoque['quantidade']) - $quantidade;
+                if (!$this->produto_model->set('quantidade', $nova_qtd)->where('id_produto', $produto['id_produto'])->update()) {
+                    throw new \RuntimeException("Nao foi possivel atualizar o estoque do produto {$produto['nome']}.");
+                }
+            }
+
+            $this->produto_pdv_model->where('id_caixa', $id_caixa)->delete();
+
+            if ($db->transStatus() === false) {
+                throw new \RuntimeException('Nao foi possivel concluir a venda.');
+            }
+
+            $db->transCommit();
+            $transacao_iniciada = false;
+
+            session()->setFlashdata('alert', 'success_venda');
+
+            $empresa = $this->config_empresa_model->where('id_config', 1)->first();
+            $venda['id_venda'] = $id_venda;
+            $cupom = $this->montaCupomNaoFiscal($empresa, $cliente, $vendedor, $produtos_do_pdv, $venda, $id_venda);
+
+            return $this->response->setBody($cupom);
+        } catch (\Throwable $e) {
+            if ($transacao_iniciada) {
+                $db->transRollback();
+            }
+
+            return $this->response->setStatusCode(400)->setBody($e->getMessage());
+        }
+    }
+
+    private function finalizaVendaLegado($id_caixa)
     {
         $dados = $this->request->getvar();
 

@@ -208,7 +208,7 @@
                 <div class="modal-footer justify-content-between">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Fechar</button>
                     <!-- <button type="button" class="btn btn-primary" onclick="finalizaVendaEmiteNFCe()">Finalizar / Emitir NFCe</button> -->
-                    <button type="button" class="btn btn-primary" onclick="finalizaVenda()">Finalizar</button>
+                    <button type="button" id="btn-finalizar-venda" class="btn btn-primary" onclick="finalizaVenda()">Finalizar</button>
                 </div>
             </div>
             <!-- /.modal-content -->
@@ -472,6 +472,16 @@
                         type: 'success',
                         title: 'Desconto alterado com sucesso!'
                     })
+                <?php elseif ($alert == "error_produto_nao_encontrado") : ?>
+                    Toast.fire({
+                        type: 'error',
+                        title: 'Produto nao encontrado!'
+                    })
+                <?php elseif ($alert == "error_operacao") : ?>
+                    Toast.fire({
+                        type: 'error',
+                        title: 'Nao foi possivel concluir a operacao!'
+                    })
                 <?php endif; ?>
             <?php endif; ?>
         });
@@ -495,8 +505,8 @@
         function calculaTroco() {
             trocaVirguraPorPonto('valor_recebido'); // Troca a virgula pelo ponto se ouver
 
-            var valor_recebido = document.getElementById('valor_recebido').value;
-            var valor_a_pagar = document.getElementById('valor_a_pagar_informativo').innerHTML;
+            var valor_recebido = parseFloat(document.getElementById('valor_recebido').value) || 0;
+            var valor_a_pagar = parseFloat(document.getElementById('valor_a_pagar_informativo').innerHTML) || 0;
 
             document.getElementById('troco').value = (valor_recebido - valor_a_pagar).toFixed(2);
         }
@@ -535,7 +545,7 @@
         }
 
         function finalizaVenda() {
-            var valor_a_pagar, desconto, valor_recebido, troco, forma_de_pagamento, id_cliente;
+            var valor_a_pagar, desconto, valor_recebido, troco, forma_de_pagamento, id_cliente, id_vendedor, btn_finalizar;
 
             valor_a_pagar = <?= (!empty($valor_a_pagar['valor_final'])) ? $valor_a_pagar['valor_final'] : "0" ?>;
             desconto = document.getElementById('desconto').value;
@@ -544,6 +554,9 @@
             forma_de_pagamento = document.getElementById('forma_de_pagamento').value;
             id_cliente = document.getElementById('id_cliente').value;
             id_vendedor = document.getElementById('id_vendedor').value;
+            btn_finalizar = document.getElementById('btn-finalizar-venda');
+
+            btn_finalizar.disabled = true;
 
             $('#finalizar-venda').modal('hide');
             $('#modal-loading').modal('show');
@@ -560,13 +573,22 @@
                 },
                 function(data, status) {
                     if (status == "success") {
-                        //location.reload();
-
+                        $('#modal-loading').modal('hide');
                         document.getElementById('cupom-nao-fiscal').innerHTML = data;
                         $('#modal-cupom-nao-fiscal').modal('show');
                     }
                 }
-            );
+            ).fail(function(xhr) {
+                $('#modal-loading').modal('hide');
+                $('#finalizar-venda').modal('show');
+                btn_finalizar.disabled = false;
+
+                Swal.fire({
+                    type: 'error',
+                    title: 'Nao foi possivel finalizar a venda',
+                    text: xhr.responseText || 'Confira os dados e tente novamente.'
+                });
+            });
         }
 
         function finalizaVendaEmiteNFCe() {

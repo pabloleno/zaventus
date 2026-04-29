@@ -21,7 +21,8 @@ class ProdutoPdvModel extends Model
         'NCM',
         'CSOSN',
         'CFOP',
-        'id_produto'
+        'id_produto',
+        'id_caixa'
     ];
     // protected $useTimestamps = true;
     // protected $createdField  = 'created_at';
