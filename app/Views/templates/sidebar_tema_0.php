@@ -143,7 +143,7 @@
                         <li class="nav-item">
                             <a id="4.3" href="/reposicoes" class="nav-link">
                                 <i class="far fa-circle nav-icon"></i>
-                                <p>Reprosições</p>
+                                <p>Reposições</p>
                             </a>
                         </li>
                         <li class="nav-item">

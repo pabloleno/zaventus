@@ -102,7 +102,7 @@
                     <?php endif; ?>
                     
                     <?php if($array_c_a->estoque->reposicoes == 1): ?>
-                      <li><a href="/reposicoes" class="dropdown-item">Reprosições</a></li>
+                      <li><a href="/reposicoes" class="dropdown-item">Reposições</a></li>
                     <?php endif; ?>
 
                     <?php if($array_c_a->estoque->saida_de_mercadorias == 1): ?>
