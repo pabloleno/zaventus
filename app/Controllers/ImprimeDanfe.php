@@ -49,9 +49,8 @@ class ImprimeDanfe extends Controller
             //ou ainda gravado na base de dados
             header('Content-Type: application/pdf');
             echo $pdf;
-            
-            $pdf->stream();
-        } catch (InvalidArgumentException $e) {
+
+        } catch (\InvalidArgumentException $e) {
             echo "Ocorreu um erro durante o processamento :"; //$e->getMessage();
         }   
     }

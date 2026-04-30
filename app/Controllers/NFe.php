@@ -6,6 +6,7 @@ namespace App\Controllers;
 
 use App\Models\ClienteModel;
 use App\Models\ConfigNFeNFCeModel;
+use App\Models\FormaDePagamentoModel;
 use App\Models\NFeModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\VendaModel;
@@ -29,6 +30,7 @@ class NFe extends Controller
     private $venda_model;
     private $produtos_da_venda_model;
     private $nfe_model;
+    private $forma_de_pagamento_model;
 
     private $status_da_nfe = "";
     private $xml_protocolado = "";
@@ -48,11 +50,100 @@ class NFe extends Controller
         $this->venda_model = new VendaModel();
         $this->produtos_da_venda_model = new ProdutoDaVendaModel();
         $this->nfe_model = new NFeModel();
+        $this->forma_de_pagamento_model = new FormaDePagamentoModel();
     }
 
     public function format($valor)
     {
         return number_format($valor, 2, '.', '');
+    }
+
+    private function normalizaValor($valor, $padrao = 0)
+    {
+        if ($valor === null || $valor === '') {
+            return (float) $padrao;
+        }
+
+        $valor = preg_replace('/[^0-9,.\-]/', '', (string) $valor);
+
+        if (strpos($valor, ',') !== false && strpos($valor, '.') !== false) {
+            $valor = str_replace('.', '', $valor);
+        }
+
+        $valor = str_replace(',', '.', $valor);
+
+        return is_numeric($valor) ? (float) $valor : (float) $padrao;
+    }
+
+    private function codigoFiscalFormaPagamento($nome)
+    {
+        $nome = trim((string) $nome);
+
+        if ($nome !== '') {
+            $forma = $this->forma_de_pagamento_model->where('nome', $nome)->first();
+            $codigo = $forma['codigo_nfce'] ?? null;
+
+            if (preg_match('/^\d{2}$/', (string) $codigo)) {
+                return $codigo;
+            }
+        }
+
+        $normalizado = strtolower($nome);
+        $normalizado = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $normalizado);
+        $normalizado = $normalizado !== false ? $normalizado : strtolower($nome);
+
+        if (strpos($normalizado, 'dinheiro') !== false) {
+            return '01';
+        }
+
+        if (strpos($normalizado, 'credito') !== false || strpos($normalizado, 'credit') !== false) {
+            return '03';
+        }
+
+        if (strpos($normalizado, 'debito') !== false || strpos($normalizado, 'debit') !== false) {
+            return '04';
+        }
+
+        if (strpos($normalizado, 'cheque') !== false) {
+            return '02';
+        }
+
+        if (strpos($normalizado, 'boleto') !== false) {
+            return '15';
+        }
+
+        if (strpos($normalizado, 'transfer') !== false) {
+            return '18';
+        }
+
+        if (strpos($normalizado, 'deposit') !== false) {
+            return '16';
+        }
+
+        if (strpos($normalizado, 'vale aliment') !== false) {
+            return '10';
+        }
+
+        if (strpos($normalizado, 'vale refei') !== false) {
+            return '11';
+        }
+
+        if (strpos($normalizado, 'vale presente') !== false) {
+            return '12';
+        }
+
+        if (strpos($normalizado, 'vale combust') !== false) {
+            return '13';
+        }
+
+        return '99';
+    }
+
+    private function csosnProduto(array $produto)
+    {
+        $csosn = preg_replace('/\D/', '', (string) ($produto['CSOSN'] ?? ''));
+
+        return preg_match('/^\d{3}$/', $csosn) ? $csosn : '102';
     }
 
     public function mostraErro($id_venda, $erro)
@@ -289,7 +380,7 @@ class NFe extends Controller
             $std_icmssm                  = new stdClass();
             $std_icmssm->item            = $i; //item da NFe
             $std_icmssm->orig            = 0;
-            $std_icmssm->CSOSN           = '103';
+            $std_icmssm->CSOSN           = $this->csosnProduto($produto);
             $std_icmssm->pCredSN         = '0.00';
             $std_icmssm->vCredICMSSN     = '0.00';
             $std_icmssm->modBCST         = null;
@@ -377,14 +468,18 @@ class NFe extends Controller
 
 
         // ----------- Tag PAGAMENTO ------------- //
+        $valor_a_pagar = $this->normalizaValor($venda['valor_a_pagar'] ?? 0);
+        $valor_recebido = $this->normalizaValor($venda['valor_recebido'] ?? '', $valor_a_pagar);
+        $troco = $this->normalizaValor($venda['troco'] ?? 0);
+
         $pagamento         = new stdClass();
-        $pagamento->vTroco = $this->format($venda['troco']);
+        $pagamento->vTroco = $this->format($troco);
         $nfe->tagpag($pagamento);
 
         // -- Tipo de pagamento -- //
         $tipo_de_pagamento            = new stdClass();
-        $tipo_de_pagamento->tPag      = '01';
-        $tipo_de_pagamento->vPag      = $this->format($venda['valor_a_pagar']); //Obs: deve ser informado o valor pago pelo cliente
+        $tipo_de_pagamento->tPag      = $this->codigoFiscalFormaPagamento($venda['forma_de_pagamento'] ?? '');
+        $tipo_de_pagamento->vPag      = $this->format(max($valor_recebido, $valor_a_pagar)); //Obs: deve ser informado o valor pago pelo cliente
         $tipo_de_pagamento->indPag    = '0'; //0= Pagamento à Vista 1= Pagamento à Prazo
         $nfe->tagdetPag($tipo_de_pagamento);
         
@@ -446,9 +541,15 @@ class NFe extends Controller
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
         $arq_certificado = WRITEPATH . "uploads/certificado_nfe.pfx";
+        if (!is_file($arq_certificado)) {
+            $this->mostraErro($id_venda, 'Certificado digital NFe nao encontrado. Envie o arquivo .pfx em Configuracoes > NFe antes de emitir.');
+            exit();
+        }
+
         $certificadoDigital = file_get_contents($arq_certificado);
 
         $tools = new Tools($configJson, Certificate::readPfx($certificadoDigital, $dados['senha']));
+        $tools->model('55');
         try {
             $xmlAssinado = $tools->signNFe($xml); // O conteúdo do XML assinado fica armazenado na variável $xmlAssinado
         } catch (\Exception $e) {
@@ -460,37 +561,38 @@ class NFe extends Controller
         }
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
+        $recibo = null;
+        $protocolo = null;
+
         try {
-            $idLote = str_pad(100, 15, '0', STR_PAD_LEFT); // Identificador do lote
-            $resp = $tools->sefazEnviaLote([$xmlAssinado], $idLote);
+            $idLote = str_pad(100, 15, '0', STR_PAD_LEFT);
+            $resp = $tools->sefazEnviaLote([$xmlAssinado], $idLote, 1);
 
             $st = new Standardize();
             $std = $st->toStd($resp);
-            if ($std->cStat != 103) {
-                //erro registrar e voltar
+
+            if ((string) $std->cStat === '104') {
+                $protocolo = $resp;
+            }
+            else if ((string) $std->cStat === '103') {
+                $recibo = $std->infRec->nRec;
+            }
+            else {
                 exit("[$std->cStat] $std->xMotivo");
             }
-            $recibo = $std->infRec->nRec; // Vamos usar a variável $recibo para consultar o status da nota
         } catch (\Exception $e) {
-            //aqui você trata possiveis exceptions do envio
-            // $dados_da_nfe['erro'] = $e->getMessage(); // Caso haja erro, guarda no banco de dados
-            
             $this->mostraErro($id_venda, $e->getMessage());
             exit();
         }
 
-
-        /*---------------------------------------------------------------------------------------------------------------------------------------*/
-        try {
-            $protocolo = $tools->sefazConsultaRecibo($recibo);
-        } catch (\Exception $e) {
-            //aqui você trata possíveis exceptions da consulta
-            // $dados_da_nfe['erro'] = $e->getMessage(); // Caso haja erro, guarda no banco de dados
-            
-            $this->mostraErro($id_venda, $e->getMessage());
-            exit();
+        if ($recibo !== null) {
+            try {
+                $protocolo = $tools->sefazConsultaRecibo($recibo);
+            } catch (\Exception $e) {
+                $this->mostraErro($id_venda, $e->getMessage());
+                exit();
+            }
         }
-
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
         $request = $xmlAssinado;

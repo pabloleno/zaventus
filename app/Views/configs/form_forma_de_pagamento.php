@@ -33,6 +33,13 @@
                                     <input type="text" class="form-control" name="nome" value="<?= (isset($forma_de_pagamento)) ? $forma_de_pagamento['nome'] : "" ?>" required="">
                                 </div>
                             </div>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label for="">Codigo fiscal/NFCe (tPag)</label>
+                                    <input type="text" class="form-control" name="codigo_nfce" maxlength="2" value="<?= (isset($forma_de_pagamento)) ? ($forma_de_pagamento['codigo_nfce'] ?? "99") : "99" ?>" required="">
+                                    <small class="form-text text-muted">Ex.: 01 dinheiro, 03 credito, 04 debito, 99 outros.</small>
+                                </div>
+                            </div>
 
                             <?php if (isset($forma_de_pagamento)) : ?>
                                 <input type="hidden" class="form-control" name="id_forma" value="<?= $forma_de_pagamento['id_forma'] ?>">

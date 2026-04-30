@@ -86,11 +86,13 @@ Os menus são exibidos conforme as permissões do usuário autenticado.
 
 ### Fiscal
 
-- Configuração de NFe e NFCe.
-- Upload de certificado digital `.pfx`.
-- Controle fiscal de NFe/NFCe emitidas.
-- Impressão de DANFE/cupom fiscal quando a emissão está disponível.
-- Armazenamento de chave, XML, protocolo, status e mensagens de erro.
+- O cupom nao fiscal e o fluxo principal do PDV neste momento.
+- NFe e NFCe ficam preparadas para testes e uso futuro, com emissao a partir do historico de vendas quando configurado.
+- O ambiente padrao de homologacao foi preparado para Manaus/AM: `tpAmb=2`, `cUF=13`, `cMunFG=1302603`, `UF=AM`, `xMun=Manaus`.
+- Para NFCe em ambiente de desenvolvedor da SEFAZ-AM, o CSC padrao de teste e `0123456789` com `CSCid=000001`.
+- Antes de qualquer teste real, substitua CNPJ, IE, certificado digital `.pfx`, senha, CSC e dados fiscais dos produtos por dados validos.
+- Produtos precisam de NCM, CSOSN e CFOP revisados com o contador antes da autorizacao fiscal.
+- O sistema armazena chave, XML, protocolo, status e mensagens de erro quando a emissao fiscal e executada.
 
 ## Tecnologias
 

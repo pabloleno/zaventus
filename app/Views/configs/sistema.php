@@ -26,6 +26,7 @@
                                             <tr>
                                                 <th>Cód.</th>
                                                 <th>Forma de Pagamento</th>
+                                                <th>tPag</th>
                                                 <th style="width: 110px">Ação</th>
                                             </tr>
                                         </thead>
@@ -35,6 +36,7 @@
                                                     <tr>
                                                         <td><?= $forma['id_forma'] ?></td>
                                                         <td><?= $forma['nome'] ?></td>
+                                                        <td><?= $forma['codigo_nfce'] ?? '99' ?></td>
                                                         <td>
                                                             <a href="/configs/editFormaDePagamento/<?= $forma['id_forma'] ?>" class="btn btn-warning style-action"><i class="fas fa-edit"></i></a>
                                                             <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir essa forma de pagamento?', '/configs/delete_forma_de_pagamento/<?= $forma['id_forma'] ?>')"><i class="fas fa-trash"></i></button>
@@ -43,7 +45,7 @@
                                                 <?php endforeach; ?>
                                             <?php else : ?>
                                                 <tr>
-                                                    <td colspan="3">Nenhum registro!</td>
+                                                    <td colspan="4">Nenhum registro!</td>
                                                 </tr>
                                             <?php endif; ?>
                                         </tbody>

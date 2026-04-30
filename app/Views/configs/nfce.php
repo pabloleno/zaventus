@@ -25,6 +25,9 @@
                     </div>
                     <!-- /.card-header -->
                     <div class="card-body">
+                        <div class="alert alert-info">
+                            Cupom nao fiscal permanece como fluxo principal de venda. Esta configuracao deixa a NFCe preparada para testes em homologacao no Amazonas: tpAmb=2, cUF=13 e cMunFG=1302603. O CSC de testes da SEFAZ-AM para desenvolvedores e 0123456789 com CSCid 000001; substitua por dados reais antes de producao.
+                        </div>
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
@@ -59,7 +62,10 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">tpAmb</label>
-                                    <input type="text" class="form-control" name="tpAmb" value="<?= $dados['tpAmb'] ?>" required="">
+                                    <select class="form-control" name="tpAmb" required="">
+                                        <option value="2" <?= ($dados['tpAmb'] == 2) ? "selected" : "" ?>>2 - Homologacao</option>
+                                        <option value="1" <?= ($dados['tpAmb'] == 1) ? "selected" : "" ?>>1 - Producao</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-3">

@@ -43,72 +43,78 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
 
         // Configurações da NFe
         $this->db->table('config_nfe_nfce')->insert([
-            'cUF'                       => '17',
+            'cUF'                       => '13',
             'natOp'                     => 'VENDA DE MERCADORIAS',
             'serie'                     => '1',
             'nNF'                       => '1',
-            'cMunFG'                    => '1715101',
-            'tpAmb'                     => '1',
-            'verProc'                   => 'V1.0.1',
-            'CNPJ'                      => '1234567890123',
-            'xNome'                     => 'NX SISTEMAS AG. DIGITAL - ME',
-            'xFant'                     => 'NX SISTEMAS',
-            'IE'                        => '1234567890',
+            'cMunFG'                    => '1302603',
+            'tpAmb'                     => '2',
+            'verProc'                   => 'NXGestao-2026.04',
+            'CNPJ'                      => '00000000000000',
+            'xNome'                     => 'EMITENTE EM HOMOLOGACAO - SUBSTITUIR CADASTRO',
+            'xFant'                     => 'NX GESTAO HOMOLOGACAO',
+            'IE'                        => '000000000',
             'CRT'                       => '1',
-            'CEP'                       => '77610000',
-            'xLgr'                      => 'DIOCLECI RIBEIRO DE SOUSA',
+            'CEP'                       => '69000000',
+            'xLgr'                      => 'ENDERECO DO EMITENTE',
             'nro'                       => 'S/N',
-            'xCpl'                      => 'AEROPORTO',
-            'xBairro'                   => 'AEROPORTO',
-            'cMun'                      => '1715101',
-            'xMun'                      => 'Palmas TO',
-            'UF'                        => 'TO',
+            'xCpl'                      => '',
+            'xBairro'                   => 'CENTRO',
+            'cMun'                      => '1302603',
+            'xMun'                      => 'Manaus',
+            'UF'                        => 'AM',
             'cPais'                     => '1058',
             'xPais'                     => 'BRASIL',
-            'fone'                      => '63992000000',
-            'CNPJ_responsavel_tecnico'  => '1234567890123',
-            'xContato'                  => 'NX SISTEMAS',
-            'email_responsavel_tecnico' => 'nxsistemas@gmail.com',
-            'fone_responsavel_tecnico'  => '63992127726'
+            'fone'                      => '',
+            'CNPJ_responsavel_tecnico'  => '00000000000000',
+            'xContato'                  => 'RESPONSAVEL TECNICO - SUBSTITUIR',
+            'email_responsavel_tecnico' => 'suporte@example.com',
+            'fone_responsavel_tecnico'  => '00000000000',
+            'certificado'               => '0',
+            'senha'                     => ''
         ]);
 
         // Configurações da NFCe
         $this->db->table('config_nfce')->insert([
-            'cUF'                       => '17',
+            'cUF'                       => '13',
             'natOp'                     => 'VENDA DE MERCADORIAS',
             'serie'                     => '1',
             'nNF'                       => '1',
-            'cMunFG'                    => '1715101',
-            'tpAmb'                     => '1',
-            'verProc'                   => 'V1.0.1',
-            'CNPJ'                      => '1234567890123',
-            'xNome'                     => 'NX SISTEMAS AG. DIGITAL - ME',
-            'xFant'                     => 'NX SISTEMAS',
-            'IE'                        => '1234567890',
+            'cMunFG'                    => '1302603',
+            'tpAmb'                     => '2',
+            'verProc'                   => 'NXGestao-2026.04',
+            'CNPJ'                      => '00000000000000',
+            'xNome'                     => 'EMITENTE EM HOMOLOGACAO - SUBSTITUIR CADASTRO',
+            'xFant'                     => 'NX GESTAO HOMOLOGACAO',
+            'IE'                        => '000000000',
             'CRT'                       => '1',
-            'CEP'                       => '77610000',
-            'xLgr'                      => 'DIOCLECI RIBEIRO DE SOUSA',
+            'CEP'                       => '69000000',
+            'xLgr'                      => 'ENDERECO DO EMITENTE',
             'nro'                       => 'S/N',
-            'xCpl'                      => 'AEROPORTO',
-            'xBairro'                   => 'AEROPORTO',
-            'cMun'                      => '1715101',
-            'xMun'                      => 'Palmas TO',
-            'UF'                        => 'TO',
+            'xCpl'                      => '',
+            'xBairro'                   => 'CENTRO',
+            'cMun'                      => '1302603',
+            'xMun'                      => 'Manaus',
+            'UF'                        => 'AM',
             'cPais'                     => '1058',
             'xPais'                     => 'BRASIL',
-            'fone'                      => '63992000000',
-            'CNPJ_responsavel_tecnico'  => '1234567890123',
-            'xContato'                  => 'NX SISTEMAS',
-            'email_responsavel_tecnico' => 'nxsistemas@gmail.com',
-            'fone_responsavel_tecnico'  => '63992127726'
+            'fone'                      => '',
+            'CNPJ_responsavel_tecnico'  => '00000000000000',
+            'xContato'                  => 'RESPONSAVEL TECNICO - SUBSTITUIR',
+            'email_responsavel_tecnico' => 'suporte@example.com',
+            'fone_responsavel_tecnico'  => '00000000000',
+            'certificado'               => '0',
+            'senha'                     => '',
+            'CSC'                       => '0123456789',
+            'CSCid'                     => '000001'
         ]);
 
         // Formas de Pagamento
         $formas_de_pagamento = [
-            ['nome' => 'Dinheiro'],
+            ['nome' => 'Dinheiro', 'codigo_nfce' => '01'],
             ['nome' => 'Cartão de Crédito'],
             ['nome' => 'Cartão de Débito'],
-            ['nome' => 'Cheque'],
+            ['nome' => 'Cheque', 'codigo_nfce' => '02'],
             ['nome' => 'Crédito Loja'],
             ['nome' => 'Vale Alimentação'],
             ['nome' => 'Vale Refeição'],
@@ -119,8 +125,13 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
             ['nome' => 'Transferência'],
             ['nome' => 'Depósito'],
             ['nome' => 'Nota Promissória'],
-            ['nome' => 'PayPal']
+            ['nome' => 'PayPal', 'codigo_nfce' => '99']
         ];
+        $codigos_nfce = ['01', '03', '04', '02', '05', '10', '11', '12', '13', '16', '15', '18', '16', '99', '99'];
+        foreach ($formas_de_pagamento as $indice => $forma) {
+            $formas_de_pagamento[$indice]['codigo_nfce'] = $codigos_nfce[$indice] ?? '99';
+        }
+
         $this->db->table('formas_de_pagamento')->insertBatch($formas_de_pagamento);
 
         // Vendedor

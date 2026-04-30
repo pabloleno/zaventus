@@ -273,6 +273,77 @@ class Pdv extends Controller
         return is_numeric($valor) ? (float) $valor : (float) $padrao;
     }
 
+    private function codigoFiscalFormaPagamento($nome)
+    {
+        $nome = trim((string) $nome);
+
+        if ($nome !== '') {
+            $forma = $this->forma_de_pagamento_model->where('nome', $nome)->first();
+            $codigo = $forma['codigo_nfce'] ?? null;
+
+            if (preg_match('/^\d{2}$/', (string) $codigo)) {
+                return $codigo;
+            }
+        }
+
+        $normalizado = strtolower($nome);
+        $normalizado = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $normalizado);
+        $normalizado = $normalizado !== false ? $normalizado : strtolower($nome);
+
+        if (strpos($normalizado, 'dinheiro') !== false) {
+            return '01';
+        }
+
+        if (strpos($normalizado, 'credito') !== false || strpos($normalizado, 'credit') !== false) {
+            return '03';
+        }
+
+        if (strpos($normalizado, 'debito') !== false || strpos($normalizado, 'debit') !== false) {
+            return '04';
+        }
+
+        if (strpos($normalizado, 'cheque') !== false) {
+            return '02';
+        }
+
+        if (strpos($normalizado, 'boleto') !== false) {
+            return '15';
+        }
+
+        if (strpos($normalizado, 'transfer') !== false) {
+            return '18';
+        }
+
+        if (strpos($normalizado, 'deposit') !== false) {
+            return '16';
+        }
+
+        if (strpos($normalizado, 'vale aliment') !== false) {
+            return '10';
+        }
+
+        if (strpos($normalizado, 'vale refei') !== false) {
+            return '11';
+        }
+
+        if (strpos($normalizado, 'vale presente') !== false) {
+            return '12';
+        }
+
+        if (strpos($normalizado, 'vale combust') !== false) {
+            return '13';
+        }
+
+        return '99';
+    }
+
+    private function csosnProduto(array $produto)
+    {
+        $csosn = preg_replace('/\D/', '', (string) ($produto['CSOSN'] ?? ''));
+
+        return preg_match('/^\d{3}$/', $csosn) ? $csosn : '102';
+    }
+
     private function formataMoeda($valor)
     {
         return 'R$ ' . number_format((float) $valor, 2, ',', '.');
@@ -606,6 +677,11 @@ class Pdv extends Controller
         $dados_da_venda = $this->venda_model->where('id_venda', $id_venda)->first(); // Dados da Venda
         $dados          = $this->config_nfce_model->where('id_config', 1)->first(); // Dados da Config. da NFCe
 
+        if (empty($dados_da_venda) || empty($dados)) {
+            session()->setFlashdata('alert', 'erro_emissao_nfce');
+            return redirect()->to("/vendas/show/$id_venda");
+        }
+
         $nfe = new Make();
         // ----------- Tag INFORMAÇÕES ------------- //
         $inf           = new stdClass();
@@ -692,11 +768,20 @@ class Pdv extends Controller
 
         if($tipo == 1)
         {
-            $produtos_do_pdv = $this->produto_pdv_model->findAll();
+            $produtos_do_pdv = $this->produto_pdv_model->where('id_caixa', $dados_da_venda['id_caixa'] ?? null)->findAll();
         }
         else if($tipo == 2)
         {
-            $produtos_do_pdv = $this->produto_da_venda_model->where('id_venda', $id_venda)->find();
+            $produtos_do_pdv = $this->produto_da_venda_model->where('id_venda', $id_venda)->findAll();
+        }
+        else
+        {
+            $produtos_do_pdv = [];
+        }
+
+        if (empty($produtos_do_pdv)) {
+            session()->setFlashdata('alert', 'erro_emissao_nfce');
+            return redirect()->to("/vendas/show/$id_venda");
         }
 
         $i = 0;
@@ -744,7 +829,7 @@ class Pdv extends Controller
             $std_icmssm                  = new stdClass();
             $std_icmssm->item            = $i; //item da NFe
             $std_icmssm->orig            = 0;
-            $std_icmssm->CSOSN           = '103';
+            $std_icmssm->CSOSN           = $this->csosnProduto($produto);
             $std_icmssm->pCredSN         = '0.00';
             $std_icmssm->vCredICMSSN     = '0.00';
             $std_icmssm->modBCST         = null;
@@ -825,14 +910,18 @@ class Pdv extends Controller
         $nfe->tagtransp($transporte);
 
         // ----------- Tag PAGAMENTO ------------- //
+        $valor_a_pagar = $this->normalizaValor($dados_da_venda['valor_a_pagar'] ?? 0);
+        $valor_recebido = $this->normalizaValor($dados_da_venda['valor_recebido'] ?? '', $valor_a_pagar);
+        $troco = $this->normalizaValor($dados_da_venda['troco'] ?? 0);
+
         $pagamento         = new stdClass();
-        $pagamento->vTroco = $this->format($dados_da_venda['troco']);
+        $pagamento->vTroco = $this->format($troco);
         $nfe->tagpag($pagamento);
 
         // -- Tipo de pagamento -- //
         $tipo_de_pagamento            = new stdClass();
-        $tipo_de_pagamento->tPag      = '01';
-        $tipo_de_pagamento->vPag      = $this->format($dados_da_venda['valor_a_pagar']); //Obs: deve ser informado o valor pago pelo cliente
+        $tipo_de_pagamento->tPag      = $this->codigoFiscalFormaPagamento($dados_da_venda['forma_de_pagamento'] ?? '');
+        $tipo_de_pagamento->vPag      = $this->format(max($valor_recebido, $valor_a_pagar)); //Obs: deve ser informado o valor pago pelo cliente
         $tipo_de_pagamento->indPag    = '0'; //0= Pagamento à Vista 1= Pagamento à Prazo
         $nfe->tagdetPag($tipo_de_pagamento);
 
@@ -878,6 +967,11 @@ class Pdv extends Controller
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
         $arq_certificado = WRITEPATH . "uploads/certificado_nfce.pfx";
+        if (!is_file($arq_certificado)) {
+            session()->setFlashdata('alert', 'erro_emissao_nfce');
+            return redirect()->to("/vendas/show/$id_venda");
+        }
+
         $certificadoDigital = file_get_contents($arq_certificado);
 
         $tools = new Tools($configJson, Certificate::readPfx($certificadoDigital, $dados['senha']));
@@ -892,33 +986,36 @@ class Pdv extends Controller
         }
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
+        $recibo = null;
+        $protocolo = null;
+
         try {
-            $idLote = str_pad(100, 15, '0', STR_PAD_LEFT); // Identificador do lote
-            $resp = $tools->sefazEnviaLote([$xmlAssinado], $idLote);
+            $idLote = str_pad(100, 15, '0', STR_PAD_LEFT);
+            $resp = $tools->sefazEnviaLote([$xmlAssinado], $idLote, 1);
 
             $st = new Standardize();
             $std = $st->toStd($resp);
-            if ($std->cStat != 103) {
-                //erro registrar e voltar
+
+            if ((string) $std->cStat === '104') {
+                $protocolo = $resp;
+            }
+            else if ((string) $std->cStat === '103') {
+                $recibo = $std->infRec->nRec;
+            }
+            else {
                 exit("[$std->cStat] $std->xMotivo");
             }
-            $recibo = $std->infRec->nRec; // Vamos usar a variável $recibo para consultar o status da nota
         } catch (\Exception $e) {
-            //aqui você trata possiveis exceptions do envio
-            // $dados_da_nfce['erro'] = $e->getMessage(); // Caso haja erro, guarda no banco de dados
-			exit($e->getMessage());
+            exit($e->getMessage());
         }
 
-
-        /*---------------------------------------------------------------------------------------------------------------------------------------*/
-        try {
-            $protocolo = $tools->sefazConsultaRecibo($recibo);
-        } catch (\Exception $e) {
-            //aqui você trata possíveis exceptions da consulta
-            //$dados_da_nfce['erro'] = $e->getMessage(); // Caso haja erro, guarda no banco de dados
-			exit($e->getMessage());
+        if ($recibo !== null) {
+            try {
+                $protocolo = $tools->sefazConsultaRecibo($recibo);
+            } catch (\Exception $e) {
+                exit($e->getMessage());
+            }
         }
-
 
         /*---------------------------------------------------------------------------------------------------------------------------------------*/
         $request = $xmlAssinado;
@@ -959,41 +1056,8 @@ class Pdv extends Controller
 
     public function finalizaVendaEmiteNFCe($id_caixa)
     {
-        $valor_pago = $this->request->getvar('valor_a_pagar');
-        $troco = $this->request->getvar('troco');
-
-        $dados = $this->request->getvar();
-
-        $dados['data']       = date('Y-m-d');
-        $dados['hora']       = date('H:i:s');
-        $dados['id_caixa']   = $id_caixa;
-
-        $id_venda = $this->venda_model->insert($dados);
-
-        $produtos_do_pdv = $this->produto_pdv_model->findAll();
-
-        foreach ($produtos_do_pdv as $produto) {
-            $produto['id_venda'] = $id_venda;
-
-            $this->produto_da_venda_model->insert($produto);
-
-            // Decrementa da quantidade do estoque a quantidade do produto vendido
-            $produto_do_estoque = $this->produto_model->where('id_produto', $produto['id_produto'])->first();
-            $nova_qtd = $produto_do_estoque['quantidade'] - $produto['quantidade'];
-
-            $this->produto_model->set('quantidade', $nova_qtd)->where('id_produto', $produto['id_produto'])->update();
-        }
-
-        // Emite NFCe
-        $dados_danfce = $this->emiteNFCe($id_venda, $valor_pago, $troco, 1); // Esse 1 é o tipo, 1=emitir pelo PDV
-
-        // Remove todos os registros da tabela produtos_do_pdv.
-        $this->produto_pdv_model->emptyTable('produtos_do_pdv');
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_venda');
-        // $session->setFlashdata('danfce', "localhost/sped-da/?data={$dados_danfce['data']}&chave={$dados_danfce['chave']}&local={$dados_danfce['local']}&tipo=nfce");
-        
-        echo "http://localhost/sped-da/?data={$dados_danfce['data']}&chave={$dados_danfce['chave']}&local={$dados_danfce['local']}&tipo=nfce";
+        return $this->response
+            ->setStatusCode(409)
+            ->setBody('Emissao NFCe direta pelo PDV esta em preparacao. Finalize pelo cupom nao fiscal e use o historico de vendas para testar a emissao fiscal.');
     }
 }

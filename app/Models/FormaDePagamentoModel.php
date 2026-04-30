@@ -10,7 +10,8 @@ class FormaDePagamentoModel extends Model
     protected $primaryKey = 'id_forma';
     protected $allowedFields = [
         'id_forma',
-        'nome'
+        'nome',
+        'codigo_nfce'
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
