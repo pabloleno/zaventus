@@ -36,6 +36,16 @@
 
 .zaventus-login-logo a{
     color: #1f2937;
+    display: block;
+    line-height: 1.1;
+}
+
+.zaventus-login-logo img{
+    display: block;
+    height: auto;
+    margin: 0 auto;
+    max-width: 150px;
+    width: 42%;
 }
 
 .zaventus-login-logo small{

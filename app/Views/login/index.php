@@ -27,6 +27,31 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="<?= base_url('theme/dist/css/adminlte.css') ?>">
     <!-- Style -->
     <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+    <style>
+        .login-page .zaventus-login-logo{
+            margin-bottom: 18px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .login-page .zaventus-login-logo .zaventus-login-mark{
+            display: block;
+            height: auto;
+            margin: 0 auto;
+            max-width: 150px;
+            width: 42%;
+        }
+
+        .login-page .zaventus-login-logo .zaventus-login-title{
+            color: #1f2937;
+            display: block;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
@@ -42,8 +67,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo zaventus-login-logo">
-            <a href="#"><b>Zaventus</b> Gestao</a>
-            <small>Zaventus Tecnologia</small>
+            <img class="zaventus-login-mark" src="<?= base_url('assets/img/zaventus-login-marca.png') ?>" alt="Zaventus Tecnologia">
+            <strong class="zaventus-login-title">Zaventus Gest&atilde;o</strong>
         </div>
         <!-- /.login-logo -->
         <div class="card">
