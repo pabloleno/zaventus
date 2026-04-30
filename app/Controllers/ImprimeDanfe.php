@@ -40,7 +40,7 @@ class ImprimeDanfe extends Controller
             }
 
             $danfe->debugMode(false);
-            $danfe->creditsIntegratorFooter('Nx Sistemas - http://nxsistemas.com.br');
+            $danfe->creditsIntegratorFooter('Zaventus Tecnologia');
             // $danfe->monta($logo);
             $pdf = $danfe->render();
             //o pdf porde ser exibido como view no browser

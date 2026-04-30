@@ -13,7 +13,12 @@
         </li> -->
     </ul>
 
-    <h5 style="text-align: center; width: 100%; font-weight: bold"><?= $session->get('nome_fantasia') ?></h5>
+    <h5 class="zaventus-nav-title">
+        <span>Zaventus Gestao</span>
+        <?php if ($session->get('nome_fantasia')) : ?>
+            <small><?= esc($session->get('nome_fantasia')) ?></small>
+        <?php endif; ?>
+    </h5>
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">

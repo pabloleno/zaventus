@@ -2,7 +2,7 @@
 <footer id="footer" class="main-footer">
     <!-- To the right -->
     <div class="float-right d-none d-sm-inline">
-        Desenv. Nx Sistemas
+        Desenv. Zaventus Tecnologia
     </div>
     <!-- Default to the left -->
     <?php $session = session() ?>

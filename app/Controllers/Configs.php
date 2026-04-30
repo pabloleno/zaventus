@@ -287,7 +287,18 @@ class Configs extends Controller
     public function backupDataBase()
     {
         try {
-            $dump = new IMysqldump\Mysqldump('mysql:host=localhost;dbname=nxgestao', 'root', '');
+            $database = config('Database')->default;
+            $dsn = "mysql:host={$database['hostname']};dbname={$database['database']}";
+
+            if (!empty($database['port'])) {
+                $dsn .= ";port={$database['port']}";
+            }
+
+            if (!empty($database['charset'])) {
+                $dsn .= ";charset={$database['charset']}";
+            }
+
+            $dump = new IMysqldump\Mysqldump($dsn, $database['username'], $database['password']);
             $dump->start(WRITEPATH.'backup_mysql/BACKUP_DATABASE_SISTEMA.sql');
 
             header("Content-Type: application/sql");

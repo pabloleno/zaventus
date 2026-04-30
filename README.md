@@ -1,10 +1,10 @@
-# NX Gestão
+# Zaventus Gestao
 
-ERP web para pequenas empresas, desenvolvido em **PHP 8.2+**, **CodeIgniter 4.7.2** e **MySQL/MariaDB**. O sistema centraliza vendas, PDV, estoque, financeiro, cadastros, relatórios gerenciais, controle fiscal e permissões de usuários em uma única aplicação.
+ERP web para pequenas empresas, desenvolvido pela **Zaventus Tecnologia** em **PHP 8.2+**, **CodeIgniter 4.7.2** e **MySQL/MariaDB**. O sistema centraliza vendas, PDV, estoque, financeiro, cadastros, relatórios gerenciais, controle fiscal e permissões de usuários em uma única aplicação.
 
 ## Visão Geral
 
-O NX Gestão foi pensado para operações comerciais que precisam controlar produtos, clientes, vendedores, fornecedores, caixa, contas, orçamento, pedidos, vendas e indicadores do negócio sem depender de planilhas separadas.
+O Zaventus Gestao foi pensado para operações comerciais que precisam controlar produtos, clientes, vendedores, fornecedores, caixa, contas, orçamento, pedidos, vendas e indicadores do negócio sem depender de planilhas separadas.
 
 Principais áreas do sistema:
 
@@ -135,10 +135,10 @@ Exemplo de banco local:
 ```ini
 CI_ENVIRONMENT = development
 
-app.baseURL = 'http://local.nxgestao.com'
+app.baseURL = 'http://local.zaventusgestao.com'
 
 database.default.hostname = localhost
-database.default.database = nxgestao
+database.default.database = zaventus_gestao
 database.default.username = root
 database.default.password =
 database.default.DBDriver = MySQLi
@@ -156,7 +156,7 @@ app.baseURL = 'https://seudominio.com'
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/plrbxx/nxgestao.git
+git clone https://github.com/plrbxx/zaventus-gestao.git
 ```
 
 2. Configure o servidor web para apontar para:

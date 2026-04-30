@@ -19,7 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title><?= $session->get('nome_fantasia') ?></title>
+    <title>Zaventus Gestao<?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= base_url('theme/plugins/fontawesome-free/css/all.css') ?>">

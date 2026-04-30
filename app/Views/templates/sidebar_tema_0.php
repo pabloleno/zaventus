@@ -26,6 +26,10 @@
 
 <!-- Main Sidebar Container -->
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
+    <a href="/inicio" class="brand-link zaventus-brand-link">
+        <span class="brand-text font-weight-light"><b>Zaventus</b> Gestao</span>
+    </a>
+
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">

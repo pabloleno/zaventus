@@ -11,6 +11,54 @@
     margin-right: 15px
 }
 
+.zaventus-brand-link{
+    border-bottom: 1px solid rgba(255,255,255,.12);
+    text-align: center;
+}
+
+.zaventus-nav-title{
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    font-weight: 700;
+    justify-content: center;
+    line-height: 1.15;
+    margin: 0;
+    width: 100%;
+}
+
+.zaventus-nav-title small{
+    color: #6c757d;
+    font-size: 12px;
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.zaventus-login-logo a{
+    color: #1f2937;
+}
+
+.zaventus-login-logo small{
+    color: #0f766e;
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-top: 4px;
+    text-transform: uppercase;
+}
+
+.btn-primary{
+    background-color: #0f766e;
+    border-color: #0f766e;
+}
+
+.btn-primary:hover,
+.btn-primary:focus{
+    background-color: #115e59;
+    border-color: #115e59;
+}
+
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active,
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:focus{

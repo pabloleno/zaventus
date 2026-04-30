@@ -10,7 +10,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title><?= $empresa['nome_fantasia'] ?></title>
+    <title>Zaventus Gestao</title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= base_url('theme/plugins/fontawesome-free/css/all.css') ?>">
@@ -41,8 +41,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
 <body class="hold-transition login-page">
     <div class="login-box">
-        <div class="login-logo">
-            <a href="#"><b><?= $empresa['nome_fantasia'] ?></b></a>
+        <div class="login-logo zaventus-login-logo">
+            <a href="#"><b>Zaventus</b> Gestao</a>
+            <small>Zaventus Tecnologia</small>
         </div>
         <!-- /.login-logo -->
         <div class="card">
