@@ -96,14 +96,14 @@ class Login extends Controller
 
     public function store()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->request->getPost();
 
         $permitir = static function (array $dados, string $modulo, string $permissao): int {
             if (!isset($dados[$modulo])) {
                 return 0;
             }
 
-            return isset($dados[$permissao]) ? (int) $dados[$permissao] : 0;
+            return ((string) ($dados[$permissao] ?? '0') === '1') ? 1 : 0;
         };
 
         $dados['controle_de_acesso'] = json_encode([
@@ -159,18 +159,40 @@ class Login extends Controller
                 'backup_de_dados' => $permitir($dados, 'modulo_configs', 'backup_de_dados'),
             ],
         ]);
-        if (!isset($dados['id_login'])) {
+        $editando = isset($dados['id_login']) && $dados['id_login'] !== '';
+
+        if (!empty($dados['senha'])) {
+            $dados['senha'] = password_hash((string) $dados['senha'], PASSWORD_BCRYPT);
+        } elseif ($editando) {
+            unset($dados['senha']);
+        } else {
+            session()->setFlashdata('alert', 'error_password_required');
+
+            return redirect()->back()->withInput();
+        }
+
+        if (!$editando) {
             $dados['tema'] = 0;
         } elseif (!isset($dados['tema'])) {
             unset($dados['tema']);
         }
+
+        $dados = array_intersect_key($dados, array_flip([
+            'id_login',
+            'usuario',
+            'senha',
+            'primeiro_nome',
+            'ultimo_acesso',
+            'tema',
+            'controle_de_acesso',
+        ]));
 
         $this->login_model->save($dados);
 
         $session = session();
 
         // Se o usuário estiver editando
-        if(isset($dados['id_login']))
+        if($editando)
         {
             $session->setFlashdata('alert', 'success_edit');
 
@@ -184,14 +206,18 @@ class Login extends Controller
 
     public function autenticar()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->request->getPost();
+        $usuario = (string) ($dados['usuario'] ?? '');
+        $senha = (string) ($dados['senha'] ?? '');
 
         $empresa = $this->empresa_model->where('id_config', 1)->first();
-        $login = $this->login_model->where('usuario', $dados['usuario'])->where('senha', $dados['senha'])->first();
+        $login = $this->login_model->where('usuario', $usuario)->first();
 
         $session = session();
-        if(!empty($login))
+        if(!empty($login) && $this->senhaConfere($senha, (string) $login['senha']))
         {
+            $session->regenerate(true);
+
             // Alerta de succeso de autenticação
             $session->setFlashdata('alert', 'success_autentication');
 
@@ -202,6 +228,12 @@ class Login extends Controller
             $session->set('nome_fantasia', $empresa['nome_fantasia']);
             $session->set('tema', ((int) ($login['tema'] ?? 0) === 1) ? 1 : 0);
             $session->set('controle_de_acesso', $login['controle_de_acesso']);
+
+            if ($this->senhaPrecisaAtualizar((string) $login['senha'])) {
+                $this->login_model->update($login['id_login'], [
+                    'senha' => password_hash($senha, PASSWORD_BCRYPT),
+                ]);
+            }
 
             // Guarda o último acesso do usuário
             // $ultimo_acesso = date('d/m/Y') . " às " . date('H:i:s');
@@ -236,5 +268,24 @@ class Login extends Controller
         $session->setFlashdata('alert', 'success_delete');
 
         return redirect()->to('/login/usuarios');
+    }
+
+    private function senhaConfere(string $senhaInformada, string $senhaArmazenada): bool
+    {
+        if ($senhaInformada === '' || $senhaArmazenada === '') {
+            return false;
+        }
+
+        if (! empty(password_get_info($senhaArmazenada)['algo'])) {
+            return password_verify($senhaInformada, $senhaArmazenada);
+        }
+
+        return hash_equals($senhaArmazenada, $senhaInformada);
+    }
+
+    private function senhaPrecisaAtualizar(string $senhaArmazenada): bool
+    {
+        return empty(password_get_info($senhaArmazenada)['algo'])
+            || password_needs_rehash($senhaArmazenada, PASSWORD_BCRYPT);
     }
 }

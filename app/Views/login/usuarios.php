@@ -57,7 +57,7 @@
                                         <td><?= $usuario['id_login'] ?></td>
                                         <td><?= $usuario['primeiro_nome'] ?></td>
                                         <td><?= $usuario['usuario'] ?></td>
-                                        <td><?= $usuario['senha'] ?></td>
+                                        <td>********</td>
                                         <td class="no-print">
                                             <a href="/login/edit/<?= $usuario['id_login'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
                                             <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse usuário?', '/login/delete/<?= $usuario['id_login'] ?>')"><i class="fa fa-trash"></i></button>

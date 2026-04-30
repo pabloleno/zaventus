@@ -16,7 +16,7 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
         // Dados do Usuário
         $this->db->table('login')->insert([
             'usuario'            => 'admin',
-            'senha'              => '123',
+            'senha'              => password_hash('123', PASSWORD_BCRYPT),
             'primeiro_nome'      => 'Administrador',
             'tema'               => 0,
             'controle_de_acesso' => '{"vendas":{"modulo":1,"venda_rapida":1,"pdv":1,"pesq_produto":1,"hist_de_vendas":1},"controle_geral":{"modulo":1,"clientes":1,"fornecedores":1,"funcionarios":1,"vendedores":1},"estoque":{"modulo":1,"produtos":1,"reposicoes":1,"saida_de_mercadorias":1,"categorias_do_produto":1},"financeiro":{"modulo":1,"caixas":1,"lancamentos":1,"retiradas_do_caixa":1,"despesas":1, "contas_a_pagar":1,"contas_a_receber":1,"orcamentos":1,"pedidos":1,"relatorio_dre":1,"inventario_do_estoque":1,"controle_fiscal":1},"relatorios":{"modulo":1,"vendas":1,"estoque":1,"financeiro":1,"geral":1},"configs":{"modulo":1,"nfe":1,"nfce":1,"empresa":1,"sistema":1,"usuarios":1,"backup_de_dados":1}}'
