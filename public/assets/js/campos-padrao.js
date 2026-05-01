@@ -1,6 +1,10 @@
 (function ($) {
     'use strict';
 
+    var DATA_MINIMA_PADRAO = '1900-01-01';
+    var DATA_MAXIMA_PADRAO = '2100-12-31';
+    var MENSAGEM_DATA_PADRAO = 'Informe uma data entre 01/01/1900 e 31/12/2100.';
+
     function nomeCampo(elemento) {
         return String($(elemento).attr('name') || $(elemento).attr('id') || '').toLowerCase();
     }
@@ -30,9 +34,9 @@
 
     function configurarData($campo) {
         $campo.attr({
-            min: $campo.attr('min') || '0001-01-01',
-            max: $campo.attr('max') || '9999-12-31',
-            title: $campo.attr('title') || 'Informe uma data com ano de 4 digitos.'
+            min: $campo.attr('min') || DATA_MINIMA_PADRAO,
+            max: $campo.attr('max') || DATA_MAXIMA_PADRAO,
+            title: $campo.attr('title') || MENSAGEM_DATA_PADRAO
         });
 
         $campo.on('input change blur', function () {
@@ -43,6 +47,15 @@
                 partes[0] = partes[0].slice(0, 4);
                 this.value = partes.join('-');
             }
+
+            valor = String(this.value || '');
+
+            if (valor && (valor < $campo.attr('min') || valor > $campo.attr('max'))) {
+                this.setCustomValidity(MENSAGEM_DATA_PADRAO);
+                return;
+            }
+
+            this.setCustomValidity('');
         });
     }
 

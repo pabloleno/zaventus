@@ -68,7 +68,7 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="data_de_nascimento">Data de nascimento</label>
-                                    <input type="date" class="form-control" id="data_de_nascimento" name="data_de_nascimento" min="0001-01-01" max="9999-12-31" title="Informe uma data com ano de 4 d&iacute;gitos." value="<?= (isset($funcionario)) ? $funcionario['data_de_nascimento'] : "" ?>">
+                                    <input type="date" class="form-control" id="data_de_nascimento" name="data_de_nascimento" min="1900-01-01" max="2100-12-31" title="Informe uma data entre 01/01/1900 e 31/12/2100." value="<?= (isset($funcionario)) ? $funcionario['data_de_nascimento'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">
