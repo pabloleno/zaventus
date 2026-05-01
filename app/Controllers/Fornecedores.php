@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ContatoPadrao;
 use CodeIgniter\Controller;
 use App\Models\FornecedorModel;
 
@@ -115,7 +116,7 @@ class Fornecedores extends Controller
             return redireciona_erros_campos_padrao($preparo['erros']);
         }
 
-        $dados = $preparo['dados'];
+        $dados = ContatoPadrao::sincronizarFornecedor($preparo['dados']);
 
         $this->fornecedor_model->save($dados);
 

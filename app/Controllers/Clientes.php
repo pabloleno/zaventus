@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ContatoPadrao;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Models\OrdemDeServicoModel;
 use App\Models\PagamentoDoClienteModel;
@@ -189,6 +190,7 @@ class Clientes extends Controller
 
         // Prepara dados de endereco e municipio.
         $dados = $this->prepararEnderecoCliente($dados);
+        $dados = ContatoPadrao::sincronizarCliente($dados);
 
         $this->cliente_model->save($dados);
 

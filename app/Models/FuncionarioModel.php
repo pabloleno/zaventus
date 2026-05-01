@@ -20,6 +20,8 @@ class FuncionarioModel extends PadraoModel
         'bairro',
         'municipio',
         'celular',
+        'whatsapp',
+        'telefone_fixo',
         'comercial',
         'residencial',
         'email',

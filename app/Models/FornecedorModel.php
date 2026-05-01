@@ -20,6 +20,8 @@ class FornecedorModel extends PadraoModel
         'municipio',
         'codigo_do_municipio',
         'celular',
+        'whatsapp',
+        'telefone_fixo',
         'comercial',
         'email',
         'anotacoes'

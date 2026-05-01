@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ContatoPadrao;
 use App\Models\TecnicoModel;
 use CodeIgniter\Controller;
 
@@ -115,7 +116,7 @@ class Tecnicos extends Controller
             return redireciona_erros_campos_padrao($preparo['erros']);
         }
 
-        $dados = $preparo['dados'];
+        $dados = ContatoPadrao::sincronizarTecnico($preparo['dados']);
 
         $this->tecnico_model->save($dados);
 

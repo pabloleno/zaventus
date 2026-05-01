@@ -25,6 +25,8 @@ class ClienteModel extends PadraoModel
         'UF',
         'codigo_do_municipio',
         'celular',
+        'whatsapp',
+        'telefone_fixo',
         'comercial',
         'residencial',
         'email',

@@ -49,7 +49,7 @@
                                         <td><?= $tecnico['id_tecnico'] ?></td>
                                         <td><?= $tecnico['nome'] ?></td>
                                         <td><?= $tecnico['cpf'] ?></td>
-                                        <td><?= $tecnico['celular_1'] ?></td>
+                                        <td><?= esc(\App\Libraries\ContatoPadrao::primeiroValor($tecnico, ['celular', 'celular_1'])) ?></td>
                                         <td>
                                             <a href="/tecnicos/show/<?= $tecnico['id_tecnico'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                         </td>

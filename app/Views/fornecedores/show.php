@@ -1,3 +1,13 @@
+<?php
+    use App\Libraries\ContatoPadrao;
+
+    $fornecedorContato = $fornecedor ?? [];
+    $fornecedorCelular = ContatoPadrao::primeiroValor($fornecedorContato, ['celular']);
+    $fornecedorWhatsapp = ContatoPadrao::primeiroValor($fornecedorContato, ['whatsapp']);
+    $fornecedorTelefoneFixo = ContatoPadrao::primeiroValor($fornecedorContato, ['telefone_fixo', 'comercial']);
+    $fornecedorWhatsappLink = ContatoPadrao::whatsappLink($fornecedorWhatsapp);
+?>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -123,13 +133,28 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="">Celular</label>
-                                <input type="text" class="form-control" value="<?= $fornecedor['celular'] ?>" disabled>
+                                <input type="text" class="form-control" name="celular" value="<?= esc($fornecedorCelular) ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="form-group">
-                                <label for="">Comercial</label>
-                                <input type="text" class="form-control" value="<?= $fornecedor['comercial'] ?>" disabled>
+                                <label for="">Whatsapp</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="whatsapp" value="<?= esc($fornecedorWhatsapp) ?>" disabled>
+                                    <?php if ($fornecedorWhatsappLink !== '') : ?>
+                                        <div class="input-group-append">
+                                            <a class="btn btn-success" href="<?= esc($fornecedorWhatsappLink) ?>" target="_blank" rel="noopener">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-4">
+                            <div class="form-group">
+                                <label for="">Telefone Fixo</label>
+                                <input type="text" class="form-control" name="telefone_fixo" value="<?= esc($fornecedorTelefoneFixo) ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-6">

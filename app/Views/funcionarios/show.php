@@ -1,3 +1,13 @@
+<?php
+    use App\Libraries\ContatoPadrao;
+
+    $funcionarioContato = $funcionario ?? [];
+    $funcionarioCelular = ContatoPadrao::primeiroValor($funcionarioContato, ['celular']);
+    $funcionarioWhatsapp = ContatoPadrao::primeiroValor($funcionarioContato, ['whatsapp']);
+    $funcionarioTelefoneFixo = ContatoPadrao::primeiroValor($funcionarioContato, ['telefone_fixo', 'residencial', 'comercial']);
+    $funcionarioWhatsappLink = ContatoPadrao::whatsappLink($funcionarioWhatsapp);
+?>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -129,19 +139,28 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="">Celular</label>
-                                <input type="text" class="form-control" name="celular" value="<?= $funcionario['celular'] ?>" disabled>
+                                <input type="text" class="form-control" name="celular" value="<?= esc($funcionarioCelular) ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="form-group">
-                                <label for="">Comercial</label>
-                                <input type="text" class="form-control" name="comercial" value="<?= $funcionario['comercial'] ?>" disabled>
+                                <label for="">Whatsapp</label>
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="whatsapp" value="<?= esc($funcionarioWhatsapp) ?>" disabled>
+                                    <?php if ($funcionarioWhatsappLink !== '') : ?>
+                                        <div class="input-group-append">
+                                            <a class="btn btn-success" href="<?= esc($funcionarioWhatsappLink) ?>" target="_blank" rel="noopener">
+                                                <i class="fab fa-whatsapp"></i>
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="form-group">
-                                <label for="">Residencial</label>
-                                <input type="text" class="form-control" name="residencial" value="<?= $funcionario['residencial'] ?>" disabled>
+                                <label for="">Telefone Fixo</label>
+                                <input type="text" class="form-control" name="telefone_fixo" value="<?= esc($funcionarioTelefoneFixo) ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-6">

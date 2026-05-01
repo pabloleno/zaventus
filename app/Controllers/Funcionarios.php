@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ContatoPadrao;
 use CodeIgniter\Controller;
 use App\Models\FuncionarioModel;
 
@@ -115,7 +116,7 @@ class Funcionarios extends Controller
             return redireciona_erros_campos_padrao($preparo['erros']);
         }
 
-        $dados = $preparo['dados'];
+        $dados = ContatoPadrao::sincronizarFuncionario($preparo['dados']);
 
         $this->funcionario_model->save($dados);
 

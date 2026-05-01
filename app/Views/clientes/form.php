@@ -1,8 +1,14 @@
 <?php
+    use App\Libraries\ContatoPadrao;
+
     $clienteEndereco = $cliente ?? [];
     $ufSelecionada = strtoupper(trim((string) ($clienteEndereco['UF'] ?? '')));
     $codigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($clienteEndereco['codigo_do_municipio'] ?? ''));
     $municipioSelecionado = trim((string) ($clienteEndereco['municipio'] ?? ''));
+    $clienteCelular = ContatoPadrao::primeiroValor($clienteEndereco, ['celular']);
+    $clienteWhatsapp = ContatoPadrao::primeiroValor($clienteEndereco, ['whatsapp']);
+    $clienteTelefoneFixo = ContatoPadrao::primeiroValor($clienteEndereco, ['telefone_fixo', 'residencial', 'comercial']);
+    $clienteWhatsappLink = ContatoPadrao::whatsappLink($clienteWhatsapp);
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -198,20 +204,29 @@
                         <div class="row">
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Celular</label>
-                                    <input type="text" class="form-control" name="celular" value="<?= (isset($cliente)) ? $cliente['celular'] : "" ?>">
+                                    <label for="celular">Celular</label>
+                                    <input type="text" class="form-control" id="celular" name="celular" value="<?= esc($clienteCelular) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Comercial</label>
-                                    <input type="text" class="form-control" name="comercial" value="<?= (isset($cliente)) ? $cliente['comercial'] : "" ?>">
+                                    <label for="whatsapp">Whatsapp</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="<?= esc($clienteWhatsapp) ?>">
+                                        <?php if ($clienteWhatsappLink !== '') : ?>
+                                            <div class="input-group-append">
+                                                <a class="btn btn-success" href="<?= esc($clienteWhatsappLink) ?>" target="_blank" rel="noopener">
+                                                    <i class="fab fa-whatsapp"></i>
+                                                </a>
+                                            </div>
+                                        <?php endif; ?>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Residencial</label>
-                                    <input type="text" class="form-control" name="residencial" value="<?= (isset($cliente)) ? $cliente['residencial'] : "" ?>">
+                                    <label for="telefone_fixo">Telefone Fixo</label>
+                                    <input type="text" class="form-control" id="telefone_fixo" name="telefone_fixo" value="<?= esc($clienteTelefoneFixo) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-6">
