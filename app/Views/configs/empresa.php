@@ -3,9 +3,22 @@
     $ufSelecionada = strtoupper(trim((string) ($empresa['UF'] ?? '')));
     $codigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($empresa['codigo_do_municipio'] ?? ''));
     $municipioSelecionado = trim((string) ($empresa['municipio'] ?? ''));
-    $telefoneFixo = $empresa['telefone_fixo'] ?? ($empresa['telefone'] ?? '');
+    $telefoneLegado = $empresa['telefone'] ?? '';
+    $telefoneLegadoDigitos = preg_replace('/\D/', '', (string) $telefoneLegado);
+    $celular = $empresa['celular'] ?? '';
+    $whatsapp = $empresa['whatsapp'] ?? '';
+    $telefoneFixo = $empresa['telefone_fixo'] ?? '';
+
+    if ($telefoneFixo === '' && strlen($telefoneLegadoDigitos) === 10) {
+        $telefoneFixo = $telefoneLegado;
+    }
+
+    if ($celular === '' && strlen($telefoneLegadoDigitos) === 11) {
+        $celular = $telefoneLegado;
+    }
+
     $logradouro = $empresa['logradouro'] ?? ($empresa['endereco'] ?? '');
-    $whatsappDigitos = preg_replace('/\D/', '', (string) ($empresa['whatsapp'] ?? ''));
+    $whatsappDigitos = preg_replace('/\D/', '', (string) $whatsapp);
 
     if (strlen($whatsappDigitos) === 11) {
         $whatsappLink = 'https://web.whatsapp.com/send?phone=55' . $whatsappDigitos;
@@ -87,14 +100,14 @@
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="celular">Celular</label>
-                                    <input type="text" class="form-control" id="celular" name="celular" value="<?= esc($empresa['celular'] ?? '') ?>">
+                                    <input type="text" class="form-control" id="celular" name="celular" value="<?= esc($celular) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="whatsapp">Whatsapp</label>
                                     <div class="input-group">
-                                        <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="<?= esc($empresa['whatsapp'] ?? '') ?>">
+                                        <input type="text" class="form-control" id="whatsapp" name="whatsapp" value="<?= esc($whatsapp) ?>">
                                         <?php if ($whatsappLink !== '') : ?>
                                             <div class="input-group-append">
                                                 <a class="btn btn-success" href="<?= esc($whatsappLink) ?>" target="_blank" rel="noopener">

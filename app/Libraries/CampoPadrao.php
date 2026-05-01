@@ -60,6 +60,14 @@ class CampoPadrao
             $campoNormalizado = self::normalizarNomeCampo($campo);
             $digitos = self::somenteDigitos($valor);
 
+            if (self::campoTelefoneFixo($campoNormalizado)) {
+                if (! in_array(strlen($digitos), [10, 11], true)) {
+                    $erros[$campo] = self::label($campo) . ' deve conter 10 ou 11 digitos com DDD.';
+                }
+
+                continue;
+            }
+
             if (self::campoTelefone($campoNormalizado) && strlen($digitos) !== 11) {
                 $erros[$campo] = self::label($campo) . ' deve conter 11 digitos com DDD.';
                 continue;
@@ -133,6 +141,11 @@ class CampoPadrao
     private static function campoTelefone(string $campo): bool
     {
         return preg_match('/(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/', $campo) === 1;
+    }
+
+    private static function campoTelefoneFixo(string $campo): bool
+    {
+        return $campo === 'telefone_fixo';
     }
 
     private static function campoCnpj(string $campo): bool

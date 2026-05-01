@@ -32,6 +32,10 @@
         return /(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/.test(nome);
     }
 
+    function ehTelefoneFixo(nome) {
+        return nome === 'telefone_fixo';
+    }
+
     function ehCnpj(nome) {
         return nome.indexOf('cnpj') !== -1;
     }
@@ -55,6 +59,19 @@
             var nome = nomeCampo(this);
 
             if (!nome || ['hidden', 'file', 'checkbox', 'radio', 'submit', 'button'].indexOf(tipo) !== -1) {
+                return;
+            }
+
+            if (ehTelefoneFixo(nome)) {
+                $campo.attr({
+                    type: 'text',
+                    inputmode: 'numeric',
+                    maxlength: 14,
+                    minlength: 14,
+                    placeholder: '(xx) xxxx-xxxx',
+                    title: 'Informe 10 digitos com DDD.'
+                });
+                aplicarMascara($campo, '(99) 9999-9999');
                 return;
             }
 
