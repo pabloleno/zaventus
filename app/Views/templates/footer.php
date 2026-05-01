@@ -26,6 +26,7 @@
 <script src="<?= base_url('theme/plugins/inputmask/min/jquery.inputmask.bundle.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('theme/dist/js/adminlte.js') ?>"></script>
+<script src="<?= base_url('assets/js/endereco-padrao.js?v=' . filemtime(FCPATH . 'assets/js/endereco-padrao.js')) ?>"></script>
 <script src="<?= base_url('assets/js/campos-padrao.js?v=' . filemtime(FCPATH . 'assets/js/campos-padrao.js')) ?>"></script>
 <script>
     $(function() {

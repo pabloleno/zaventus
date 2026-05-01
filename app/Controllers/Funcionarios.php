@@ -3,13 +3,16 @@
 namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
+use App\Libraries\EnderecoPadrao;
 use CodeIgniter\Controller;
 use App\Models\FuncionarioModel;
+use App\Models\TabelaMunicipiosIBGEModel;
 
 class Funcionarios extends Controller
 {
     private $links;
     private $funcionario_model;
+    private $tabela_municipios_ibge_model;
 
     function __construct()
     {
@@ -20,6 +23,7 @@ class Funcionarios extends Controller
         ];
 
         $this->funcionario_model = new FuncionarioModel();
+        $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
     public function index()
@@ -80,6 +84,8 @@ class Funcionarios extends Controller
             ['titulo' => "Novo", 'rota'   => "", 'active' => true]
         ];
 
+        $data['ufs'] = EnderecoPadrao::ufs();
+
         echo view('templates/header');
         echo view('funcionarios/form', $data);
         echo view('templates/footer');
@@ -101,6 +107,7 @@ class Funcionarios extends Controller
         ];
 
         $data['funcionario'] = $this->funcionario_model->where('id_funcionario', $id_funcionario)->first();
+        $data['ufs']         = EnderecoPadrao::ufs();
 
         echo view('templates/header');
         echo view('funcionarios/form', $data);
@@ -116,7 +123,8 @@ class Funcionarios extends Controller
             return redireciona_erros_campos_padrao($preparo['erros']);
         }
 
-        $dados = ContatoPadrao::sincronizarFuncionario($preparo['dados']);
+        $dados = EnderecoPadrao::preparar($preparo['dados'], $this->tabela_municipios_ibge_model);
+        $dados = ContatoPadrao::sincronizarFuncionario($dados);
 
         $this->funcionario_model->save($dados);
 
@@ -133,6 +141,13 @@ class Funcionarios extends Controller
         $session->setFlashdata('alert', 'success_create');
 
         return redirect()->to('/funcionarios');
+    }
+
+    public function municipiosPorUf($uf = null)
+    {
+        return $this->response->setJSON(
+            EnderecoPadrao::municipiosPorUf($this->tabela_municipios_ibge_model, $uf)
+        );
     }
 
     public function delete($id_funcionario)

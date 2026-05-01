@@ -29,7 +29,8 @@ class TecnicoModel extends PadraoModel
         'complemento',
         'bairro',
         'cidade',
-        'uf'
+        'uf',
+        'codigo_do_municipio'
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

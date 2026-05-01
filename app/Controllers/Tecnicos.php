@@ -3,13 +3,16 @@
 namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
+use App\Libraries\EnderecoPadrao;
 use App\Models\TecnicoModel;
+use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
 
 class Tecnicos extends Controller
 {
     private $links;
     private $tecnico_model;
+    private $tabela_municipios_ibge_model;
 
     function __construct()
     {
@@ -20,6 +23,7 @@ class Tecnicos extends Controller
         ];
 
         $this->tecnico_model = new TecnicoModel();
+        $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
     public function index()
@@ -80,6 +84,8 @@ class Tecnicos extends Controller
             ['titulo' => "Novo", 'rota'   => "", 'active' => true]
         ];
 
+        $data['ufs'] = EnderecoPadrao::ufs();
+
         echo view('templates/header');
         echo view('tecnicos/form', $data);
         echo view('templates/footer');
@@ -101,6 +107,7 @@ class Tecnicos extends Controller
         ];
 
         $data['tecnico'] = $this->tecnico_model->where('id_tecnico', $id_tecnico)->first();
+        $data['ufs']     = EnderecoPadrao::ufs();
 
         echo view('templates/header');
         echo view('tecnicos/form', $data);
@@ -116,7 +123,8 @@ class Tecnicos extends Controller
             return redireciona_erros_campos_padrao($preparo['erros']);
         }
 
-        $dados = ContatoPadrao::sincronizarTecnico($preparo['dados']);
+        $dados = EnderecoPadrao::preparar($preparo['dados'], $this->tabela_municipios_ibge_model, 'uf', 'cidade');
+        $dados = ContatoPadrao::sincronizarTecnico($dados);
 
         $this->tecnico_model->save($dados);
 
@@ -133,6 +141,13 @@ class Tecnicos extends Controller
         $session->setFlashdata('alert', 'success_create');
 
         return redirect()->to('/tecnicos');
+    }
+
+    public function municipiosPorUf($uf = null)
+    {
+        return $this->response->setJSON(
+            EnderecoPadrao::municipiosPorUf($this->tabela_municipios_ibge_model, $uf)
+        );
     }
 
     public function delete($id_tecnico)

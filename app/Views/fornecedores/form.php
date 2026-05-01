@@ -6,6 +6,9 @@
     $fornecedorWhatsapp = ContatoPadrao::primeiroValor($fornecedorContato, ['whatsapp']);
     $fornecedorTelefoneFixo = ContatoPadrao::primeiroValor($fornecedorContato, ['telefone_fixo', 'comercial']);
     $fornecedorWhatsappLink = ContatoPadrao::whatsappLink($fornecedorWhatsapp);
+    $fornecedorUfSelecionada = strtoupper(trim((string) ($fornecedorContato['UF'] ?? '')));
+    $fornecedorCodigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($fornecedorContato['codigo_do_municipio'] ?? ''));
+    $fornecedorMunicipioSelecionado = trim((string) ($fornecedorContato['municipio'] ?? ''));
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -78,40 +81,54 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">CEP</label>
-                                    <input type="text" class="form-control" name="cep" value="<?= (isset($fornecedor)) ? $fornecedor['cep'] : "" ?>">
+                                    <label for="cep">CEP</label>
+                                    <input type="text" class="form-control" id="cep" name="cep" value="<?= (isset($fornecedor)) ? $fornecedor['cep'] : "" ?>">
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-7">
                                 <div class="form-group">
-                                    <label for="">Logradouro</label>
-                                    <input type="text" class="form-control" name="logradouro" value="<?= (isset($fornecedor)) ? $fornecedor['logradouro'] : "" ?>">
+                                    <label for="logradouro">Endere&ccedil;o</label>
+                                    <input type="text" class="form-control" id="logradouro" name="logradouro" value="<?= (isset($fornecedor)) ? $fornecedor['logradouro'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
-                                    <label for="">Número</label>
-                                    <input type="text" class="form-control" name="numero" value="<?= (isset($fornecedor)) ? $fornecedor['numero'] : "" ?>">
-                                </div>
-                            </div>
-                            <div class="col-lg-5">
-                                <div class="form-group">
-                                    <label for="">Complemento</label>
-                                    <input type="text" class="form-control" name="complemento" value="<?= (isset($fornecedor)) ? $fornecedor['complemento'] : "" ?>">
+                                    <label for="numero">N&deg;</label>
+                                    <input type="text" class="form-control" id="numero" name="numero" value="<?= (isset($fornecedor)) ? $fornecedor['numero'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Bairro</label>
-                                    <input type="text" class="form-control" name="bairro" value="<?= (isset($fornecedor)) ? $fornecedor['bairro'] : "" ?>">
+                                    <label for="complemento">Complemento</label>
+                                    <input type="text" class="form-control" id="complemento" name="complemento" value="<?= (isset($fornecedor)) ? $fornecedor['complemento'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">Município</label>
-                                    <input type="text" class="form-control" name="municipio" value="<?= (isset($fornecedor)) ? $fornecedor['municipio'] : "" ?>">
+                                    <label for="bairro">Bairro</label>
+                                    <input type="text" class="form-control" id="bairro" name="bairro" value="<?= (isset($fornecedor)) ? $fornecedor['bairro'] : "" ?>">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label for="UF">Estado</label>
+                                    <select class="form-control select2" id="UF" name="UF" style="width: 100%;">
+                                        <option value="">UF</option>
+                                        <?php foreach ($ufs as $uf) : ?>
+                                            <option value="<?= $uf['UF'] ?>" <?= ($fornecedorUfSelecionada === $uf['UF']) ? "selected" : "" ?>><?= $uf['UF'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="cidade">Cidade</label>
+                                    <select class="form-control select2" id="cidade" name="codigo_do_municipio" data-codigo-selecionado="<?= $fornecedorCodigoMunicipioSelecionado ?>" data-municipio-selecionado="<?= esc($fornecedorMunicipioSelecionado) ?>" style="width: 100%;">
+                                        <option value="">Selecione o estado</option>
+                                    </select>
+                                    <input type="hidden" id="municipio" name="municipio" value="<?= esc($fornecedorMunicipioSelecionado) ?>">
                                 </div>
                             </div>
                         </div>
@@ -215,3 +232,11 @@
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<script>
+    $(function () {
+        configuraEnderecoPadrao({
+            municipiosUrl: <?= json_encode(rtrim(base_url('fornecedores/municipiosPorUf'), '/')) ?>
+        });
+    });
+</script>

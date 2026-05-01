@@ -109,8 +109,14 @@
                         </div>
                         <div class="col-lg-3">
                             <div class="form-group">
-                                <label for="">Município</label>
+                                <label for="">Cidade</label>
                                 <input type="text" class="form-control" value="<?= $fornecedor['municipio'] ?>" disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label for="">Estado</label>
+                                <input type="text" class="form-control" value="<?= esc($fornecedor['UF'] ?? '') ?>" disabled>
                             </div>
                         </div>
                     </div>

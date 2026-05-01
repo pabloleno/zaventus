@@ -129,7 +129,7 @@
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="form-group">
-                                        <label for="">UF</label>
+                                        <label for="">Estado</label>
                                         <input type="text" class="form-control" value="<?= $tecnico['uf'] ?>" disabled="">
                                     </div>
                                 </div>

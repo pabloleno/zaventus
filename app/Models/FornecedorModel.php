@@ -18,6 +18,7 @@ class FornecedorModel extends PadraoModel
         'complemento',
         'bairro',
         'municipio',
+        'UF',
         'codigo_do_municipio',
         'celular',
         'whatsapp',

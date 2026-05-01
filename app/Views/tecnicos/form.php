@@ -6,6 +6,9 @@
     $tecnicoWhatsapp = ContatoPadrao::primeiroValor($tecnicoContato, ['whatsapp', 'celular_2']);
     $tecnicoTelefoneFixo = ContatoPadrao::primeiroValor($tecnicoContato, ['telefone_fixo', 'fixo']);
     $tecnicoWhatsappLink = ContatoPadrao::whatsappLink($tecnicoWhatsapp);
+    $tecnicoUfSelecionada = strtoupper(trim((string) ($tecnicoContato['uf'] ?? '')));
+    $tecnicoCodigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($tecnicoContato['codigo_do_municipio'] ?? ''));
+    $tecnicoCidadeSelecionada = trim((string) ($tecnicoContato['cidade'] ?? ''));
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -88,46 +91,54 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">CEP</label>
-                                    <input type="text" class="form-control" name="cep" value="<?= (isset($tecnico)) ? $tecnico['cep'] : "" ?>">
+                                    <label for="cep">CEP</label>
+                                    <input type="text" class="form-control" id="cep" name="cep" value="<?= (isset($tecnico)) ? $tecnico['cep'] : "" ?>">
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-7">
                                 <div class="form-group">
-                                    <label for="">Logradouro</label>
-                                    <input type="text" class="form-control" name="logradouro" value="<?= (isset($tecnico)) ? $tecnico['logradouro'] : "" ?>">
+                                    <label for="logradouro">Endere&ccedil;o</label>
+                                    <input type="text" class="form-control" id="logradouro" name="logradouro" value="<?= (isset($tecnico)) ? $tecnico['logradouro'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
-                                    <label for="">Número</label>
-                                    <input type="text" class="form-control" name="numero" value="<?= (isset($tecnico)) ? $tecnico['numero'] : "" ?>">
+                                    <label for="numero">N&deg;</label>
+                                    <input type="text" class="form-control" id="numero" name="numero" value="<?= (isset($tecnico)) ? $tecnico['numero'] : "" ?>">
                                 </div>
                             </div>
-                            <div class="col-lg-5">
+                            <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Complemento</label>
-                                    <input type="text" class="form-control" name="complemento" value="<?= (isset($tecnico)) ? $tecnico['complemento'] : "" ?>">
-                                </div>
-                            </div>
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label for="">Bairro</label>
-                                    <input type="text" class="form-control" name="bairro" value="<?= (isset($tecnico)) ? $tecnico['bairro'] : "" ?>">
+                                    <label for="complemento">Complemento</label>
+                                    <input type="text" class="form-control" id="complemento" name="complemento" value="<?= (isset($tecnico)) ? $tecnico['complemento'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">Cidade</label>
-                                    <input type="text" class="form-control" name="cidade" value="<?= (isset($tecnico)) ? $tecnico['cidade'] : "" ?>">
+                                    <label for="bairro">Bairro</label>
+                                    <input type="text" class="form-control" id="bairro" name="bairro" value="<?= (isset($tecnico)) ? $tecnico['bairro'] : "" ?>">
                                 </div>
                             </div>
-                            <div class="col-lg-1">
+                            <div class="col-lg-2">
                                 <div class="form-group">
-                                    <label for="">UF</label>
-                                    <input type="text" class="form-control" name="uf" value="<?= (isset($tecnico)) ? $tecnico['uf'] : "" ?>">
+                                    <label for="UF">Estado</label>
+                                    <select class="form-control select2" id="UF" name="uf" style="width: 100%;">
+                                        <option value="">UF</option>
+                                        <?php foreach ($ufs as $uf) : ?>
+                                            <option value="<?= $uf['UF'] ?>" <?= ($tecnicoUfSelecionada === $uf['UF']) ? "selected" : "" ?>><?= $uf['UF'] ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="cidade">Cidade</label>
+                                    <select class="form-control select2" id="cidade" name="codigo_do_municipio" data-codigo-selecionado="<?= $tecnicoCodigoMunicipioSelecionado ?>" data-municipio-selecionado="<?= esc($tecnicoCidadeSelecionada) ?>" style="width: 100%;">
+                                        <option value="">Selecione o estado</option>
+                                    </select>
+                                    <input type="hidden" id="cidade_nome" name="cidade" value="<?= esc($tecnicoCidadeSelecionada) ?>">
                                 </div>
                             </div>
                         </div>
@@ -231,3 +242,12 @@
     <!-- /.content -->
 </div>
 <!-- /.content-wrapper -->
+
+<script>
+    $(function () {
+        configuraEnderecoPadrao({
+            municipiosUrl: <?= json_encode(rtrim(base_url('tecnicos/municipiosPorUf'), '/')) ?>,
+            municipioSelector: '#cidade_nome'
+        });
+    });
+</script>

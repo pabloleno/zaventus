@@ -33,6 +33,9 @@ $routes->setAutoRoute(true);
 $routes->get('/', 'Home::index');
 $routes->get('clientes/municipiosPorUf/(:alpha)', 'Clientes::municipiosPorUf/$1');
 $routes->get('configs/municipiosPorUf/(:alpha)', 'Configs::municipiosPorUf/$1');
+$routes->get('fornecedores/municipiosPorUf/(:alpha)', 'Fornecedores::municipiosPorUf/$1');
+$routes->get('funcionarios/municipiosPorUf/(:alpha)', 'Funcionarios::municipiosPorUf/$1');
+$routes->get('tecnicos/municipiosPorUf/(:alpha)', 'Tecnicos::municipiosPorUf/$1');
 
 /**
  * --------------------------------------------------------------------
