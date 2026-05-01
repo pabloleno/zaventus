@@ -28,6 +28,24 @@
         });
     }
 
+    function configurarData($campo) {
+        $campo.attr({
+            min: $campo.attr('min') || '0001-01-01',
+            max: $campo.attr('max') || '9999-12-31',
+            title: $campo.attr('title') || 'Informe uma data com ano de 4 digitos.'
+        });
+
+        $campo.on('input change blur', function () {
+            var valor = String(this.value || '');
+            var partes = valor.split('-');
+
+            if (partes.length === 3 && partes[0].length > 4) {
+                partes[0] = partes[0].slice(0, 4);
+                this.value = partes.join('-');
+            }
+        });
+    }
+
     function ehTelefone(nome) {
         return /(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/.test(nome);
     }
@@ -59,6 +77,11 @@
             var nome = nomeCampo(this);
 
             if (!nome || ['hidden', 'file', 'checkbox', 'radio', 'submit', 'button'].indexOf(tipo) !== -1) {
+                return;
+            }
+
+            if (tipo === 'date') {
+                configurarData($campo);
                 return;
             }
 
