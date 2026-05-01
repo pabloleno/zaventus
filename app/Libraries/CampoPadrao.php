@@ -5,6 +5,8 @@ namespace App\Libraries;
 class CampoPadrao
 {
     private const TAMANHO_TEXTO_CURTO = 50;
+    private const DATA_MINIMA_PADRAO = '1900-01-01';
+    private const DATA_MAXIMA_PADRAO = '2100-12-31';
 
     private const CAMPOS_IGNORADOS_TEXTO = [
         'anotacoes',
@@ -60,6 +62,21 @@ class CampoPadrao
             $campoNormalizado = self::normalizarNomeCampo($campo);
             $digitos = self::somenteDigitos($valor);
 
+            if (self::campoData($campoNormalizado)) {
+                $data = self::normalizarData($valor);
+
+                if (! self::dataValida($data)) {
+                    $erros[$campo] = self::label($campo) . ' deve ser uma data valida.';
+                    continue;
+                }
+
+                if ($data < self::DATA_MINIMA_PADRAO || $data > self::DATA_MAXIMA_PADRAO) {
+                    $erros[$campo] = self::label($campo) . ' deve estar entre 01/01/1900 e 31/12/2100.';
+                }
+
+                continue;
+            }
+
             if (self::campoTelefoneFixo($campoNormalizado)) {
                 if (! in_array(strlen($digitos), [10, 11], true)) {
                     $erros[$campo] = self::label($campo) . ' deve conter 10 ou 11 digitos com DDD.';
@@ -104,6 +121,11 @@ class CampoPadrao
 
             $campoNormalizado = self::normalizarNomeCampo($campo);
             $valor = trim($valor);
+
+            if (self::campoData($campoNormalizado)) {
+                $dados[$campo] = self::normalizarData($valor);
+                continue;
+            }
 
             if (self::campoTelefone($campoNormalizado)) {
                 $dados[$campo] = substr(self::somenteDigitos($valor), 0, 11);
@@ -158,6 +180,13 @@ class CampoPadrao
         return strpos($campo, 'email') !== false;
     }
 
+    private static function campoData(string $campo): bool
+    {
+        return $campo === 'data'
+            || preg_match('/^data(_|$)/', $campo) === 1
+            || preg_match('/(^|_)(validade|vencimento|nascimento|contratacao|admissao|demissao|emissao|expedicao)(_|$)/', $campo) === 1;
+    }
+
     private static function campoTextoCurto(string $campo): bool
     {
         if (in_array($campo, self::CAMPOS_IGNORADOS_TEXTO, true)) {
@@ -183,6 +212,26 @@ class CampoPadrao
         return function_exists('mb_substr')
             ? mb_substr($valor, 0, $limite)
             : substr($valor, 0, $limite);
+    }
+
+    private static function normalizarData(string $valor): string
+    {
+        $valor = trim($valor);
+
+        if (preg_match('/^(\d{2})\/(\d{2})\/(\d{4})$/', $valor, $partes) === 1) {
+            return $partes[3] . '-' . $partes[2] . '-' . $partes[1];
+        }
+
+        return $valor;
+    }
+
+    private static function dataValida(string $valor): bool
+    {
+        if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $valor, $partes) !== 1) {
+            return false;
+        }
+
+        return checkdate((int) $partes[2], (int) $partes[3], (int) $partes[1]);
     }
 
     private static function tamanho(string $valor): int

@@ -78,8 +78,8 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Data de nascimento</label>
-                                    <input type="text" class="form-control" id="data_de_nascimento" name="data_de_nascimento" value="<?= (isset($cliente)) ? $cliente['data_de_nascimento'] : "" ?>">
+                                    <label for="data_de_nascimento">Data de nascimento</label>
+                                    <input type="date" class="form-control" id="data_de_nascimento" name="data_de_nascimento" value="<?= (isset($cliente)) ? $cliente['data_de_nascimento'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">

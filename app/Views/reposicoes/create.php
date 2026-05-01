@@ -48,7 +48,7 @@
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="">Data</label>
-                                    <input type="text" class="form-control" name="data" value="<?= date('Y-m-d') ?>" required="">
+                                    <input type="date" class="form-control" name="data" value="<?= date('Y-m-d') ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-4">
