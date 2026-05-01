@@ -9,6 +9,6 @@ class TabelaMunicipiosIBGEModel extends PadraoModel
     protected $allowedFields = [
         'id_tabela',
         'codigo',
-        'municipios'
+        'municipio'
     ];
 }

@@ -29,7 +29,7 @@
     }
 
     function ehTelefone(nome) {
-        return /(^|_)(telefone|fone|fixo|celular|comercial|residencial)(_|$)/.test(nome);
+        return /(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/.test(nome);
     }
 
     function ehCnpj(nome) {

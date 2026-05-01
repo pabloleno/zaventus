@@ -135,13 +135,13 @@
                                 </div>
                                 <div class="col-lg-6">
                                     <div class="form-group">
-                                        <label for="">Logradouro</label>
+                                        <label for="">Endere&ccedil;o</label>
                                         <input type="text" class="form-control" value="<?= $cliente['logradouro'] ?>" disabled="">
                                     </div>
                                 </div>
                                 <div class="col-lg-2">
                                     <div class="form-group">
-                                        <label for="">Número</label>
+                                        <label for="">N&deg;</label>
                                         <input type="text" class="form-control" value="<?= $cliente['numero'] ?>" disabled="">
                                     </div>
                                 </div>
@@ -159,13 +159,13 @@
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="form-group">
-                                        <label for="">Município</label>
+                                        <label for="">Cidade</label>
                                         <input type="text" class="form-control" value="<?= $cliente['municipio'] ?>" disabled="">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="form-group">
-                                        <label for="">UF</label>
+                                        <label for="">Estado</label>
                                         <input type="text" class="form-control" value="<?= $cliente['UF'] ?>" disabled="">
                                     </div>
                                 </div>

@@ -11,15 +11,47 @@ use App\Models\ConfigEmpresaModel;
 use App\Models\ConfigNFeNFCeModel;
 use App\Models\ConfigNFCeModel;
 use App\Models\FormaDePagamentoModel;
+use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
 
 class Configs extends Controller
 {
+    private const CODIGOS_UF_IBGE = [
+        'RO' => '11',
+        'AC' => '12',
+        'AM' => '13',
+        'RR' => '14',
+        'PA' => '15',
+        'AP' => '16',
+        'TO' => '17',
+        'MA' => '21',
+        'PI' => '22',
+        'CE' => '23',
+        'RN' => '24',
+        'PB' => '25',
+        'PE' => '26',
+        'AL' => '27',
+        'SE' => '28',
+        'BA' => '29',
+        'MG' => '31',
+        'ES' => '32',
+        'RJ' => '33',
+        'SP' => '35',
+        'PR' => '41',
+        'SC' => '42',
+        'RS' => '43',
+        'MS' => '50',
+        'MT' => '51',
+        'GO' => '52',
+        'DF' => '53',
+    ];
+
     private $config_nfe_nfce_model;
     private $config_nfce_model;
     private $config_empresa_model;
     private $forma_de_pagamento_model;
     private $login_model;
+    private $tabela_municipios_ibge_model;
 
     function __construct()
     {
@@ -28,6 +60,7 @@ class Configs extends Controller
         $this->config_empresa_model = new ConfigEmpresaModel();
         $this->forma_de_pagamento_model = new FormaDePagamentoModel();
         $this->login_model = new LoginModel();
+        $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
     public function nfe()
@@ -160,6 +193,7 @@ class Configs extends Controller
         ];
 
         $data['empresa'] = $this->config_empresa_model->where('id_config', 1)->first();
+        $data['ufs']     = $this->ufs();
 
         echo view('templates/header');
         echo view('configs/empresa', $data);
@@ -216,6 +250,8 @@ class Configs extends Controller
         }
 
         $dados = $preparo['dados'];
+        $dados = $this->prepararEmpresaEndereco($dados);
+        $dados = $this->prepararEmpresaContatos($dados);
         $dados['id_config'] = 1; // Só tem uma configuração para a Empresa
 
         $this->config_empresa_model->save($dados);
@@ -224,6 +260,140 @@ class Configs extends Controller
         $session->setFlashdata('alert', 'success_edit');
 
         return redirect()->to('/configs/empresa');
+    }
+
+    public function municipiosPorUf($uf = null)
+    {
+        $uf = preg_replace('/[^A-Z]/', '', strtoupper((string) $uf));
+
+        if (! isset(self::CODIGOS_UF_IBGE[$uf])) {
+            return $this->response->setJSON([]);
+        }
+
+        $prefixo = self::CODIGOS_UF_IBGE[$uf];
+        $municipios = $this->tabela_municipios_ibge_model
+            ->select('codigo, municipio')
+            ->orderBy('municipio', 'ASC')
+            ->findAll();
+
+        $dados = [];
+
+        foreach ($municipios as $municipio) {
+            $codigo = preg_replace('/\D/', '', (string) ($municipio['codigo'] ?? ''));
+            $nome = $this->limparMunicipio($municipio['municipio'] ?? '');
+
+            if ($codigo === '' || $nome === '' || substr($codigo, 0, 2) !== $prefixo) {
+                continue;
+            }
+
+            $dados[] = [
+                'codigo' => $codigo,
+                'municipio' => $nome,
+            ];
+        }
+
+        return $this->response->setJSON($dados);
+    }
+
+    private function prepararEmpresaEndereco(array $dados): array
+    {
+        $codigo = preg_replace('/\D/', '', (string) ($dados['codigo_do_municipio'] ?? ''));
+        $uf = preg_replace('/[^A-Z]/', '', strtoupper((string) ($dados['UF'] ?? '')));
+
+        if ($codigo !== '') {
+            $municipio = $this->municipioPorCodigo($codigo);
+            $dados['codigo_do_municipio'] = $codigo;
+            $dados['municipio'] = $municipio['municipio'] ?? $this->limparMunicipio($dados['municipio'] ?? '');
+        } else {
+            $dados['codigo_do_municipio'] = '';
+            $dados['municipio'] = $this->limparMunicipio($dados['municipio'] ?? '');
+        }
+
+        if ($uf === '' && ! empty($dados['codigo_do_municipio'])) {
+            $uf = $this->ufPorCodigoMunicipio($dados['codigo_do_municipio']) ?? '';
+        }
+
+        $dados['UF'] = $uf;
+        $dados['endereco'] = $this->enderecoCompleto($dados);
+
+        return $dados;
+    }
+
+    private function prepararEmpresaContatos(array $dados): array
+    {
+        $telefoneFixo = $dados['telefone_fixo'] ?? '';
+        $celular = $dados['celular'] ?? '';
+        $whatsapp = $dados['whatsapp'] ?? '';
+
+        $dados['telefone'] = $telefoneFixo !== '' ? $telefoneFixo : ($celular !== '' ? $celular : $whatsapp);
+
+        return $dados;
+    }
+
+    private function enderecoCompleto(array $dados): string
+    {
+        $partes = [
+            $dados['logradouro'] ?? '',
+            $dados['numero'] ?? '',
+            $dados['complemento'] ?? '',
+            $dados['bairro'] ?? '',
+            $dados['municipio'] ?? '',
+            $dados['UF'] ?? '',
+            $dados['cep'] ?? '',
+        ];
+
+        $partes = array_filter(array_map('trim', $partes));
+
+        return substr(implode(', ', $partes), 0, 128);
+    }
+
+    private function municipioPorCodigo(string $codigo): ?array
+    {
+        $municipio = $this->tabela_municipios_ibge_model
+            ->select('codigo, municipio')
+            ->like('codigo', $codigo, 'both')
+            ->first();
+
+        if (! $municipio) {
+            return null;
+        }
+
+        return [
+            'codigo' => preg_replace('/\D/', '', (string) ($municipio['codigo'] ?? '')),
+            'municipio' => $this->limparMunicipio($municipio['municipio'] ?? ''),
+        ];
+    }
+
+    private function ufPorCodigoMunicipio(string $codigo): ?string
+    {
+        $prefixo = substr(preg_replace('/\D/', '', $codigo), 0, 2);
+
+        foreach (self::CODIGOS_UF_IBGE as $uf => $codigoUf) {
+            if ($codigoUf === $prefixo) {
+                return $uf;
+            }
+        }
+
+        return null;
+    }
+
+    private function limparMunicipio($municipio): string
+    {
+        return trim(str_replace(["\r", "\n"], '', (string) $municipio));
+    }
+
+    private function ufs(): array
+    {
+        $ufs = [];
+
+        foreach (self::CODIGOS_UF_IBGE as $uf => $codigo) {
+            $ufs[] = [
+                'UF' => $uf,
+                'codigo' => $codigo,
+            ];
+        }
+
+        return $ufs;
     }
 
     // ------------------------------ FORMA DE PAGAMENTO -------------------------------- //

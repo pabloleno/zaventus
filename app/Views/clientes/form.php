@@ -1,3 +1,10 @@
+<?php
+    $clienteEndereco = $cliente ?? [];
+    $ufSelecionada = strtoupper(trim((string) ($clienteEndereco['UF'] ?? '')));
+    $codigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($clienteEndereco['codigo_do_municipio'] ?? ''));
+    $municipioSelecionado = trim((string) ($clienteEndereco['municipio'] ?? ''));
+?>
+
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -122,50 +129,54 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">CEP</label>
-                                    <input type="text" class="form-control" name="cep" value="<?= (isset($cliente)) ? $cliente['cep'] : "" ?>">
+                                    <label for="cep">CEP</label>
+                                    <input type="text" class="form-control" id="cep" name="cep" value="<?= (isset($cliente)) ? $cliente['cep'] : "" ?>">
                                 </div>
                             </div>
-                            <div class="col-lg-6">
+                            <div class="col-lg-7">
                                 <div class="form-group">
-                                    <label for="">Logradouro</label>
-                                    <input type="text" class="form-control" name="logradouro" value="<?= (isset($cliente)) ? $cliente['logradouro'] : "" ?>">
+                                    <label for="logradouro">Endere&ccedil;o</label>
+                                    <input type="text" class="form-control" id="logradouro" name="logradouro" value="<?= (isset($cliente)) ? $cliente['logradouro'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
-                                    <label for="">Número</label>
-                                    <input type="text" class="form-control" name="numero" value="<?= (isset($cliente)) ? $cliente['numero'] : "" ?>">
-                                </div>
-                            </div>
-                            <div class="col-lg-5">
-                                <div class="form-group">
-                                    <label for="">Complemento</label>
-                                    <input type="text" class="form-control" name="complemento" value="<?= (isset($cliente)) ? $cliente['complemento'] : "" ?>">
+                                    <label for="numero">N&deg;</label>
+                                    <input type="text" class="form-control" id="numero" name="numero" value="<?= (isset($cliente)) ? $cliente['numero'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Bairro</label>
-                                    <input type="text" class="form-control" name="bairro" value="<?= (isset($cliente)) ? $cliente['bairro'] : "" ?>">
+                                    <label for="complemento">Complemento</label>
+                                    <input type="text" class="form-control" id="complemento" name="complemento" value="<?= (isset($cliente)) ? $cliente['complemento'] : "" ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label>Municipio</label>
-                                    <select class="form-control select2" name="municipio" style="width: 100%;">
-                                        <?php foreach($municipios as $municipio): ?>
-                                            <option value="<?= $municipio['codigo'] ?>;<?= $municipio['municipio'] ?>" <?= (!empty($cliente) && $cliente['codigo_do_municipio'] == $municipio['codigo']) ? "selected" : "" ?>><?= $municipio['municipio'] ?></option>
-                                        <?php endforeach?>
+                                    <label for="bairro">Bairro</label>
+                                    <input type="text" class="form-control" id="bairro" name="bairro" value="<?= (isset($cliente)) ? $cliente['bairro'] : "" ?>">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label for="UF">Estado</label>
+                                    <select class="form-control select2" id="UF" name="UF" style="width: 100%;">
+                                        <option value="">UF</option>
+                                        <?php foreach ($ufs as $uf) : ?>
+                                            <option value="<?= $uf['UF'] ?>" <?= ($ufSelecionada === $uf['UF']) ? "selected" : "" ?>><?= $uf['UF'] ?></option>
+                                        <?php endforeach; ?>
                                     </select>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">UF</label>
-                                    <input type="text" class="form-control" name="UF" value="<?= (isset($cliente)) ? $cliente['UF'] : "" ?>">
+                                    <label for="cidade">Cidade</label>
+                                    <select class="form-control select2" id="cidade" name="codigo_do_municipio" data-codigo-selecionado="<?= $codigoMunicipioSelecionado ?>" data-municipio-selecionado="<?= esc($municipioSelecionado) ?>" style="width: 100%;">
+                                        <option value="">Selecione o estado</option>
+                                    </select>
+                                    <input type="hidden" id="municipio" name="municipio" value="<?= esc($municipioSelecionado) ?>">
                                 </div>
                             </div>
                         </div>
@@ -292,5 +303,139 @@
         }
     }
 
+    function configuraEnderecoCliente() {
+        var $cep = $('#cep');
+        var $logradouro = $('#logradouro');
+        var $numero = $('#numero');
+        var $bairro = $('#bairro');
+        var $uf = $('#UF');
+        var $cidade = $('#cidade');
+        var $municipio = $('#municipio');
+        var municipiosUrl = <?= json_encode(rtrim(base_url('clientes/municipiosPorUf'), '/')) ?>;
+        var codigoSelecionado = String($cidade.attr('data-codigo-selecionado') || '');
+        var municipioSelecionado = String($cidade.attr('data-municipio-selecionado') || '');
+        var ultimoCepConsultado = '';
+        var timerCep = null;
+
+        function limparCidade(texto) {
+            $cidade.empty().append(new Option(texto || 'Selecione o estado', ''));
+            $cidade.prop('disabled', true).trigger('change.select2');
+            $municipio.val('');
+        }
+
+        function atualizarMunicipio() {
+            var nome = $cidade.find('option:selected').attr('data-municipio') || '';
+            $municipio.val(nome);
+        }
+
+        function selecionarCidade(codigo, nome) {
+            var codigoLimpo = String(codigo || '').replace(/\D/g, '');
+
+            if (codigoLimpo && $cidade.find('option[value="' + codigoLimpo + '"]').length) {
+                $cidade.val(codigoLimpo);
+                return;
+            }
+
+            if (nome) {
+                var nomeNormalizado = String(nome).trim().toLowerCase();
+
+                $cidade.find('option').each(function () {
+                    if (String($(this).attr('data-municipio') || '').trim().toLowerCase() === nomeNormalizado) {
+                        $cidade.val($(this).val());
+                        return false;
+                    }
+                });
+            }
+        }
+
+        function carregarCidades(uf, codigo, nome) {
+            uf = String(uf || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
+
+            if (!uf) {
+                limparCidade('Selecione o estado');
+                return;
+            }
+
+            $cidade.empty().append(new Option('Carregando cidades...', ''));
+            $cidade.prop('disabled', true).trigger('change.select2');
+            $municipio.val('');
+
+            $.getJSON(municipiosUrl + '/' + encodeURIComponent(uf))
+                .done(function (cidades) {
+                    $cidade.empty().append(new Option('Selecione', ''));
+
+                    $.each(cidades || [], function (_, cidade) {
+                        var option = new Option(cidade.municipio, cidade.codigo);
+                        $(option).attr('data-municipio', cidade.municipio);
+                        $cidade.append(option);
+                    });
+
+                    selecionarCidade(codigo, nome);
+                    $cidade.prop('disabled', false).trigger('change');
+                    $cidade.trigger('change.select2');
+                })
+                .fail(function () {
+                    limparCidade('Nao foi possivel carregar');
+                });
+        }
+
+        function buscarCep() {
+            var cep = String($cep.val() || '').replace(/\D/g, '');
+
+            if (cep.length !== 8 || cep === ultimoCepConsultado) {
+                return;
+            }
+
+            ultimoCepConsultado = cep;
+
+            $.getJSON('https://viacep.com.br/ws/' + cep + '/json/')
+                .done(function (dados) {
+                    if (!dados || dados.erro) {
+                        return;
+                    }
+
+                    if (dados.logradouro) {
+                        $logradouro.val(dados.logradouro);
+                    }
+
+                    if (dados.bairro) {
+                        $bairro.val(dados.bairro);
+                    }
+
+                    if (dados.uf) {
+                        $uf.val(dados.uf).trigger('change.select2');
+                        carregarCidades(dados.uf, dados.ibge || '', dados.localidade || '');
+                    }
+
+                    if (dados.logradouro || dados.localidade) {
+                        $numero.trigger('focus');
+                    }
+                });
+        }
+
+        $uf.on('change', function () {
+            carregarCidades(this.value, '', '');
+        });
+
+        $cidade.on('change', atualizarMunicipio);
+
+        $cep.on('input', function () {
+            clearTimeout(timerCep);
+
+            if (String(this.value || '').replace(/\D/g, '').length === 8) {
+                timerCep = setTimeout(buscarCep, 300);
+            }
+        });
+
+        $cep.on('blur', buscarCep);
+
+        if ($uf.val()) {
+            carregarCidades($uf.val(), codigoSelecionado, municipioSelecionado);
+        } else {
+            limparCidade('Selecione o estado');
+        }
+    }
+
+    $(configuraEnderecoCliente);
     alteraTipoDoCliente();
 </script>

@@ -17,6 +17,7 @@ class CampoPadrao
         'senha',
         'arquivo',
         'certificado',
+        'endereco',
     ];
 
     private const CAMPOS_NUMERICOS = [
@@ -27,6 +28,7 @@ class CampoPadrao
         'cuf' => 2,
         'cmunfg' => 7,
         'cmun' => 7,
+        'codigo_do_municipio' => 7,
         'cpais' => 4,
         'cep' => 8,
         'ie' => 13,
@@ -130,7 +132,7 @@ class CampoPadrao
 
     private static function campoTelefone(string $campo): bool
     {
-        return preg_match('/(^|_)(telefone|fone|fixo|celular|comercial|residencial)(_|$)/', $campo) === 1;
+        return preg_match('/(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/', $campo) === 1;
     }
 
     private static function campoCnpj(string $campo): bool
@@ -200,6 +202,8 @@ class CampoPadrao
             'fone' => 'Telefone',
             'fone_responsavel_tecnico' => 'Telefone do responsavel tecnico',
             'celular' => 'Celular',
+            'whatsapp' => 'Whatsapp',
+            'telefone_fixo' => 'Telefone fixo',
             'comercial' => 'Telefone comercial',
             'residencial' => 'Telefone residencial',
             'email' => 'E-mail',

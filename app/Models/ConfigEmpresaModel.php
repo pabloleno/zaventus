@@ -12,7 +12,18 @@ class ConfigEmpresaModel extends PadraoModel
         'nome_fantasia',
         'cnpj',
         'inscricao_estadual',
+        'celular',
+        'whatsapp',
+        'telefone_fixo',
         'telefone',
+        'cep',
+        'logradouro',
+        'numero',
+        'complemento',
+        'bairro',
+        'municipio',
+        'UF',
+        'codigo_do_municipio',
         'endereco'
     ];
     protected $useTimestamps = true;
