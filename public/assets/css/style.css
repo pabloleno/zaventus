@@ -69,6 +69,29 @@
     border-color: #115e59;
 }
 
+.login-page .btn-primary{
+    background-color: #007bff;
+    border-color: #007bff;
+    color: #ffffff;
+}
+
+.login-page .btn-primary:hover,
+.login-page .btn-primary:focus{
+    background-color: #0069d9;
+    border-color: #0062cc;
+    color: #ffffff;
+}
+
+.login-page .btn-primary:not(:disabled):not(.disabled):active{
+    background-color: #0062cc;
+    border-color: #005cbf;
+    color: #ffffff;
+}
+
+.login-page .btn-primary:focus{
+    box-shadow: 0 0 0 .2rem rgba(38,143,255,.5);
+}
+
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active,
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:hover,
 .main-sidebar .nav-sidebar .nav-treeview > .nav-item > .nav-link.active:focus{
