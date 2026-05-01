@@ -8,6 +8,7 @@ class ProdutoPecaOsProvisorioModel extends PadraoModel
     protected $primaryKey = 'id_produto';
     protected $allowedFields = [
         'id_produto',
+        'id_produto_estoque',
         'nome',
         'quantidade',
         'valor_unitario',

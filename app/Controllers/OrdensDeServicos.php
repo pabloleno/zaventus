@@ -9,12 +9,15 @@ use App\Models\OrdemDeServicoProvisorioModel;
 use App\Models\EquipamentoOsProvisorioModel;
 use App\Models\ProdutoPecaOsProvisorioModel;
 use App\Models\ProdutoModel;
+use App\Models\CaixaModel;
 use App\Models\ServicoMaoDeObraModel;
 use App\Models\ServicoMaoDeObraProvisorioModel;
 use App\Models\FormaDePagamentoModel;
 use App\Models\ClienteModel;
 use App\Models\VendedorModel;
 use App\Models\TecnicoModel;
+use App\Models\VendaModel;
+use App\Models\ProdutoDaVendaModel;
 
 use App\Models\OrdemDeServicoModel;
 use App\Models\PagamentoOsModel;
@@ -34,6 +37,7 @@ class OrdensDeServicos extends Controller
     private $equipamento_os_provisorio_model;
     private $produto_peca_os_provisorio_model;
     private $produto_model;
+    private $caixa_model;
     private $servico_mao_de_obra_model;
     private $servico_mao_de_obra_provisorio_model;
     private $forma_de_pagamento_model;
@@ -47,6 +51,8 @@ class OrdensDeServicos extends Controller
     private $servico_mao_de_obra_os_model;
     private $equipamento_os_model;
     private $produto_peca_os_model;
+    private $venda_model;
+    private $produto_da_venda_model;
 
     function __construct()
     {
@@ -62,6 +68,7 @@ class OrdensDeServicos extends Controller
         $this->equipamento_os_provisorio_model           = new EquipamentoOsProvisorioModel();
         $this->produto_peca_os_provisorio_model          = new ProdutoPecaOsProvisorioModel();
         $this->produto_model                             = new ProdutoModel();
+        $this->caixa_model                               = new CaixaModel();
         $this->servico_mao_de_obra_model                 = new ServicoMaoDeObraModel();
         $this->servico_mao_de_obra_provisorio_model      = new ServicoMaoDeObraProvisorioModel();
         $this->forma_de_pagamento_model                  = new FormaDePagamentoModel();
@@ -75,6 +82,8 @@ class OrdensDeServicos extends Controller
         $this->servico_mao_de_obra_os_model              = new ServicoMaoDeObraOsModel();
         $this->equipamento_os_model                      = new EquipamentoOsModel();
         $this->produto_peca_os_model                     = new ProdutoPecaOsModel();
+        $this->venda_model                               = new VendaModel();
+        $this->produto_da_venda_model                    = new ProdutoDaVendaModel();
     }
 
     public function index()
@@ -324,7 +333,8 @@ class OrdensDeServicos extends Controller
         $produto = $this->produto_model->where('id_produto', $id_produto)->first();
 
         $dados = [
-            'nome' => $produto['nome'],
+            'id_produto_estoque' => $produto['id_produto'],
+            'nome'               => $produto['nome'],
             'quantidade'     => 1,
             'valor_unitario' => $produto['valor_de_venda'],
             'desconto'       => 0,
@@ -370,7 +380,8 @@ class OrdensDeServicos extends Controller
         $produto = $this->produto_model->where('id_produto', $id_produto)->first();
 
         $dados = [
-            'nome' => $produto['nome'],
+            'id_produto_estoque' => $produto['id_produto'],
+            'nome'               => $produto['nome'],
             'quantidade'     => 1,
             'valor_unitario' => $produto['valor_de_venda'],
             'desconto'       => 0,
@@ -715,6 +726,26 @@ class OrdensDeServicos extends Controller
     public function finalizaOrdemDeServico()
     {
         $dados_da_ordem_de_servicos = $this->request->getvar();
+        $produtos_e_pecas_provisorio = $this->produto_peca_os_provisorio_model->findAll();
+
+        if(!empty($produtos_e_pecas_provisorio))
+        {
+            $caixa = $this->caixa_model->where('status', 'Aberto')->orderBy('id_caixa', 'DESC')->first();
+
+            if(empty($caixa))
+            {
+                $session = session();
+                $session->setFlashdata('alert', 'error_caixa_os_produtos');
+
+                return redirect()->to('/ordensDeServicos/create/#table-produto-peca');
+            }
+        }
+
+        $db = db_connect();
+        $db->transBegin();
+
+        try
+        {
 
         // Insere os dados da ordem no banco e retorna seu id_ordem para inserir nos demais registros
         $id_ordem = $this->ordem_de_servico_model->insert($dados_da_ordem_de_servicos);
@@ -781,8 +812,6 @@ class OrdensDeServicos extends Controller
         
 
         // ------------------------------------ PRODUTOS/PEÇAS ------------------------------- //
-        $produtos_e_pecas_provisorio = $this->produto_peca_os_provisorio_model->findAll();
-
         foreach($produtos_e_pecas_provisorio as $produto_peca)
         {
             unset($produto_peca['id_produto']); // Remove o id_produto para ser inserido o novo definitivo
@@ -798,17 +827,216 @@ class OrdensDeServicos extends Controller
 
 
         // Remove todos os registros da tabela ordens_de_servicos_provisorio assim, limpa todos os outros dados para poder criar outra ordem de serviço
+        if(!empty($produtos_e_pecas_provisorio))
+        {
+            $this->registrarVendaDosProdutosDaOs($dados_da_ordem_de_servicos, $produtos_e_pecas_provisorio, (int) $caixa['id_caixa']);
+        }
+
         $this->ordem_de_servico_provisorio_model->emptyTable('ordens_de_servicos_provisorio');
 
+        if(!$db->transStatus())
+        {
+            throw new \RuntimeException('Falha ao salvar a ordem de servico e a venda dos produtos.');
+        }
+
+        $db->transCommit();
 
         $session = session();
         $session->setFlashdata('alert', 'success_finaliza_ordem_de_servico');
 
         return redirect()->to('/ordensDeServicos');
+        }
+        catch(\Throwable $exception)
+        {
+            $db->transRollback();
+
+            log_message('error', 'Erro ao finalizar OS e registrar venda de produtos: ' . $exception->getMessage());
+
+            $session = session();
+            $session->setFlashdata('alert', 'error_venda_produtos_os');
+
+            return redirect()->to('/ordensDeServicos/create/#table-produto-peca');
+        }
     }
 
 
     // -------------------------------------------------------- EDITAR DADOS DOS RESPONSÁVEIS E DADOS FINAIS DA ORDEM DE SERVIÇO ---------------------------------------
+    private function registrarVendaDosProdutosDaOs(array $ordem, array $produtos_e_pecas, int $id_caixa): void
+    {
+        $produtos_da_venda = [];
+        $valor_a_pagar = 0;
+        $desconto_total = 0;
+
+        foreach($produtos_e_pecas as $produto_peca)
+        {
+            $produto_estoque = $this->produtoEstoqueDaPecaOs($produto_peca);
+            $quantidade = (int) $this->valorNumerico($produto_peca['quantidade'] ?? 0);
+            $valor_unitario = $this->valorNumerico($produto_peca['valor_unitario'] ?? 0);
+            $desconto = $this->valorNumerico($produto_peca['desconto'] ?? 0);
+            $subtotal = $quantidade * $valor_unitario;
+            $valor_final = $subtotal - $desconto;
+
+            if($quantidade <= 0 || $valor_final <= 0)
+            {
+                continue;
+            }
+
+            $valor_a_pagar += $valor_final;
+            $desconto_total += $desconto;
+
+            $produtos_da_venda[] = [
+                'produto_estoque' => $produto_estoque,
+                'quantidade'      => $quantidade,
+                'dados'           => [
+                    'nome'             => $produto_peca['nome'] ?? $produto_estoque['nome'],
+                    'unidade'          => $produto_estoque['unidade'] ?? '',
+                    'codigo_de_barras' => $produto_estoque['codigo_de_barras'] ?? '',
+                    'quantidade'       => $quantidade,
+                    'valor_unitario'   => $valor_unitario,
+                    'subtotal'         => $subtotal,
+                    'desconto'         => $desconto,
+                    'valor_final'      => $valor_final,
+                    'NCM'              => $produto_estoque['NCM'] ?? '',
+                    'CSOSN'            => $produto_estoque['CSOSN'] ?? '',
+                    'CFOP'             => $produto_estoque['CFOP'] ?? '',
+                    'id_produto'       => $produto_estoque['id_produto']
+                ]
+            ];
+        }
+
+        if(empty($produtos_da_venda))
+        {
+            return;
+        }
+
+        $id_venda = $this->venda_model->insert([
+            'valor_a_pagar'      => $valor_a_pagar,
+            'desconto'           => $desconto_total,
+            'valor_recebido'     => $valor_a_pagar,
+            'troco'              => 0,
+            'forma_de_pagamento' => $this->formaDePagamentoVendaOs(),
+            'data'               => $this->dataVendaOs($ordem),
+            'hora'               => $this->horaVendaOs($ordem),
+            'id_cliente'         => $ordem['id_cliente'] ?? 1,
+            'id_vendedor'        => $ordem['id_vendedor'] ?? $this->vendedor_model->idGeral(),
+            'id_caixa'           => $id_caixa
+        ]);
+
+        if(!$id_venda)
+        {
+            throw new \RuntimeException('Nao foi possivel registrar a venda dos produtos da OS.');
+        }
+
+        foreach($produtos_da_venda as $produto_da_venda)
+        {
+            $dados_produto = $produto_da_venda['dados'];
+            $dados_produto['id_venda'] = $id_venda;
+
+            if(!$this->produto_da_venda_model->insert($dados_produto))
+            {
+                throw new \RuntimeException('Nao foi possivel registrar um produto da venda da OS.');
+            }
+
+            $produto_estoque = $produto_da_venda['produto_estoque'];
+            $nova_quantidade = $this->valorNumerico($produto_estoque['quantidade'] ?? 0) - $produto_da_venda['quantidade'];
+
+            $this->produto_model
+                ->set('quantidade', $nova_quantidade)
+                ->where('id_produto', $produto_estoque['id_produto'])
+                ->update();
+        }
+    }
+
+    private function produtoEstoqueDaPecaOs(array $produto_peca): array
+    {
+        $id_produto_estoque = (int) ($produto_peca['id_produto_estoque'] ?? 0);
+
+        if($id_produto_estoque > 0)
+        {
+            $produto = $this->produto_model->where('id_produto', $id_produto_estoque)->first();
+
+            if(!empty($produto))
+            {
+                return $produto;
+            }
+        }
+
+        $nome = trim((string) ($produto_peca['nome'] ?? ''));
+
+        if($nome !== '')
+        {
+            $produto = $this->produto_model->where('nome', $nome)->orderBy('id_produto', 'ASC')->first();
+
+            if(!empty($produto))
+            {
+                return $produto;
+            }
+        }
+
+        throw new \RuntimeException('Produto/peca da OS sem vinculo com estoque: ' . $nome);
+    }
+
+    private function formaDePagamentoVendaOs(): string
+    {
+        $parcela = $this->parcelas_do_pagamento_os_provisorio_model->orderBy('id_parcela', 'ASC')->first();
+        $forma_de_pagamento = $parcela['forma_de_pagamento'] ?? '';
+
+        return $forma_de_pagamento !== '' ? $forma_de_pagamento : 'Dinheiro';
+    }
+
+    private function dataVendaOs(array $ordem): string
+    {
+        foreach(['data_de_saida', 'data_de_entrada'] as $campo)
+        {
+            $data = $ordem[$campo] ?? '';
+
+            if(preg_match('/^\d{4}-\d{2}-\d{2}$/', $data) && $data !== '0000-00-00')
+            {
+                return $data;
+            }
+        }
+
+        return date('Y-m-d');
+    }
+
+    private function horaVendaOs(array $ordem): string
+    {
+        foreach(['hora_de_saida', 'hora_de_entrada'] as $campo)
+        {
+            $hora = $ordem[$campo] ?? '';
+
+            if(preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $hora) && $hora !== '00:00:00')
+            {
+                return strlen($hora) === 5 ? $hora . ':00' : $hora;
+            }
+        }
+
+        return date('H:i:s');
+    }
+
+    private function valorNumerico($valor): float
+    {
+        if(is_numeric($valor))
+        {
+            return (float) $valor;
+        }
+
+        $valor = trim((string) $valor);
+
+        if($valor === '')
+        {
+            return 0;
+        }
+
+        if(strpos($valor, ',') !== false)
+        {
+            $valor = str_replace('.', '', $valor);
+            $valor = str_replace(',', '.', $valor);
+        }
+
+        return (float) $valor;
+    }
+
     public function editDadosResponsaveis_e_DadosFinaisOrdemDeServico()
     {
         $dados = $this->request->getvar();

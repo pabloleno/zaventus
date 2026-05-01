@@ -1171,6 +1171,16 @@
                     type: 'success',
                     title: 'Dados do Serviço/Mão de Obra atualizado com sucesso!'
                 })
+            <?php elseif ($alert == "error_caixa_os_produtos") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'Abra um caixa para vender os produtos/pecas da OS.'
+                })
+            <?php elseif ($alert == "error_venda_produtos_os") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'Nao foi possivel registrar a venda dos produtos/pecas da OS.'
+                })
             <?php endif; ?>
         <?php endif; ?>
     });
