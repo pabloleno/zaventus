@@ -24,9 +24,9 @@ class Orcamentos extends Controller
     function __construct()
     {
         $this->links = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.8'
+            'menu' => '2.m',
+            'item' => '2.0',
+            'subItem' => '2.7'
         ];
 
         $this->orcamento_model = new OrcamentoModel();

@@ -16,10 +16,17 @@
         return false;
     };
 
-    $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']);
+    $exibe_orcamentos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->orcamentos)
+        && (int) $array_c_a->financeiro->modulo === 1
+        && (int) $array_c_a->financeiro->orcamentos === 1;
+    $exibe_pedidos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->pedidos)
+        && (int) $array_c_a->financeiro->modulo === 1
+        && (int) $array_c_a->financeiro->pedidos === 1;
+
+    $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
     $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
     $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'orcamentos', 'pedidos', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
+    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
     $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
     $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
 ?>
@@ -102,6 +109,22 @@
                                     <p>Ordens de Servicos</p>
                                 </a>
                             </li>
+                            <?php if($exibe_orcamentos): ?>
+                                <li class="nav-item">
+                                    <a id="2.7" href="/orcamentos" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Orcamentos</p>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
+                            <?php if($exibe_pedidos): ?>
+                                <li class="nav-item">
+                                    <a id="2.8" href="/pedidos" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>Pedidos</p>
+                                    </a>
+                                </li>
+                            <?php endif; ?>
                         </ul>
                     </li>
                 <?php endif; ?>
@@ -228,12 +251,6 @@
                             <?php endif; ?>
                             <?php if($array_c_a->financeiro->contas_a_receber == 1): ?>
                                 <li class="nav-item"><a id="5.7" href="/contasReceber" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Contas a receber</p></a></li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->financeiro->orcamentos == 1): ?>
-                                <li class="nav-item"><a id="5.8" href="/orcamentos" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Orcamentos</p></a></li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->financeiro->pedidos == 1): ?>
-                                <li class="nav-item"><a id="5.9" href="/pedidos" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Pedidos</p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->financeiro->relatorio_dre == 1): ?>
                                 <li class="nav-item"><a id="5.10" href="/relatorioDRE" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Relatorio DRE</p></a></li>

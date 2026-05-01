@@ -44,10 +44,17 @@
                 return false;
               };
 
-              $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']);
+              $exibe_orcamentos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->orcamentos)
+                && (int) $array_c_a->financeiro->modulo === 1
+                && (int) $array_c_a->financeiro->orcamentos === 1;
+              $exibe_pedidos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->pedidos)
+                && (int) $array_c_a->financeiro->modulo === 1
+                && (int) $array_c_a->financeiro->pedidos === 1;
+
+              $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
               $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
               $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'orcamentos', 'pedidos', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
+              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
               $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
               $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
             ?>
@@ -78,6 +85,14 @@
                     <li><a id="2.5" href="/ordensDeServicos/create" class="dropdown-item">Gerar Ordem de Serv.</a></li>
 
                     <li><a id="2.6" href="/ordensDeServicos" class="dropdown-item">Ordens de Serviços</a></li>
+
+                    <?php if($exibe_orcamentos): ?>
+                      <li><a id="2.7" href="/orcamentos" class="dropdown-item">Orçamentos</a></li>
+                    <?php endif; ?>
+
+                    <?php if($exibe_pedidos): ?>
+                      <li><a id="2.8" href="/pedidos" class="dropdown-item">Pedidos</a></li>
+                    <?php endif; ?>
                   </ul>
                 </li>
               <?php endif; ?>
@@ -167,14 +182,6 @@
 
                     <?php if($array_c_a->financeiro->contas_a_receber == 1): ?>
                       <li><a id="5.7" href="/contasReceber" class="dropdown-item">Contas à receber</a></li>
-                    <?php endif; ?>
-
-                    <?php if($array_c_a->financeiro->orcamentos == 1): ?>
-                      <li><a id="5.8" href="/orcamentos" class="dropdown-item">Orçamentos</a></li>
-                    <?php endif; ?>
-
-                    <?php if($array_c_a->financeiro->pedidos == 1): ?>
-                      <li><a id="5.9" href="/pedidos" class="dropdown-item">Pedidos</a></li>
                     <?php endif; ?>
 
                     <?php if($array_c_a->financeiro->relatorio_dre == 1): ?>

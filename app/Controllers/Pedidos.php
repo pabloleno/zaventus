@@ -21,9 +21,9 @@ class Pedidos extends Controller
     function __construct()
     {
         $this->links = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.9'
+            'menu' => '2.m',
+            'item' => '2.0',
+            'subItem' => '2.8'
         ];
 
         $this->pedido_model = new PedidoModel();
