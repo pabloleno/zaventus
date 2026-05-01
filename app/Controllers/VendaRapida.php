@@ -74,7 +74,7 @@ class VendaRapida extends Controller
         $data['produtos_da_venda_rapida'] = $this->produto_da_venda_rapida_model->findAll();
         $data['valor_da_venda']           = $this->produto_da_venda_rapida_model->selectSum('valor_final')->first();
         $data['formas_de_pagamento']      = $this->forma_de_pagamento_model->findAll();
-        $data['vendedores']               = $this->vendedor_model->where('status', "Ativo")->find();
+        $data['vendedores']               = $this->vendedor_model->paraVenda();
 
         echo view('templates/header');
         echo view('venda_rapida/index', $data);

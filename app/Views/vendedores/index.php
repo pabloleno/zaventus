@@ -23,7 +23,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/vendedores/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> Novo Vendedor</a>
+                            <a href="/funcionarios/create?tipo=Vendedor" class="btn btn-primary"><i class="fa fa-user-plus"></i> Novo Vendedor</a>
                         </div>
                     </div>
                 </div>
@@ -54,7 +54,9 @@
                                         <td><?= $vendedor['anotacoes'] ?></td>
                                         <td>
                                             <a href="/vendedores/edit/<?= $vendedor['id_vendedor'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
-                                            <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse Vendedor?', '/vendedores/delete/<?= $vendedor['id_vendedor'] ?>')"><i class="fa fa-trash"></i></button>
+                                            <?php if (strtoupper(trim((string) $vendedor['nome'])) !== 'GERAL') : ?>
+                                                <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse Vendedor?', '/vendedores/delete/<?= $vendedor['id_vendedor'] ?>')"><i class="fa fa-trash"></i></button>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -100,6 +102,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Vendedor excluido com sucesso!'
+                })
+            <?php elseif ($alert == "error_delete_geral") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'O vendedor GERAL nao pode ser excluido.'
                 })
             <?php endif; ?>
         <?php endif; ?>

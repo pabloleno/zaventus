@@ -233,13 +233,13 @@ class Relatorios extends Controller
 
         if(!isset($dados['id_vendedor']))
         {
-            $dados['id_vendedor'] = 1;
+            $dados['id_vendedor'] = $this->vendedor_model->idGeral();
         }
 
         $data['id_vendedor'] = $dados['id_vendedor'];
 
         $data['empresa']  = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['vendedores'] = $this->vendedor_model->findAll();
+        $data['vendedores'] = $this->vendedor_model->visiveis();
         $data['vendas']   = $this->venda_model->where('id_vendedor', $dados['id_vendedor'])->find();
 
         $session = session();
@@ -718,7 +718,7 @@ class Relatorios extends Controller
         ];
 
         $data['empresa'] = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['vendedores']  = $this->vendedor_model->findAll();
+        $data['vendedores']  = $this->vendedor_model->visiveis();
 
         echo view('templates/header');
         echo view('relatorios/vendedores', $data);

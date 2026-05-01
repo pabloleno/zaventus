@@ -9,6 +9,7 @@ class FuncionarioModel extends PadraoModel
     protected $allowedFields = [
         'id_funcionario',
         'status',
+        'tipo_funcionario',
         'nome',
         'data_de_nascimento',
         'rg',

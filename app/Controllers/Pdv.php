@@ -91,7 +91,7 @@ class Pdv extends Controller
         $data['produtos_do_pdv']     = $this->produto_pdv_model->where('id_caixa', $id_caixa)->findAll();
         $data['valor_a_pagar']       = $this->produto_pdv_model->selectSum('valor_final')->where('id_caixa', $id_caixa)->first();
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
-        $data['vendedores']          = $this->vendedor_model->findAll();
+        $data['vendedores']          = $this->vendedor_model->paraVenda();
 
         echo view('pdv/start', $data);
     }

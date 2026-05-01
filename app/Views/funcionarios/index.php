@@ -37,6 +37,7 @@
                             <tr>
                                 <th style="width: 35px">Cód.</th>
                                 <th>Nome</th>
+                                <th>Tipo</th>
                                 <th>CPF</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
@@ -47,6 +48,7 @@
                                     <tr>
                                         <td><?= $funcionario['id_funcionario'] ?></td>
                                         <td><?= $funcionario['nome'] ?></td>
+                                        <td><?= esc($funcionario['tipo_funcionario'] ?? 'Outros') ?></td>
                                         <td><?= $funcionario['cpf'] ?></td>
                                         <td>
                                             <a href="/funcionarios/show/<?= $funcionario['id_funcionario'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>

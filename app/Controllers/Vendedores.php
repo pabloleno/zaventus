@@ -2,12 +2,14 @@
 
 namespace App\Controllers;
 
-use CodeIgniter\Controller;
+use App\Models\FuncionarioModel;
 use App\Models\VendedorModel;
+use CodeIgniter\Controller;
 
 class Vendedores extends Controller
 {
     private $links;
+    private $vendedor_model;
     private $funcionario_model;
 
     function __construct()
@@ -19,6 +21,7 @@ class Vendedores extends Controller
         ];
 
         $this->vendedor_model = new VendedorModel();
+        $this->funcionario_model = new FuncionarioModel();
     }
 
     public function index()
@@ -35,7 +38,7 @@ class Vendedores extends Controller
             ['titulo' => "Vendedores", 'rota'   => "", 'active' => true]
         ];
 
-        $data['vendedores'] = $this->vendedor_model->findAll();
+        $data['vendedores'] = $this->vendedor_model->visiveis();
 
         echo view('templates/header');
         echo view('vendedores/index', $data);
@@ -44,22 +47,7 @@ class Vendedores extends Controller
 
     public function create()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Novo Vendedor',
-            'icone'  => 'fa fa-user-plus'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Vendedores", 'rota'   => "/vendedores", 'active' => false],
-            ['titulo' => "Novo", 'rota'   => "", 'active' => true]
-        ];
-
-        echo view('templates/header');
-        echo view('vendedores/form', $data);
-        echo view('templates/footer');
+        return redirect()->to('/funcionarios/create?tipo=Vendedor');
     }
 
     public function edit($id_vendedor)
@@ -73,11 +61,19 @@ class Vendedores extends Controller
 
         $data['caminhos'] = [
             ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Vendedores", 'rota'   => "/funcionarios", 'active' => false],
+            ['titulo' => "Vendedores", 'rota'   => "/vendedores", 'active' => false],
             ['titulo' => "Editar", 'rota'   => "", 'active' => true]
         ];
 
         $data['vendedor'] = $this->vendedor_model->where('id_vendedor', $id_vendedor)->first();
+
+        if (empty($data['vendedor'])) {
+            return redirect()->to('/vendedores');
+        }
+
+        if (! empty($data['vendedor']['id_funcionario'])) {
+            return redirect()->to('/funcionarios/edit/' . $data['vendedor']['id_funcionario']);
+        }
 
         echo view('templates/header');
         echo view('vendedores/form', $data);
@@ -99,9 +95,7 @@ class Vendedores extends Controller
 
         $session = session();
 
-        // Caso a ação é editar
-        if(isset($dados['id_vendedor']))
-        {
+        if (isset($dados['id_vendedor'])) {
             $session->setFlashdata('alert', 'success_edit');
 
             return redirect()->to('/vendedores');
@@ -114,9 +108,25 @@ class Vendedores extends Controller
 
     public function delete($id_vendedor)
     {
-        $this->vendedor_model->where('id_vendedor', $id_vendedor)->delete();
-        
+        $vendedor = $this->vendedor_model->where('id_vendedor', $id_vendedor)->first();
+
+        if (empty($vendedor)) {
+            return redirect()->to('/vendedores');
+        }
+
         $session = session();
+
+        if ($this->vendedor_model->ehGeral($vendedor)) {
+            $session->setFlashdata('alert', 'error_delete_geral');
+
+            return redirect()->to('/vendedores');
+        }
+
+        if (! empty($vendedor['id_funcionario'])) {
+            $this->funcionario_model->update($vendedor['id_funcionario'], ['tipo_funcionario' => 'Outros']);
+        }
+
+        $this->vendedor_model->ocultar((int) $id_vendedor);
         $session->setFlashdata('alert', 'success_delete');
 
         return redirect()->to('/vendedores');

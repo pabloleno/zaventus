@@ -7,12 +7,14 @@ use App\Libraries\EnderecoPadrao;
 use CodeIgniter\Controller;
 use App\Models\FuncionarioModel;
 use App\Models\TabelaMunicipiosIBGEModel;
+use App\Models\VendedorModel;
 
 class Funcionarios extends Controller
 {
     private $links;
     private $funcionario_model;
     private $tabela_municipios_ibge_model;
+    private $vendedor_model;
 
     function __construct()
     {
@@ -24,6 +26,7 @@ class Funcionarios extends Controller
 
         $this->funcionario_model = new FuncionarioModel();
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
+        $this->vendedor_model = new VendedorModel();
     }
 
     public function index()
@@ -85,6 +88,7 @@ class Funcionarios extends Controller
         ];
 
         $data['ufs'] = EnderecoPadrao::ufs();
+        $data['tipo_funcionario_padrao'] = $this->tipoFuncionario($this->request->getGet('tipo') ?? 'Outros');
 
         echo view('templates/header');
         echo view('funcionarios/form', $data);
@@ -117,6 +121,8 @@ class Funcionarios extends Controller
     public function store()
     {
         $dados = $this->request->getvar();
+        $dados['tipo_funcionario'] = $this->tipoFuncionario($dados['tipo_funcionario'] ?? 'Outros');
+
         $preparo = prepara_campos_padrao($dados);
 
         if (! empty($preparo['erros'])) {
@@ -127,6 +133,11 @@ class Funcionarios extends Controller
         $dados = ContatoPadrao::sincronizarFuncionario($dados);
 
         $this->funcionario_model->save($dados);
+        $idFuncionario = (int) ($dados['id_funcionario'] ?? $this->funcionario_model->getInsertID());
+
+        if ($idFuncionario > 0) {
+            $this->vendedor_model->sincronizarFuncionario($dados, $idFuncionario);
+        }
 
         $session = session();
 
@@ -152,11 +163,17 @@ class Funcionarios extends Controller
 
     public function delete($id_funcionario)
     {
+        $this->vendedor_model->ocultarPorFuncionario((int) $id_funcionario);
         $this->funcionario_model->where('id_funcionario', $id_funcionario)->delete();
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');
 
         return redirect()->to('/funcionarios');
+    }
+
+    private function tipoFuncionario(string $tipo): string
+    {
+        return $tipo === 'Vendedor' ? 'Vendedor' : 'Outros';
     }
 }

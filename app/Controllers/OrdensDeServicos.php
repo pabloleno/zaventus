@@ -141,7 +141,7 @@ class OrdensDeServicos extends Controller
                 'outros'               => 0,
                 'desconto'             => 0,
                 'id_cliente'           => 1,
-                'id_vendedor'          => 1,
+                'id_vendedor'          => $this->vendedor_model->idGeral(),
                 'id_tecnico'           => 1,
                 'observacoes'          => "",
                 'observacoes_internas' => ""
@@ -179,7 +179,7 @@ class OrdensDeServicos extends Controller
 
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
-        $data['vendedores']          = $this->vendedor_model->findAll();
+        $data['vendedores']          = $this->vendedor_model->paraVenda();
         $data['tecnicos']            = $this->tecnico_model->findAll();
 
         echo view('templates/header');
@@ -218,7 +218,7 @@ class OrdensDeServicos extends Controller
 
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
-        $data['vendedores']          = $this->vendedor_model->findAll();
+        $data['vendedores']          = $this->vendedor_model->visiveis();
         $data['tecnicos']            = $this->tecnico_model->findAll();
 
         echo view('templates/header');
@@ -259,7 +259,7 @@ class OrdensDeServicos extends Controller
 
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
-        $data['vendedores']          = $this->vendedor_model->findAll();
+        $data['vendedores']          = $this->vendedor_model->visiveis();
         $data['tecnicos']            = $this->tecnico_model->findAll();
 
         echo view('templates/header');

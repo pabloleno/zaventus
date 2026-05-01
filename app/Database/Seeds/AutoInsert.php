@@ -135,12 +135,16 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
         $this->db->table('formas_de_pagamento')->insertBatch($formas_de_pagamento);
 
         // Vendedor
-        $this->db->table('vendedores')->insert([
-            'status'                     => "Ativo",
-            'nome'                       => 'GERAL',
-            'data_inicio_das_atividades' => date('Y-m-d'),
-            'anotacoes'                  => 'Vendedor para vendas em geral.'
-        ]);
+        $vendedorGeral = $this->db->table('vendedores')->where('nome', 'GERAL')->get()->getRowArray();
+
+        if (empty($vendedorGeral)) {
+            $this->db->table('vendedores')->insert([
+                'status'                     => "Ativo",
+                'nome'                       => 'GERAL',
+                'data_inicio_das_atividades' => date('Y-m-d'),
+                'anotacoes'                  => 'Vendedor para vendas em geral.'
+            ]);
+        }
 
         // Técnico
         $this->db->table('tecnicos')->insert([

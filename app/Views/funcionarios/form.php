@@ -9,6 +9,8 @@
     $funcionarioUfSelecionada = strtoupper(trim((string) ($funcionarioContato['UF'] ?? '')));
     $funcionarioCodigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($funcionarioContato['codigo_do_municipio'] ?? ''));
     $funcionarioMunicipioSelecionado = trim((string) ($funcionarioContato['municipio'] ?? ''));
+    $funcionarioTipoSelecionado = (string) ($funcionarioContato['tipo_funcionario'] ?? ($tipo_funcionario_padrao ?? 'Outros'));
+    $funcionarioTipoSelecionado = ($funcionarioTipoSelecionado === 'Vendedor') ? 'Vendedor' : 'Outros';
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -63,6 +65,15 @@
                                 <div class="form-group">
                                     <label for="">Nome</label>
                                     <input type="text" class="form-control" name="nome" value="<?= (isset($funcionario)) ? $funcionario['nome'] : "" ?>" required="">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label for="tipo_funcionario">Tipo</label>
+                                    <select class="form-control select2" id="tipo_funcionario" name="tipo_funcionario" style="width: 100%;">
+                                        <option value="Outros" <?= ($funcionarioTipoSelecionado === 'Outros') ? 'selected' : '' ?>>Outros</option>
+                                        <option value="Vendedor" <?= ($funcionarioTipoSelecionado === 'Vendedor') ? 'selected' : '' ?>>Vendedor</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-lg-3">

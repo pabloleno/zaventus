@@ -50,6 +50,12 @@
                         </div>
                         <div class="col-lg-3">
                             <div class="form-group">
+                                <label for="">Tipo</label>
+                                <input type="text" class="form-control" value="<?= esc($funcionario['tipo_funcionario'] ?? 'Outros') ?>" disabled>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
                                 <label for="">Data de nascimento</label>
                                 <input type="date" class="form-control" value="<?= $funcionario['data_de_nascimento'] ?>" disabled>
                             </div>
