@@ -133,7 +133,62 @@ class App extends BaseConfig
      * @see https://www.php.net/manual/en/timezones.php for list of timezones
      *      supported by PHP.
      */
-    public string $appTimezone = 'America/Chicago';
+    public string $appTimezone = 'host';
+
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->appTimezone = $this->resolveBrazilianTimezone($this->appTimezone);
+    }
+
+    private function resolveBrazilianTimezone(string $configuredTimezone): string
+    {
+        $configuredTimezone = trim($configuredTimezone);
+
+        if ($configuredTimezone !== '' && ! in_array(strtolower($configuredTimezone), ['auto', 'host'], true)) {
+            return $this->isBrazilianTimezone($configuredTimezone)
+                ? $configuredTimezone
+                : 'America/Manaus';
+        }
+
+        $hostTimezone = date_default_timezone_get();
+
+        if ($this->isBrazilianTimezone($hostTimezone)) {
+            return $hostTimezone;
+        }
+
+        return $this->brazilianTimezoneByHostOffset($hostTimezone) ?? 'America/Manaus';
+    }
+
+    private function isBrazilianTimezone(string $timezone): bool
+    {
+        static $brazilianTimezones = null;
+
+        if ($brazilianTimezones === null) {
+            $brazilianTimezones = timezone_identifiers_list(\DateTimeZone::PER_COUNTRY, 'BR');
+        }
+
+        return in_array($timezone, $brazilianTimezones, true);
+    }
+
+    private function brazilianTimezoneByHostOffset(string $hostTimezone): ?string
+    {
+        try {
+            $offset = (new \DateTimeImmutable('now', new \DateTimeZone($hostTimezone)))->getOffset();
+        } catch (\Exception $exception) {
+            return null;
+        }
+
+        $brazilianTimezonesByOffset = [
+            -7200  => 'America/Noronha',
+            -10800 => 'America/Sao_Paulo',
+            -14400 => 'America/Manaus',
+            -18000 => 'America/Rio_Branco',
+        ];
+
+        return $brazilianTimezonesByOffset[$offset] ?? null;
+    }
 
     /**
      * --------------------------------------------------------------------------
