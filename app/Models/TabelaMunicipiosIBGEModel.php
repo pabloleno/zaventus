@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class TabelaMunicipiosIBGEModel extends Model
+class TabelaMunicipiosIBGEModel extends PadraoModel
 {
     protected $table = 'tabela_municipios_ibge';
     protected $primaryKey = 'id_tabela';

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class SaidaDeMercadoriaModel extends Model
+class SaidaDeMercadoriaModel extends PadraoModel
 {
     protected $table = 'saida_de_mercadorias';
     protected $primaryKey = 'id_saida';

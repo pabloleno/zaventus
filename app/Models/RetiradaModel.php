@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class RetiradaModel extends Model
+class RetiradaModel extends PadraoModel
 {
     protected $table = 'retiradas';
     protected $primaryKey = 'id_retirada';

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ProvisorioAddProdutoPorXmlModel extends Model
+class ProvisorioAddProdutoPorXmlModel extends PadraoModel
 {
     protected $table = 'provisorio_add_produto_por_xml';
     protected $primaryKey = 'id_produto';

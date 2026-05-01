@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ContaPagarModel extends Model
+class ContaPagarModel extends PadraoModel
 {
     protected $table = 'contas_a_pagar';
     protected $primaryKey = 'id_conta';

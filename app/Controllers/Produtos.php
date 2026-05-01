@@ -206,6 +206,13 @@ class Produtos extends Controller
     {
         $file = $this->request->getFile('arquivo');
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
 
         if ($file->isValid()) // Verifica se foi selecionado uma imagem, e atribui ao array o nome do arquivo depois de movido para a pasta.
         {

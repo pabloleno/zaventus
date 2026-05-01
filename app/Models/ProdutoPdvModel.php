@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ProdutoPdvModel extends Model
+class ProdutoPdvModel extends PadraoModel
 {
     protected $table = 'produtos_do_pdv';
     protected $primaryKey = 'id_produto_pdv';

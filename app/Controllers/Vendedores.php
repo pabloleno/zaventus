@@ -87,6 +87,14 @@ class Vendedores extends Controller
     public function store()
     {
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
+
         $this->vendedor_model->save($dados);
 
         $session = session();

@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ConfigNFeNFCeModel extends Model
+class ConfigNFeNFCeModel extends PadraoModel
 {
     protected $table = 'config_nfe_nfce';
     protected $primaryKey = 'id_config';

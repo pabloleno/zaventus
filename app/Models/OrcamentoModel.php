@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class OrcamentoModel extends Model
+class OrcamentoModel extends PadraoModel
 {
     protected $table = 'orcamentos';
     protected $primaryKey = 'id_orcamento';

@@ -87,6 +87,14 @@ class ServicosMaoDeObra extends Controller
     public function store()
     {
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
+
         $this->servico_mao_de_obra_model->save($dados);
 
         // Caso a ação é editar

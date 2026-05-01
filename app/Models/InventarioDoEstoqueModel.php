@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class InventarioDoEstoqueModel extends Model
+class InventarioDoEstoqueModel extends PadraoModel
 {
     protected $table = 'inventarios_do_estoque';
     protected $primaryKey = 'id_inventario';

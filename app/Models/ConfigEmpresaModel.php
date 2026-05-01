@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ConfigEmpresaModel extends Model
+class ConfigEmpresaModel extends PadraoModel
 {
     protected $table = 'config_empresa';
     protected $primaryKey = 'id_config';

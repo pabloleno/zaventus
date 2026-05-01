@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class CaixaModel extends Model
+class CaixaModel extends PadraoModel
 {
     protected $table = 'caixas';
     protected $primaryKey = 'id_caixa';

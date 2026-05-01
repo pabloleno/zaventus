@@ -13,3 +13,21 @@
  *
  * @link: https://codeigniter4.github.io/CodeIgniter4/
  */
+
+use App\Libraries\CampoPadrao;
+
+if (! function_exists('prepara_campos_padrao')) {
+    function prepara_campos_padrao(array $dados): array
+    {
+        return CampoPadrao::preparar($dados);
+    }
+}
+
+if (! function_exists('redireciona_erros_campos_padrao')) {
+    function redireciona_erros_campos_padrao(array $erros)
+    {
+        session()->setFlashdata('errors', $erros);
+
+        return redirect()->back()->withInput();
+    }
+}

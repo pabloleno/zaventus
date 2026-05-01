@@ -22,8 +22,11 @@
 <script src="<?= base_url('theme/plugins/datatables-bs4/js/dataTables.bootstrap4.js') ?>"></script>
 <!-- Bootstrap Switch -->
 <script src="<?= base_url('theme/plugins/bootstrap-switch/js/bootstrap-switch.min.js') ?>"></script>
+<!-- InputMask -->
+<script src="<?= base_url('theme/plugins/inputmask/min/jquery.inputmask.bundle.min.js') ?>"></script>
 <!-- AdminLTE App -->
 <script src="<?= base_url('theme/dist/js/adminlte.js') ?>"></script>
+<script src="<?= base_url('assets/js/campos-padrao.js?v=' . filemtime(FCPATH . 'assets/js/campos-padrao.js')) ?>"></script>
 <script>
     $(function() {
         // DataTables
@@ -47,6 +50,21 @@
         $('.select2bs4').select2({
             theme: 'bootstrap4'
         })
+
+        var errosCamposPadrao = <?= json_encode(array_values((array) session()->getFlashdata('errors')), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
+        if (errosCamposPadrao.length) {
+            var listaErros = $('<ul class="text-left mb-0"></ul>');
+
+            errosCamposPadrao.forEach(function(mensagem) {
+                $('<li></li>').text(mensagem).appendTo(listaErros);
+            });
+
+            Swal.fire({
+                type: 'error',
+                title: 'Confira os campos',
+                html: listaErros.prop('outerHTML')
+            });
+        }
 
     });
 

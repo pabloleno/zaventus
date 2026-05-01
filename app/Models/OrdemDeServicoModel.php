@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class OrdemDeServicoModel extends Model
+class OrdemDeServicoModel extends PadraoModel
 {
     protected $table = 'ordens_de_servicos';
     protected $primaryKey = 'id_ordem';

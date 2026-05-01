@@ -21,6 +21,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title>Zaventus Gestao<?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
 
+    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
+    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32.png') ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= base_url('theme/plugins/fontawesome-free/css/all.css') ?>">
     <!-- SweetAlert2 -->

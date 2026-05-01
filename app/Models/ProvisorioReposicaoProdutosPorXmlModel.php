@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ProvisorioReposicaoProdutosPorXmlModel extends Model
+class ProvisorioReposicaoProdutosPorXmlModel extends PadraoModel
 {
     protected $table = 'provisorio_reposicao_produtos_por_xml';
     protected $primaryKey = 'id_produto_provisorio';

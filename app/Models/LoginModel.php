@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class LoginModel extends Model
+class LoginModel extends PadraoModel
 {
     protected $table = 'login';
     protected $primaryKey = 'id_login';

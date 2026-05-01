@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ReposicaoModel extends Model
+class ReposicaoModel extends PadraoModel
 {
     protected $table = 'reposicoes';
     protected $primaryKey = 'id_reposicao';

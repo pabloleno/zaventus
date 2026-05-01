@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class EquipamentoOsModel extends Model
+class EquipamentoOsModel extends PadraoModel
 {
     protected $table = 'equipamentos_os';
     protected $primaryKey = 'id_equipamento';

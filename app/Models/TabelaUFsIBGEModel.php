@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class TabelaUFsIBGEModel extends Model
+class TabelaUFsIBGEModel extends PadraoModel
 {
     protected $table = 'tabela_ufs_ibge';
     protected $primaryKey = 'id_tabela';

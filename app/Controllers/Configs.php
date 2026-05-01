@@ -58,6 +58,13 @@ class Configs extends Controller
     public function store_nfe()
     {
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
         $dados['id_config'] = 1; // Só tem uma configuração para NFe / NFCe
 
         $file = $this->request->getFile('arquivo');
@@ -108,7 +115,13 @@ class Configs extends Controller
     {
         $file = $this->request->getFile('arquivo');
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
 
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
         if ($file->isValid()) // Verifica se foi selecionado o certificado.
         {
             $local = WRITEPATH . "uploads\certificado_nfce.pfx";
@@ -196,6 +209,13 @@ class Configs extends Controller
     public function store_empresa()
     {
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
         $dados['id_config'] = 1; // Só tem uma configuração para a Empresa
 
         $this->config_empresa_model->save($dados);
@@ -260,6 +280,14 @@ class Configs extends Controller
     public function store_forma_de_pagamento()
     {
         $dados = $this->request->getvar();
+        $preparo = prepara_campos_padrao($dados);
+
+        if (! empty($preparo['erros'])) {
+            return redireciona_erros_campos_padrao($preparo['erros']);
+        }
+
+        $dados = $preparo['dados'];
+
         $this->forma_de_pagamento_model->save($dados);
 
         $session = session();

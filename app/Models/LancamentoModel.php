@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class LancamentoModel extends Model
+class LancamentoModel extends PadraoModel
 {
     protected $table = 'lancamentos';
     protected $primaryKey = 'id_lancamento';

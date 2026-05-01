@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class ContaReceberModel extends Model
+class ContaReceberModel extends PadraoModel
 {
     protected $table = 'contas_a_receber';
     protected $primaryKey = 'id_conta';

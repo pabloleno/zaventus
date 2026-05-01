@@ -2,9 +2,7 @@
 
 namespace App\Models;
 
-use CodeIgniter\Model;
-
-class FormaDePagamentoModel extends Model
+class FormaDePagamentoModel extends PadraoModel
 {
     protected $table = 'formas_de_pagamento';
     protected $primaryKey = 'id_forma';
