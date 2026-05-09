@@ -577,7 +577,7 @@ class OrdensDeServicos extends Controller
     // ----- CREATE ----- //
     public function alteraTotal()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
         $dados['id_ordem'] = 1;
 
         $this->ordem_de_servico_provisorio_model->save($dados);
@@ -591,7 +591,7 @@ class OrdensDeServicos extends Controller
     // ----- EDIT ----- //
     public function alteraTotalEdit()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
 
         $this->ordem_de_servico_model->save($dados);
         
@@ -786,7 +786,7 @@ class OrdensDeServicos extends Controller
     // ------------------------------------------------- FINALIZA VENDA ----------------------------------------------------- //
     public function finalizaOrdemDeServico()
     {
-        $dados_da_ordem_de_servicos = $this->request->getvar();
+        $dados_da_ordem_de_servicos = $this->normalizaTotaisDaOrdem($this->request->getvar());
         $this->produto_peca_os_provisorio_model->emptyTable('produtos_pecas_os_provisorio');
 
         $db = db_connect();
@@ -1075,9 +1075,22 @@ class OrdensDeServicos extends Controller
         return (float) $valor;
     }
 
+    private function normalizaTotaisDaOrdem(array $dados): array
+    {
+        foreach(['frete', 'outros', 'desconto'] as $campo)
+        {
+            if(isset($dados[$campo]))
+            {
+                $dados[$campo] = round($this->valorNumerico($dados[$campo]), 2);
+            }
+        }
+
+        return $dados;
+    }
+
     public function editDadosResponsaveis_e_DadosFinaisOrdemDeServico()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
 
         $this->ordem_de_servico_model->save($dados); // Altera os dados
 

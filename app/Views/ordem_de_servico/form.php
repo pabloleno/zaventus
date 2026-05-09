@@ -466,19 +466,19 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Frete</label>
-                                    <input type="number" step="0.01" class="form-control" id="total_os_frete" name="frete" value="<?= $decimal_os($dados_ordem_de_servico['frete']) ?>">
+                                    <input type="text" class="form-control" id="total_os_frete" name="frete" value="<?= str_replace('.', ',', $decimal_os($dados_ordem_de_servico['frete'])) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Outros</label>
-                                    <input type="number" step="0.01" class="form-control" id="total_os_outros" name="outros" value="<?= $decimal_os($dados_ordem_de_servico['outros']) ?>">
+                                    <input type="text" class="form-control" id="total_os_outros" name="outros" value="<?= str_replace('.', ',', $decimal_os($dados_ordem_de_servico['outros'])) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Desconto</label>
-                                    <input type="number" step="0.01" class="form-control" id="total_os_desconto" name="desconto" value="<?= $decimal_os($dados_ordem_de_servico['desconto']) ?>">
+                                    <input type="text" class="form-control" id="total_os_desconto" name="desconto" value="<?= str_replace('.', ',', $decimal_os($dados_ordem_de_servico['desconto'])) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
@@ -487,7 +487,7 @@
                                     <?php
                                         $valor_total_do_pagamento = ($total_servicos_mao_de_obra + $dados_ordem_de_servico['frete'] + $dados_ordem_de_servico['outros']) - $dados_ordem_de_servico['desconto'];
                                     ?>
-                                    <input type="number" step="0.01" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= $decimal_os($valor_total_do_pagamento) ?>" disabled>
+                                    <input type="text" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= str_replace('.', ',', $decimal_os($valor_total_do_pagamento)) ?>" disabled>
                                 </div>
                             </div>
                     </div>
@@ -790,6 +790,7 @@
 
     function finalizarOuEditarOdemDeServicos()
     {
+        ['total_os_frete', 'total_os_outros', 'total_os_desconto'].forEach(formataCampoDecimalOs);
         atualizaTotalOs();
 
         document.getElementById('finalizar_os_frete').value = document.getElementById('total_os_frete').value;
@@ -801,20 +802,38 @@
 
     function valorDecimalDoCampo(id)
     {
-        var valor = document.getElementById(id).value;
+        var valor = document.getElementById(id).value.trim();
 
         if(valor == '')
         {
             return 0;
         }
 
+        if(valor.indexOf(',') >= 0)
+        {
+            valor = valor.replace(/\./g, '').replace(',', '.');
+        }
+
         return parseFloat(valor.replace(',', '.')) || 0;
+    }
+
+    function formataDecimalOs(valor)
+    {
+        return valor.toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function formataCampoDecimalOs(id)
+    {
+        document.getElementById(id).value = formataDecimalOs(valorDecimalDoCampo(id));
     }
 
     function atualizaTotalOs()
     {
         var total = valorDecimalDoCampo('total_servicos_mao_de_obra') + valorDecimalDoCampo('total_os_frete') + valorDecimalDoCampo('total_os_outros') - valorDecimalDoCampo('total_os_desconto');
-        document.getElementById('valor_total_do_pagamento').value = total.toFixed(2);
+        document.getElementById('valor_total_do_pagamento').value = formataDecimalOs(total);
     }
 
     ['total_os_frete', 'total_os_outros', 'total_os_desconto'].forEach(function(id) {
@@ -823,6 +842,10 @@
         if(campo)
         {
             campo.addEventListener('input', atualizaTotalOs);
+            campo.addEventListener('blur', function() {
+                formataCampoDecimalOs(id);
+                atualizaTotalOs();
+            });
         }
     });
 
