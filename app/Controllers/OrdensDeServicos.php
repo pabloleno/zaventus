@@ -517,6 +517,7 @@ class OrdensDeServicos extends Controller
     public function alteraDadosServicoMaoDeObra()
     {
         $dados = $this->request->getvar();
+        $dados['desconto'] = 0;
 
         $this->servico_mao_de_obra_provisorio_model->save($dados);
 
@@ -564,6 +565,7 @@ class OrdensDeServicos extends Controller
     public function alteraDadosServicoMaoDeObraEdit()
     {
         $dados = $this->request->getvar();
+        $dados['desconto'] = 0;
 
         $this->servico_mao_de_obra_os_model->save($dados);
 
@@ -886,7 +888,7 @@ class OrdensDeServicos extends Controller
 
         foreach($servicos as $servico)
         {
-            $total_servicos += ($this->valorNumerico($servico['quantidade'] ?? 0) * $this->valorNumerico($servico['valor'] ?? 0)) - $this->valorNumerico($servico['desconto'] ?? 0);
+            $total_servicos += $this->valorNumerico($servico['quantidade'] ?? 0) * $this->valorNumerico($servico['valor'] ?? 0);
         }
 
         $total = $total_servicos

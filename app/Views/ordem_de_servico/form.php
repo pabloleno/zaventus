@@ -251,22 +251,16 @@
             <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraDadosServicoMaoDeObraEdit' : 'alteraDadosServicoMaoDeObra' ?>" method="post">
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-lg-4">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="">Qtd</label>
                                 <input type="text" class="form-control" id="altera_dados_servico_mao_de_obra_quantidade" name="quantidade" value="">
                             </div>
                         </div>
-                        <div class="col-lg-4">
+                        <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="">Valor</label>
                                 <input type="number" step="0.01" class="form-control" id="altera_dados_servico_mao_de_obra_valor" name="valor" value="">
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label for="">Desconto</label>
-                                <input type="number" step="0.01" class="form-control" id="altera_dados_servico_mao_de_obra_desconto" name="desconto" value="">
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -395,14 +389,13 @@
                             <table id="" class="table table-bordered table-striped">
                                 <thead>
                                     <tr>
-                                        <th colspan="7" style="text-align: center">SERVIÇOS/MÃO DE OBRA DA OS</th>
+                                        <th colspan="6" style="text-align: center">SERVIÇOS/MÃO DE OBRA DA OS</th>
                                     </tr>
                                     <tr>
                                         <th>Serviço</th>
                                         <th>Qtd</th>
                                         <th>Valor</th>
                                         <th>Subtotal</th>
-                                        <th>Desc.</th>
                                         <th>Total</th>
                                         <th style="width: 90px">Ações</th>
                                     </tr>
@@ -417,15 +410,14 @@
                                                 <td><?= $servico['quantidade'] ?></td>
                                                 <td><?= $decimal_os($servico['valor']) ?></td>
                                                 <td><?= $decimal_os($servico['quantidade'] * $servico['valor']) ?></td>
-                                                <td><?= $decimal_os($servico['desconto']) ?></td>
                                                 <td>
                                                     <?php
-                                                        $total = $servico['quantidade'] * $servico['valor'] - $servico['desconto'];
+                                                        $total = $servico['quantidade'] * $servico['valor'];
                                                         echo $decimal_os($total);
                                                     ?>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-warning style-action" onclick="alteraDadosServicoMaoDeObra(<?= $servico['quantidade'] ?>, <?= $decimal_os($servico['valor']) ?>, <?= $decimal_os($servico['desconto']) ?>, <?= $servico['id_servico'] ?>)" data-toggle="modal" data-target="#modal-altera-dados-servico-mao-de-obra"><i class="fas fa-edit"></i></button>
+                                                    <button type="button" class="btn btn-warning style-action" onclick="alteraDadosServicoMaoDeObra(<?= $servico['quantidade'] ?>, <?= $decimal_os($servico['valor']) ?>, <?= $servico['id_servico'] ?>)" data-toggle="modal" data-target="#modal-altera-dados-servico-mao-de-obra"><i class="fas fa-edit"></i></button>
                                                     <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse Serviço/Mão de Obra?', '/ordensDeServicos/<?= (isset($acao_user)) ? 'deleteServicoMaoDeObraEdit' : 'deleteServicoMaoDeObra' ?>/<?= $servico['id_servico'] ?>/<?= (isset($acao_user)) ? $id_ordem : '' ?>')"><i class="fa fa-trash"></i></button>
                                                 </td>
                                             <tr>
@@ -434,7 +426,7 @@
                                         <?php endforeach; ?>
                                     <?php else: ?>
                                         <tr>
-                                            <td colspan="7">Nenhum registro!</td>
+                                            <td colspan="6">Nenhum registro!</td>
                                         </tr>
                                     <?php endif; ?>
                                 </tbody>
@@ -863,11 +855,10 @@
         document.getElementById('visualiza_eq_termos_de_garantia').value = termos_de_garantia;
     }
 
-    function alteraDadosServicoMaoDeObra(quantidade, valor, desconto, id_servico)
+    function alteraDadosServicoMaoDeObra(quantidade, valor, id_servico)
     {
         document.getElementById('altera_dados_servico_mao_de_obra_quantidade').value = quantidade;
         document.getElementById('altera_dados_servico_mao_de_obra_valor').value      = valor;
-        document.getElementById('altera_dados_servico_mao_de_obra_desconto').value   = desconto;
         document.getElementById('altera_dados_servico_mao_de_obra_id_servico').value = id_servico;
     }
 
