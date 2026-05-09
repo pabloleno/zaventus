@@ -26,32 +26,6 @@
                 <div class="col-lg-12">
                     <div class="row">
                         <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box bg-info">
-                                <span class="info-box-icon"><i class="fas fa-user"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Clientes</span>
-                                    <span class="info-box-number"><?= $total_de_clientes ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box" style="background: #B84BFF; color: white">
-                                <span class="info-box-icon"><i class="far fa-thumbs-up"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Produtos</span>
-                                    <span class="info-box-number"><?= $total_de_produtos ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
                             <div class="info-box bg-success">
                                 <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
 
@@ -69,8 +43,8 @@
                                 <span class="info-box-icon"><i class="fas fa-comments"></i></span>
 
                                 <div class="info-box-content">
-                                    <span class="info-box-text">Fat. <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= number_format($faturamento_total, 2, ',', '.') ?></span>
+                                    <span class="info-box-text">Fat. Produtos <?= date('m/Y') ?></span>
+                                    <span class="info-box-number"><?= number_format($faturamento_produtos, 2, ',', '.') ?></span>
                                 </div>
                                 <!-- /.info-box-content -->
                             </div>
@@ -103,6 +77,32 @@
                             <!-- /.info-box -->
                         </div>
                         <!-- /.col -->
+                        <div class="col-md-2 col-sm-6 col-12">
+                            <div class="info-box" style="background: #20c997; color: white">
+                                <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">OS Concret. <?= date('m/Y') ?></span>
+                                    <span class="info-box-number"><?= $total_de_orcamentos_concretizados ?></span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
+                        <div class="col-md-2 col-sm-6 col-12">
+                            <div class="info-box" style="background: #6f42c1; color: white">
+                                <span class="info-box-icon"><i class="fas fa-tools"></i></span>
+
+                                <div class="info-box-content">
+                                    <span class="info-box-text">Fat. Servicos <?= date('m/Y') ?></span>
+                                    <span class="info-box-number"><?= number_format($faturamento_servicos, 2, ',', '.') ?></span>
+                                </div>
+                                <!-- /.info-box-content -->
+                            </div>
+                            <!-- /.info-box -->
+                        </div>
+                        <!-- /.col -->
                     </div>
                     <!-- /.row -->
                 </div>
@@ -110,7 +110,7 @@
                     <!-- BAR CHART -->
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Faturamento em <?= date('Y') ?></h3>
+                            <h3 class="card-title">Faturamento de Produtos em <?= date('Y') ?></h3>
 
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -127,11 +127,11 @@
                                     "data": {
                                         "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
                                         "datasets": [{
-                                            "label": "Faturamento",
+                                            "label": "Produtos",
                                             "data": [
                                                 <?php
-                                                if (!empty($faturamentos)) {
-                                                    foreach ($faturamentos as $faturamento) {
+                                                if (!empty($faturamentos_produtos)) {
+                                                    foreach ($faturamentos_produtos as $faturamento) {
                                                         echo $faturamento . ", ";
                                                     }
                                                 }
@@ -154,7 +154,7 @@
                     <!-- BAR CHART -->
                     <div class="card">
                         <div class="card-header">
-                            <h3 class="card-title">Faturamento em <?= date('Y') ?></h3>
+                            <h3 class="card-title">Faturamento de Servicos Concretizados em <?= date('Y') ?></h3>
 
                             <div class="card-tools">
                                 <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
@@ -167,24 +167,23 @@
 
                             <script>
                                 new Chart(document.getElementById("chartjs-1"), {
-                                    "type": "bar",
+                                    "type": "line",
                                     "data": {
                                         "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
                                         "datasets": [{
-                                            "label": "Faturamento",
+                                            "label": "Servicos",
                                             "data": [
                                                 <?php
-                                                if (!empty($faturamentos)) {
-                                                    foreach ($faturamentos as $faturamento) {
+                                                if (!empty($faturamentos_servicos)) {
+                                                    foreach ($faturamentos_servicos as $faturamento) {
                                                         echo $faturamento . ", ";
                                                     }
                                                 }
                                                 ?>
                                             ],
                                             "fill": false,
-                                            "backgroundColor": ["rgba(255, 99, 132, 0.2)", "rgba(255, 159, 64, 0.2)", "rgba(255, 205, 86, 0.2)", "rgba(75, 192, 192, 0.2)", "rgba(54, 162, 235, 0.2)", "rgba(153, 102, 255, 0.2)", "rgba(201, 203, 207, 0.2)"],
-                                            "borderColor": ["rgb(255, 99, 132)", "rgb(255, 159, 64)", "rgb(255, 205, 86)", "rgb(75, 192, 192)", "rgb(54, 162, 235)", "rgb(153, 102, 255)", "rgb(201, 203, 207)"],
-                                            "borderWidth": 1
+                                            "borderColor": "rgb(255, 99, 132)",
+                                            "lineTension": 0.1
                                         }]
                                     },
                                     "options": {
