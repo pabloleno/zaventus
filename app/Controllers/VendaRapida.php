@@ -5,11 +5,9 @@ namespace App\Controllers;
 use App\Models\CaixaModel;
 use App\Models\ClienteModel;
 use App\Models\FormaDePagamentoModel;
-use App\Models\OrcamentoModel;
 use App\Models\PedidoModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\ProdutoDaVendaRapidaModel;
-use App\Models\ProdutoDoOrcamentoModel;
 use App\Models\ProdutoDoPedidoModel;
 use App\Models\ProdutoModel;
 use App\Models\VendaModel;
@@ -27,8 +25,6 @@ class VendaRapida extends Controller
     private $produto_da_venda_model;
     private $pedido_model;
     private $produto_do_pedido_model;
-    private $orcamento_model;
-    private $produto_do_orcamento_model;
     private $forma_de_pagamento_model;
     private $vendedor_model;
 
@@ -48,8 +44,6 @@ class VendaRapida extends Controller
         $this->produto_da_venda_model        = new ProdutoDaVendaModel();
         $this->pedido_model                  = new PedidoModel();
         $this->produto_do_pedido_model       = new ProdutoDoPedidoModel();
-        $this->orcamento_model               = new OrcamentoModel();
-        $this->produto_do_orcamento_model    = new ProdutoDoOrcamentoModel();
         $this->forma_de_pagamento_model      = new FormaDePagamentoModel();
         $this->vendedor_model                = new VendedorModel();
     }
@@ -161,28 +155,6 @@ class VendaRapida extends Controller
         return TRUE;
     }
 
-    public function tipoOrcamento($dados)
-    {
-        $dados['status'] = "Aberto"; // Por padrão todo orçamento gerado terá o status de Aberto
-
-        $id_orcamento = $this->orcamento_model->insert($dados);
-
-        $produtos_da_venda_rapida = $this->produto_da_venda_rapida_model->findAll();
-
-        foreach ($produtos_da_venda_rapida as $produto) {
-            $produto['id_orcamento'] = $id_orcamento;
-            $this->produto_do_orcamento_model->insert($produto);
-        }
-
-        // Remove todos os registros da tabela produtos_da_venda_rapida.
-        $this->produto_da_venda_rapida_model->emptyTable('produtos_da_venda_rapida');
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_orcamento');
-
-        return TRUE;
-    }
-
     public function store()
     {
         $dados = $this->request->getvar();
@@ -197,10 +169,6 @@ class VendaRapida extends Controller
         else if($dados['tipo'] == "Pedido")
         {
             $this->tipoPedido($dados);
-        }
-        else if($dados['tipo'] == "Orçamento")
-        {
-            $this->tipoOrcamento($dados);
         }
 
         return redirect()->to('/vendaRapida');

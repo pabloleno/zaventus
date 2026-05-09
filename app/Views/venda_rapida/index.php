@@ -260,7 +260,6 @@
                                     <select class="form-control select2" name="tipo" style="width: 100%;" required="">
                                         <option value="">-- Selecione o tipo --</option>
                                         <option value="Venda">Venda</option>
-                                        <option value="Orçamento">Orçamento</option>
                                         <option value="Pedido">Pedido</option>
                                     </select>
                                 </div>
@@ -371,11 +370,6 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Pedido cadastrado com sucesso!'
-                })
-            <?php elseif ($alert == "success_orcamento") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Orçamento cadastrado com sucesso!'
                 })
             <?php elseif ($alert == "success_add_produto") : ?>
                 Toast.fire({

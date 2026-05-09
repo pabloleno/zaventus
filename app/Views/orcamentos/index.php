@@ -112,7 +112,7 @@
                 <div class="card-body no-print">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/vendaRapida" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Novo Orçamento</a>
+                            <a href="/ordensDeServicos/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Novo Orçamento</a>
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-filtrar"><i class="fa fa-filter"></i> Filtrar</button>
                             <button type="button" class="btn btn-info" onclick="print()"><i class="fas fa-print"></i> Imprimir</button>
                         </div>

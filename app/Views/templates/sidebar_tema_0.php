@@ -98,12 +98,6 @@
                                 </li>
                             <?php endif; ?>
                             <li class="nav-item">
-                                <a id="2.5" href="/ordensDeServicos/create" class="nav-link">
-                                    <i class="far fa-circle nav-icon"></i>
-                                    <p>Gerar Ordem de Serv.</p>
-                                </a>
-                            </li>
-                            <li class="nav-item">
                                 <a id="2.6" href="/ordensDeServicos" class="nav-link">
                                     <i class="far fa-circle nav-icon"></i>
                                     <p>Ordens de Servicos</p>
@@ -111,7 +105,7 @@
                             </li>
                             <?php if($exibe_orcamentos): ?>
                                 <li class="nav-item">
-                                    <a id="2.7" href="/orcamentos" class="nav-link">
+                                    <a id="2.7" href="/ordensDeServicos/orcamentos" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p>Orcamentos</p>
                                     </a>

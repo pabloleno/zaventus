@@ -59,7 +59,7 @@ class OrdensDeServicos extends Controller
         $this->links = [
             'menu' => '2.m',
             'item' => '2.0',
-            'subItem' => '2.5'
+            'subItem' => '2.6'
         ];
 
         $this->pagamento_os_provisorio_model             = new PagamentoOsProvisorioModel();
@@ -102,7 +102,48 @@ class OrdensDeServicos extends Controller
             ['titulo' => "Ordens de Serviço", 'rota'   => "", 'active' => true]
         ];
 
-        $data['ordens_de_servicos'] = $this->ordem_de_servico_model->orderBy('id_ordem', 'DESC')->limit(15)->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')->findAll();
+        $data['ordens_de_servicos'] = $this->ordem_de_servico_model
+            ->whereIn('situacao', ['Concretizada', 'Cancelada'])
+            ->orderBy('id_ordem', 'DESC')
+            ->limit(15)
+            ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
+            ->findAll();
+
+        $data['situacoes_alteracao'] = ['Em aberto', 'Em andamento'];
+        $data['titulo_lista'] = '15 últimas ordens de serviços cadastradas';
+        $data['exibe_botao_novo_orcamento'] = false;
+
+        echo view('templates/header');
+        echo view('ordem_de_servico/index', $data);
+        echo view('templates/footer');
+    }
+
+    public function orcamentos()
+    {
+        $this->links['subItem'] = "2.7";
+
+        $data['links'] = $this->links;
+
+        $data['titulo'] = [
+            'modulo' => 'Orçamentos',
+            'icone'  => 'fa fa-database'
+        ];
+
+        $data['caminhos'] = [
+            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
+            ['titulo' => "Orçamentos", 'rota'   => "", 'active' => true]
+        ];
+
+        $data['ordens_de_servicos'] = $this->ordem_de_servico_model
+            ->whereIn('situacao', ['Em aberto', 'Em andamento', 'Aberto'])
+            ->orderBy('id_ordem', 'DESC')
+            ->limit(15)
+            ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
+            ->findAll();
+
+        $data['situacoes_alteracao'] = ['Concretizada', 'Cancelada'];
+        $data['titulo_lista'] = '15 últimos orçamentos cadastrados';
+        $data['exibe_botao_novo_orcamento'] = true;
 
         echo view('templates/header');
         echo view('ordem_de_servico/index', $data);
@@ -112,27 +153,45 @@ class OrdensDeServicos extends Controller
     public function alteraSituacaoDaOrdemDeServicos()
     {
         $dados = $this->request->getvar();
+        $situacao = $dados['situacao'] ?? '';
+
+        if(!in_array($situacao, ['Em aberto', 'Em andamento', 'Concretizada', 'Cancelada']))
+        {
+            return redirect()->to('/ordensDeServicos');
+        }
 
         $this->ordem_de_servico_model->save($dados);
 
         $session = session();
         $session->setFlashdata('alert', 'success_altera_situacao_ordem_de_servivo');
 
-        return redirect()->to('/ordensDeServicos');
+        return redirect()->to($this->rotaListagemDaSituacao($situacao));
+    }
+
+    private function rotaListagemDaSituacao($situacao)
+    {
+        if(in_array($situacao, ['Concretizada', 'Cancelada']))
+        {
+            return '/ordensDeServicos';
+        }
+
+        return '/ordensDeServicos/orcamentos';
     }
 
     public function create()
     {
+        $this->links['subItem'] = "2.7";
+
         $data['links'] = $this->links;
 
         $data['titulo'] = [
-            'modulo' => 'Nova Ordem de Serviço',
+            'modulo' => 'Novo Orçamento',
             'icone'  => 'fa fa-plus-circle'
         ];
 
         $data['caminhos'] = [
             ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Ordens De Serviços", 'rota' => "/ordensDeServicos", 'active' => false],
+            ['titulo' => "Orçamentos", 'rota' => "/ordensDeServicos/orcamentos", 'active' => false],
             ['titulo' => "Nova", 'rota'   => "", 'active' => true]
         ];
 
@@ -141,7 +200,7 @@ class OrdensDeServicos extends Controller
         {
             $this->ordem_de_servico_provisorio_model->insert([
                 'id_ordem'             => 1,
-                'situacao'             => "Aberto",
+                'situacao'             => "Em aberto",
                 'data_de_entrada'      => date('Y-m-d'),
                 'hora_de_entrada'      => date('H:i:s'),
                 'canal_de_venda'       => "Presencial",
@@ -171,6 +230,8 @@ class OrdensDeServicos extends Controller
                 'id_pagamento'       => 1
             ]);
         }
+
+        $this->produto_peca_os_provisorio_model->emptyTable('produtos_pecas_os_provisorio');
 
         $os = $this->ordem_de_servico_provisorio_model->where('id_ordem', 1)->first();
 
@@ -726,20 +787,7 @@ class OrdensDeServicos extends Controller
     public function finalizaOrdemDeServico()
     {
         $dados_da_ordem_de_servicos = $this->request->getvar();
-        $produtos_e_pecas_provisorio = $this->produto_peca_os_provisorio_model->findAll();
-
-        if(!empty($produtos_e_pecas_provisorio))
-        {
-            $caixa = $this->caixa_model->where('status', 'Aberto')->orderBy('id_caixa', 'DESC')->first();
-
-            if(empty($caixa))
-            {
-                $session = session();
-                $session->setFlashdata('alert', 'error_caixa_os_produtos');
-
-                return redirect()->to('/ordensDeServicos/create/#table-produto-peca');
-            }
-        }
+        $this->produto_peca_os_provisorio_model->emptyTable('produtos_pecas_os_provisorio');
 
         $db = db_connect();
         $db->transBegin();
@@ -755,25 +803,18 @@ class OrdensDeServicos extends Controller
         $pagamento = $this->pagamento_os_provisorio_model->where('id_pagamento', 1)->first();
         unset($pagamento['id_pagamento']); // Remove o id_pagamento para inserir o definitivo
         $pagamento['id_ordem'] = $id_ordem;
+        $pagamento['tipo'] = "À Vista";
 
         // Insere o pagamento na tabela definitiva
         $id_pagamento = $this->pagamento_os_model->insert($pagamento);
 
-        // Pega as parcelas do pagamento da tabela provisória
-        $parcelas = $this->parcelas_do_pagamento_os_provisorio_model->findAll();
-
-        // Insere as parcelas na tabela 'parcelas_do_pagamento' definitiva
-        foreach($parcelas as $parcela)
-        {
-            unset($parcela['id_parcela']); // Remove o id_parcela para ser inserido o novo definitivo
-            unset($parcela['created_at']); // Remove o created_at para ser inserido o novo definitivo
-            unset($parcela['updated_at']); // Remove o updated_at para ser inserido o novo definitivo
-            unset($parcela['deleted_at']); // Remove o deleted_at para ser inserido o novo definitivo
-            
-            $parcela['id_pagamento'] = $id_pagamento; // Altera o id_pagamento para o novo da tabela definitiva
-            
-            $this->parcelas_do_pagamento_os_model->insert($parcela);
-        }
+        $this->parcelas_do_pagamento_os_model->insert([
+            'data_de_vencimento' => date('Y-m-d'),
+            'valor_da_parcela'   => $this->valorTotalDaOrdem($dados_da_ordem_de_servicos),
+            'forma_de_pagamento' => "Dinheiro",
+            'observacoes'        => "",
+            'id_pagamento'       => $id_pagamento
+        ]);
         // ------------------------------------------------------------------- //
 
 
@@ -811,32 +852,11 @@ class OrdensDeServicos extends Controller
         // ------------------------------------------------------------------------------- //
         
 
-        // ------------------------------------ PRODUTOS/PEÇAS ------------------------------- //
-        foreach($produtos_e_pecas_provisorio as $produto_peca)
-        {
-            unset($produto_peca['id_produto']); // Remove o id_produto para ser inserido o novo definitivo
-            unset($produto_peca['created_at']); // Remove o created_at para ser inserido o novo definitivo
-            unset($produto_peca['updated_at']); // Remove o updated_at para ser inserido o novo definitivo
-            unset($produto_peca['deleted_at']); // Remove o deleted_at para ser inserido o novo definitivo
-
-            $produto_peca['id_ordem'] = $id_ordem; // Altera o id_ordem para o definitivo
-         
-            $this->produto_peca_os_model->insert($produto_peca);
-        }
-        // ------------------------------------------------------------------------------- //
-
-
-        // Remove todos os registros da tabela ordens_de_servicos_provisorio assim, limpa todos os outros dados para poder criar outra ordem de serviço
-        if(!empty($produtos_e_pecas_provisorio))
-        {
-            $this->registrarVendaDosProdutosDaOs($dados_da_ordem_de_servicos, $produtos_e_pecas_provisorio, (int) $caixa['id_caixa']);
-        }
-
         $this->ordem_de_servico_provisorio_model->emptyTable('ordens_de_servicos_provisorio');
 
         if(!$db->transStatus())
         {
-            throw new \RuntimeException('Falha ao salvar a ordem de servico e a venda dos produtos.');
+            throw new \RuntimeException('Falha ao salvar a ordem de servico.');
         }
 
         $db->transCommit();
@@ -844,19 +864,37 @@ class OrdensDeServicos extends Controller
         $session = session();
         $session->setFlashdata('alert', 'success_finaliza_ordem_de_servico');
 
-        return redirect()->to('/ordensDeServicos');
+        return redirect()->to($this->rotaListagemDaSituacao($dados_da_ordem_de_servicos['situacao']));
         }
         catch(\Throwable $exception)
         {
             $db->transRollback();
 
-            log_message('error', 'Erro ao finalizar OS e registrar venda de produtos: ' . $exception->getMessage());
+            log_message('error', 'Erro ao finalizar OS: ' . $exception->getMessage());
 
             $session = session();
-            $session->setFlashdata('alert', 'error_venda_produtos_os');
+            $session->setFlashdata('alert', 'error_finaliza_os');
 
-            return redirect()->to('/ordensDeServicos/create/#table-produto-peca');
+            return redirect()->to('/ordensDeServicos/create');
         }
+    }
+
+    private function valorTotalDaOrdem(array $ordem): float
+    {
+        $servicos = $this->servico_mao_de_obra_provisorio_model->findAll();
+        $total_servicos = 0;
+
+        foreach($servicos as $servico)
+        {
+            $total_servicos += ($this->valorNumerico($servico['quantidade'] ?? 0) * $this->valorNumerico($servico['valor'] ?? 0)) - $this->valorNumerico($servico['desconto'] ?? 0);
+        }
+
+        $total = $total_servicos
+            + $this->valorNumerico($ordem['frete'] ?? 0)
+            + $this->valorNumerico($ordem['outros'] ?? 0)
+            - $this->valorNumerico($ordem['desconto'] ?? 0);
+
+        return round($total, 2);
     }
 
 
@@ -1051,11 +1089,14 @@ class OrdensDeServicos extends Controller
 
     public function delete($id_ordem) // Deleta a ordem de serviço
     {
+        $ordem = $this->ordem_de_servico_model->where('id_ordem', $id_ordem)->first();
+        $rota = !empty($ordem) ? $this->rotaListagemDaSituacao($ordem['situacao']) : '/ordensDeServicos';
+
         $this->ordem_de_servico_model->where('id_ordem', $id_ordem)->delete();
 
         $session = session();
         $session->setFlashdata('alert', 'success_delete_ordem_de_servico');
 
-        return redirect()->to('/ordensDeServicos');
+        return redirect()->to($rota);
     }
 }

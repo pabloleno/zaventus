@@ -1,68 +1,21 @@
-<!-- Modal Altera Tipo Pagamento -->
-<div class="modal fade" id="modal-parcelamento">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Venda Parcelada</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'calculaParcelasOsEdit' : 'calculaParcelasOs' ?>" method="post">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label>Forma de PGTO</label>
-                                <select class="form-control select2" name="forma_de_pagamento" style="width: 100%;" required="">
-                                    <?php foreach ($formas_de_pagamento as $forma) : ?>
-                                        <option value="<?= $forma['nome'] ?>"><?= $forma['nome'] ?></option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <label for="">Intervalo parcelas (dias)</label>
-                            <input type="text" class="form-control" name="intervalo_parcelas" value="30" required>
-                        </div>
-                        <div class="col-lg-4">
-                            <label for="">Quant. parcelas</label>
-                            <input type="int" class="form-control" name="quantidade_de_parcelas" value="1" required>
-                        </div>
-                        <div class="col-lg-4">
-                            <label for="">Data 1º parcela</label>
-                            <input type="date" class="form-control" name="data_primeira_parcela" required>
-                        </div>
-                        <div class="col-lg-4">
-                            <input type="hidden" class="form-control" id="valor_total_dos_servicos" name="valor_total_dos_servicos">
-                        </div>
+<?php
+    $decimal_os = static function ($valor) {
+        if(is_string($valor) && strpos($valor, ',') !== false)
+        {
+            $valor = str_replace('.', '', $valor);
+            $valor = str_replace(',', '.', $valor);
+        }
 
-                        <!-- ------ HIDDEN PARA EDIT ----- -->
-                        <?php if(isset($acao_user)): ?>
-                            <input type="hidden" name="id_ordem" value="<?= $id_ordem ?>">
-                        <?php endif; ?>
-                        <!-- ----------------------------- -->
-
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Continuar</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
+        return number_format((float) $valor, 2, '.', '');
+    };
+?>
 
 <!-- Modal Adiciona novo Equipamento -->
 <div class="modal fade" id="modal-add-equipamento">
     <div class="modal-dialog mw-100 w-75">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Novo Equipamento</h4>
+                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Novo equipamento</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -237,123 +190,12 @@
 <!-- /.modal -->
 
 
-<!-- Modal Adiciona novo Produto/Peça -->
-<div class="modal fade" id="modal-add-produtos-pecas">
-    <div class="modal-dialog mw-100 w-75">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Novo Produto/Peça</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'addProdutoEdit' : 'addProduto' ?>" method="post">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label>Produto</label>
-                                <select class="form-control select2" name="id_produto" style="width: 100%;" required>
-                                    <option value="">Selecione..</option>
-                                    <?php if (!empty($produtos)) : ?>
-                                        <?php foreach ($produtos as $produto) : ?>
-                                            <option value="<?= $produto['id_produto'] ?>"><?= $produto['nome'] ?></option>
-                                        <?php endforeach; ?>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- ------ HIDDEN PARA EDIT ----- -->
-                        <?php if(isset($acao_user)): ?>
-                            <input type="hidden" name="id_ordem" value="<?= $id_ordem ?>">
-                        <?php endif; ?>
-                        <!-- ----------------------------- -->
-
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Continuar</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
-
-<!-- Modal Edita Dados do Produto/Peça -->
-<div class="modal fade" id="modal-altera-dados-produto-peca">
-    <div class="modal-dialog mw-100 w-75">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Editar dados do Produto/Peça</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraDadosProdutoPecaEdit' : 'alteraDadosProdutoPeca' ?>" method="post">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label for="">Qtd</label>
-                                <input type="text" class="form-control" id="altera_dados_produto_peca_quantidade" name="quantidade" value="">
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label for="">Valor</label>
-                                <input type="text" class="form-control" id="altera_dados_produto_peca_valor" name="valor_unitario" value="">
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label for="">Desconto</label>
-                                <input type="text" class="form-control" id="altera_dados_produto_peca_desconto" name="desconto" value="">
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <input type="hidden" class="form-control" id="altera_dados_produto_peca_id_produto" name="id_produto" value="">
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <input type="hidden" class="form-control" name="id_ordem" value="<?= $id_ordem ?>">
-                            </div>
-                        </div>
-
-                        <!-- ------ HIDDEN PARA EDIT ----- -->
-                        <?php if(isset($acao_user)): ?>
-                            <input type="hidden" name="id_ordem" value="<?= $id_ordem ?>">
-                        <?php endif; ?>
-                        <!-- ----------------------------- -->
-                    </div>
-                </div>
-
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Continuar</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
-
 <!-- Modal Adiciona novo Serviços/Mão de obra -->
 <div class="modal fade" id="modal-add-servico-mao-de-obra">
     <div class="modal-dialog mw-100 w-75">
         <div class="modal-content">
             <div class="modal-header">
-                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Novo Serviços/Mão de obra</h4>
+                <h4 class="modal-title"><i class="fas fa-plus-circle"></i> Novo Serviço/Mão de obra</h4>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
@@ -418,13 +260,13 @@
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="">Valor</label>
-                                <input type="text" class="form-control" id="altera_dados_servico_mao_de_obra_valor" name="valor" value="">
+                                <input type="number" step="0.01" class="form-control" id="altera_dados_servico_mao_de_obra_valor" name="valor" value="">
                             </div>
                         </div>
                         <div class="col-lg-4">
                             <div class="form-group">
                                 <label for="">Desconto</label>
-                                <input type="text" class="form-control" id="altera_dados_servico_mao_de_obra_desconto" name="desconto" value="">
+                                <input type="number" step="0.01" class="form-control" id="altera_dados_servico_mao_de_obra_desconto" name="desconto" value="">
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -487,7 +329,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg-12" style="text-align: right">
-                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-add-equipamento" style="margin-bottom: 15px"><i class="fas fa-plus-circle"></i> Novo Equipamento</button>
+                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-add-equipamento" style="margin-bottom: 15px"><i class="fas fa-plus-circle"></i> Novo equipamento</button>
                         </div>
                     </div>
                     <div class="row">
@@ -533,77 +375,6 @@
             </div>
             <!-- /.card -->
 
-            <div id="table-produto-peca" class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h6 class="m-0 text-dark"><i class="fas fa-user"></i> Produtos/Peças</h6>
-                        </div><!-- /.col -->
-                    </div>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-12" style="text-align: right">
-                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-add-produtos-pecas" style="margin-bottom: 15px"><i class="fas fa-plus-circle"></i> Novo Produto/Peça</button>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <table id="" class="table table-bordered table-striped">
-                                <thead>
-                                    <tr>
-                                        <th colspan="7" style="text-align: center">PRODUTOS/PEÇAS DA OS</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Produto</th>
-                                        <th>Qtd</th>
-                                        <th>Valor</th>
-                                        <th>Subtotal</th>
-                                        <th>Desc.</th>
-                                        <th>Total</th>
-                                        <th style="width: 90px">Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <?php $total_produtos_pecas = 0; ?>
-
-                                    <?php if(!empty($produtos_os_provisorio)): ?>
-                                        <?php foreach($produtos_os_provisorio as $produto): ?>
-                                            <tr>
-                                                <td><?= $produto['nome'] ?></td>
-                                                <td><?= $produto['quantidade'] ?></td>
-                                                <td><?= $produto['valor_unitario'] ?></td>
-                                                <td><?= $produto['quantidade'] * $produto['valor_unitario'] ?></td>
-                                                <td><?= $produto['desconto'] ?></td>
-                                                <td>
-                                                    <?php
-                                                        $total = $produto['quantidade'] * $produto['valor_unitario'] - $produto['desconto'];
-                                                        echo $total;
-                                                    ?>
-                                                </td>
-                                                <td>
-                                                    <button type="button" class="btn btn-warning style-action" onclick="alteraDadosProdutoPeca(<?= $produto['quantidade'] ?>, <?= $produto['valor_unitario'] ?>, <?= $produto['desconto'] ?>, <?= $produto['id_produto'] ?>)" data-toggle="modal" data-target="#modal-altera-dados-produto-peca"><i class="fas fa-edit"></i></button>
-                                                    <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse produto/peça?', '/ordensDeServicos/<?= (isset($acao_user)) ? 'deleteProdutoEdit' : 'deleteProduto' ?>/<?= $produto['id_produto'] ?>/<?= (isset($acao_user)) ? $id_ordem : '' ?>')"><i class="fa fa-trash"></i></button>
-                                                </td>
-                                            <tr>
-
-                                            <?php $total_produtos_pecas += $total ?>
-                                        <?php endforeach; ?>
-                                    <?php else: ?>
-                                        <tr>
-                                            <td colspan="7">Nenhum registro!</td>
-                                        </tr>
-                                    <?php endif; ?>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
             <div class="card">
                 <div id="table-servico-mao-de-obra" class="card-header">
                     <div class="row">
@@ -616,7 +387,7 @@
                 <div class="card-body">
                     <div class="row">
                         <div class="col-lg-12" style="text-align: right">
-                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-add-servico-mao-de-obra" style="margin-bottom: 15px"><i class="fas fa-plus-circle"></i> Novo Serviço/Mão de Obra</button>
+                            <button class="btn btn-info" data-toggle="modal" data-target="#modal-add-servico-mao-de-obra" style="margin-bottom: 15px"><i class="fas fa-plus-circle"></i> Novo Serviço/Mão de obra</button>
                         </div>
                     </div>
                     <div class="row">
@@ -644,17 +415,17 @@
                                             <tr>
                                                 <td><?= $servico['nome'] ?></td>
                                                 <td><?= $servico['quantidade'] ?></td>
-                                                <td><?= $servico['valor'] ?></td>
-                                                <td><?= $servico['quantidade'] * $servico['valor'] ?></td>
-                                                <td><?= $servico['desconto'] ?></td>
+                                                <td><?= $decimal_os($servico['valor']) ?></td>
+                                                <td><?= $decimal_os($servico['quantidade'] * $servico['valor']) ?></td>
+                                                <td><?= $decimal_os($servico['desconto']) ?></td>
                                                 <td>
                                                     <?php
                                                         $total = $servico['quantidade'] * $servico['valor'] - $servico['desconto'];
-                                                        echo $total;
+                                                        echo $decimal_os($total);
                                                     ?>
                                                 </td>
                                                 <td>
-                                                    <button type="button" class="btn btn-warning style-action" onclick="alteraDadosServicoMaoDeObra(<?= $servico['quantidade'] ?>, <?= $servico['valor'] ?>, <?= $servico['desconto'] ?>, <?= $servico['id_servico'] ?>)" data-toggle="modal" data-target="#modal-altera-dados-servico-mao-de-obra"><i class="fas fa-edit"></i></button>
+                                                    <button type="button" class="btn btn-warning style-action" onclick="alteraDadosServicoMaoDeObra(<?= $servico['quantidade'] ?>, <?= $decimal_os($servico['valor']) ?>, <?= $decimal_os($servico['desconto']) ?>, <?= $servico['id_servico'] ?>)" data-toggle="modal" data-target="#modal-altera-dados-servico-mao-de-obra"><i class="fas fa-edit"></i></button>
                                                     <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse Serviço/Mão de Obra?', '/ordensDeServicos/<?= (isset($acao_user)) ? 'deleteServicoMaoDeObraEdit' : 'deleteServicoMaoDeObra' ?>/<?= $servico['id_servico'] ?>/<?= (isset($acao_user)) ? $id_ordem : '' ?>')"><i class="fa fa-trash"></i></button>
                                                 </td>
                                             <tr>
@@ -685,141 +456,41 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraTotalEdit' : 'alteraTotal' ?>" method="post">
-                        <div class="row">
-                            <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label for="">Produtos/Peças</label>
-                                    <input type="text" class="form-control" value="<?= $total_produtos_pecas ?>" disabled>
-                                </div>
-                            </div>
+                    <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Servico/Mão de obra</label>
-                                    <input type="text" class="form-control" value="<?= $total_servicos_mao_de_obra ?>" disabled>
+                                    <input type="number" step="0.01" class="form-control" id="total_servicos_mao_de_obra" value="<?= $decimal_os($total_servicos_mao_de_obra) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Frete</label>
-                                    <input type="text" class="form-control" id="total_os_frete" name="frete" value="<?= $dados_ordem_de_servico['frete'] ?>">
+                                    <input type="number" step="0.01" class="form-control" id="total_os_frete" name="frete" value="<?= $decimal_os($dados_ordem_de_servico['frete']) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Outros</label>
-                                    <input type="text" class="form-control" id="total_os_outros" name="outros" value="<?= $dados_ordem_de_servico['outros'] ?>">
+                                    <input type="number" step="0.01" class="form-control" id="total_os_outros" name="outros" value="<?= $decimal_os($dados_ordem_de_servico['outros']) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Desconto</label>
-                                    <input type="text" class="form-control" id="total_os_desconto" name="desconto" value="<?= $dados_ordem_de_servico['desconto'] ?>">
+                                    <input type="number" step="0.01" class="form-control" id="total_os_desconto" name="desconto" value="<?= $decimal_os($dados_ordem_de_servico['desconto']) ?>">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Total</label>
                                     <?php
-                                        $valor_total_do_pagamento = ($total_produtos_pecas + $total_servicos_mao_de_obra + $dados_ordem_de_servico['frete'] + $dados_ordem_de_servico['outros']) - $dados_ordem_de_servico['desconto'];
+                                        $valor_total_do_pagamento = ($total_servicos_mao_de_obra + $dados_ordem_de_servico['frete'] + $dados_ordem_de_servico['outros']) - $dados_ordem_de_servico['desconto'];
                                     ?>
-                                    <input type="text" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= $valor_total_do_pagamento ?>" disabled>
+                                    <input type="number" step="0.01" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= $decimal_os($valor_total_do_pagamento) ?>" disabled>
                                 </div>
                             </div>
-
-                            <!-- ------ HIDDEN PARA EDIT ----- -->
-                            <?php if(isset($acao_user)): ?>
-                                <input type="hidden" name="id_ordem" value="<?= $id_ordem ?>">
-                            <?php endif; ?>
-                            <!-- ----------------------------- -->
-
-                            <div class="col-lg-1">
-                                <div class="form-group">
-                                    <button type="submit" class="btn btn-primary" style="margin-top: 30px"><i class="fas fa-save"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-
-            <div id="pagamento_os" class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <h6 class="m-0 text-dark"><i class="fas fa-user"></i> Pagamento</h6>
-                        </div><!-- /.col -->
                     </div>
-                </div>
-                <!-- /.card-header -->
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-lg-4">
-                            <div class="form-group">
-                                <label>Tipo</label>
-                                <select class="form-control select2" id="select-tipo-pagamento" name="tipo" style="width: 100%;" required="">
-                                    <?php if($pagamento_os['tipo'] == "À Vista"): ?>
-                                        <option value="À Vista" selected>À Vista</option>
-                                        <option value="Parcelado">Parcelado</option>
-                                    <?php else: ?>
-                                        <option value="À Vista">À Vista</option>
-                                        <option value="Parcelado" selected>Parcelado</option>
-                                    <?php endif; ?>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-2">
-                            <div class="form-group">
-                                <button class="btn btn-success" style="margin-top: 30px" onclick="alteraTipoPagamento()"><i class="fas fa-sync-alt"></i> Alterar</button>
-                            </div>
-                        </div>
-                    </div>
-                    <?php foreach($parcelas_pagamento_os as $parcela): ?>
-                        <form action="/ordensDeServicos/alteraDadosDaParcela" method="post">
-                            <div class="row">
-                                <div class="col-lg-3">
-                                    <div class="form-group">
-                                        <label for="">Data de Vencimento</label>
-                                        <input type="date" class="form-control" name="data_de_vencimento" value="<?= $parcela['data_de_vencimento'] ?>">
-                                    </div>
-                                </div>
-                                <div class="col-lg-2">
-                                    <div class="form-group">
-                                        <label for="">Valor da parcela</label>
-                                        <input type="text" class="form-control" id="valor_da_parcela" name="valor_da_parcela" value="<?= $parcela['valor_da_parcela'] ?>">
-                                    </div>
-                                </div>
-                                <div class="col-lg-3">
-                                    <div class="form-group">
-                                        <label>Forma de PGTO</label>
-                                        <select class="form-control select2" name="forma_de_pagamento" style="width: 100%;" required="">
-                                            <?php foreach ($formas_de_pagamento as $forma) : ?>
-                                                <option value="<?= $forma['nome'] ?>" <?= ($forma['nome'] == $parcela['forma_de_pagamento']) ? 'selected' : '' ?>><?= $forma['nome'] ?></option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-lg-3">
-                                    <div class="form-group">
-                                        <label for="">Observações</label>
-                                        <input type="text" class="form-control" name="observacoes" value="<?= $parcela['observacoes'] ?>">
-                                    </div>
-                                </div>
-
-                                <!-- ----- HIDDENS ------ -->
-                                <input type="hidden" name="id_parcela" value="<?= $parcela['id_parcela'] ?>">
-                                <!-------------------------->
-
-                                <div class="col-lg-1">
-                                    <div class="form-group">
-                                        <button type="submit" class="btn btn-primary" style="margin-top: 30px"><i class="fas fa-save"></i></button>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    <?php endforeach; ?>
                 </div>
                 <!-- /.card-body -->
             </div>
@@ -1008,36 +679,12 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label>Canal de venda</label>
-                                    <?php if(isset($acao_user)): ?>
-                                        <select class="form-control select2" name="canal_de_venda" style="width: 100%;" required="">
-                                            <?php if($dados_ordem_de_servico['canal_de_venda'] == "Internet"): ?>
-                                                <option value="Internet" selected>Internet</option>
-                                                <option value="Presencial">Presencial</option>
-                                                <option value="Telemarketing">Telemarketing</option>
-                                            <?php elseif($dados_ordem_de_servico['canal_de_venda'] == "Presencial"): ?>
-                                                <option value="Internet">Internet</option>
-                                                <option value="Presencial" selected>Presencial</option>
-                                                <option value="Telemarketing">Telemarketing</option>
-                                            <?php elseif($dados_ordem_de_servico['canal_de_venda'] == "Telemarketing"): ?>
-                                                <option value="Internet">Internet</option>
-                                                <option value="Presencial">Presencial</option>
-                                                <option value="Telemarketing" selected>Telemarketing</option>
-                                            <?php endif; ?>
-                                        </select>
-                                    <?php else: ?>
-                                        <select class="form-control select2" name="canal_de_venda" style="width: 100%;" required="">
-                                            <option value="Internet">Internet</option>
-                                            <option value="Presencial" selected>Presencial</option>
-                                            <option value="Telemarketing">Telemarketing</option>
-                                        </select>
-                                    <?php endif; ?>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="form-group">
-                                    <label for="">Centro de custo</label>
-                                    <input type="text" class="form-control" name="centro_de_custo" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['centro_de_custo'] : '' ?>">
+                                    <label>Tipo de Atendimento</label>
+                                    <?php $tipo_atendimento = (isset($acao_user) && $dados_ordem_de_servico['canal_de_venda'] == "Remoto") ? "Remoto" : "Presencial"; ?>
+                                    <select class="form-control select2" name="canal_de_venda" style="width: 100%;" required="">
+                                        <option value="Presencial" <?= ($tipo_atendimento == "Presencial") ? "selected" : "" ?>>Presencial</option>
+                                        <option value="Remoto" <?= ($tipo_atendimento == "Remoto") ? "selected" : "" ?>>Remoto</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
@@ -1081,10 +728,6 @@
                 <!-- /.card -->
             </form>
 
-            <form id="form-calcula-pagamento-a-vista" action="/ordensDeServicos/<?= (isset($acao_user)) ? 'calculaPagamentoAVistaEdit' : 'calculaPagamentoAVista' ?>" method="post">
-                <input type="hidden" value="<?= $valor_total_do_pagamento ?>" name="valor_total_do_pagamento">
-                <input type="hidden" value="<?= $id_ordem ?>" name="id_ordem">
-            </form>
         </div><!-- /.container-fluid -->
     </div>
     <!-- /.content -->
@@ -1116,16 +759,6 @@
                     type: 'success',
                     title: 'Equipamento excluido com sucesso!'
                 })
-            <?php elseif ($alert == "success_add_produto_peca") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Produto/Peça adicionado com sucesso!'
-                })
-            <?php elseif ($alert == "success_delete_produto") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Produto/Peça excluido com sucesso!'
-                })
             <?php elseif ($alert == "success_add_servico_mao_de_obra") : ?>
                 Toast.fire({
                     type: 'success',
@@ -1136,78 +769,62 @@
                     type: 'success',
                     title: 'Serviço/Mão de Obra excluido com sucesso!'
                 })
-            <?php elseif ($alert == "success_total_salvo") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Dados do total salvo com sucesso!'
-                })
-            <?php elseif ($alert == "success_parcelamento_os") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Parcelas geradas com sucesso!'
-                })
-            <?php elseif ($alert == "success_pagamento_a_vista_os") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Pagamento alterado com sucesso!'
-                })
             <?php elseif ($alert == "success_edit_ordem_de_servico") : ?>
                 Toast.fire({
                     type: 'success',
                     title: 'Ordem de serviço atualizada com sucesso!'
-                })
-            <?php elseif ($alert == "success_atualiza_dados_da_parcela_do_pagamento_os") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Dados da Parcela atualizada com sucesso!'
-                })
-            <?php elseif ($alert == "success_altera_dados_produto_peca") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Dados do Produto/Peça atualizado com sucesso!'
                 })
             <?php elseif ($alert == "success_atualiza_dados_servico_mao_de_obra") : ?>
                 Toast.fire({
                     type: 'success',
                     title: 'Dados do Serviço/Mão de Obra atualizado com sucesso!'
                 })
-            <?php elseif ($alert == "error_caixa_os_produtos") : ?>
+            <?php elseif ($alert == "error_finaliza_os") : ?>
                 Toast.fire({
                     type: 'error',
-                    title: 'Abra um caixa para vender os produtos/pecas da OS.'
-                })
-            <?php elseif ($alert == "error_venda_produtos_os") : ?>
-                Toast.fire({
-                    type: 'error',
-                    title: 'Nao foi possivel registrar a venda dos produtos/pecas da OS.'
+                    title: 'Nao foi possivel finalizar a OS.'
                 })
             <?php endif; ?>
         <?php endif; ?>
     });
 
-    function alteraTipoPagamento()
-    {
-        var tipo = document.getElementById('select-tipo-pagamento').value;
-
-        if(tipo == "À Vista")
-        {
-            document.getElementById('form-calcula-pagamento-a-vista').submit();
-        }
-        else
-        {
-            $('#modal-parcelamento').modal('show');
-            document.getElementById('valor_total_dos_servicos').value = document.getElementById('valor_total_do_pagamento').value;
-        }
-    }
-
     function finalizarOuEditarOdemDeServicos()
     {
+        atualizaTotalOs();
+
         document.getElementById('finalizar_os_frete').value = document.getElementById('total_os_frete').value;
         document.getElementById('finalizar_os_outros').value = document.getElementById('total_os_outros').value;
         document.getElementById('finalizar_os_desconto').value = document.getElementById('total_os_desconto').value;
 
         document.getElementById('form-finaliza-ou-edita-ordem-de-servico').submit(); // Aciona o formulário
     }
+
+    function valorDecimalDoCampo(id)
+    {
+        var valor = document.getElementById(id).value;
+
+        if(valor == '')
+        {
+            return 0;
+        }
+
+        return parseFloat(valor.replace(',', '.')) || 0;
+    }
+
+    function atualizaTotalOs()
+    {
+        var total = valorDecimalDoCampo('total_servicos_mao_de_obra') + valorDecimalDoCampo('total_os_frete') + valorDecimalDoCampo('total_os_outros') - valorDecimalDoCampo('total_os_desconto');
+        document.getElementById('valor_total_do_pagamento').value = total.toFixed(2);
+    }
+
+    ['total_os_frete', 'total_os_outros', 'total_os_desconto'].forEach(function(id) {
+        var campo = document.getElementById(id);
+
+        if(campo)
+        {
+            campo.addEventListener('input', atualizaTotalOs);
+        }
+    });
 
     function montaDadosDoEquipamento(equipamento, marca, modelo, serie, condicoes, defeitos, acessorios, solucao, laudo_tecnico, termos_de_garantia)
     {
@@ -1221,14 +838,6 @@
         document.getElementById('visualiza_eq_solucao').value            = solucao;
         document.getElementById('visualiza_eq_laudo_tecnico').value      = laudo_tecnico;
         document.getElementById('visualiza_eq_termos_de_garantia').value = termos_de_garantia;
-    }
-
-    function alteraDadosProdutoPeca(quantidade, valor, desconto, id_produto)
-    {
-        document.getElementById('altera_dados_produto_peca_quantidade').value = quantidade;
-        document.getElementById('altera_dados_produto_peca_valor').value      = valor;
-        document.getElementById('altera_dados_produto_peca_desconto').value   = desconto;
-        document.getElementById('altera_dados_produto_peca_id_produto').value = id_produto;
     }
 
     function alteraDadosServicoMaoDeObra(quantidade, valor, desconto, id_servico)

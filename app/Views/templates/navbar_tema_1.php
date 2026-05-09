@@ -82,12 +82,10 @@
 
                     <li class="dropdown-divider"></li>
 
-                    <li><a id="2.5" href="/ordensDeServicos/create" class="dropdown-item">Gerar Ordem de Serv.</a></li>
-
                     <li><a id="2.6" href="/ordensDeServicos" class="dropdown-item">Ordens de Serviços</a></li>
 
                     <?php if($exibe_orcamentos): ?>
-                      <li><a id="2.7" href="/orcamentos" class="dropdown-item">Orçamentos</a></li>
+                      <li><a id="2.7" href="/ordensDeServicos/orcamentos" class="dropdown-item">Orçamentos</a></li>
                     <?php endif; ?>
 
                     <?php if($exibe_pedidos): ?>

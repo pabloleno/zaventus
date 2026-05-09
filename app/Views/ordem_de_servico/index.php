@@ -15,10 +15,9 @@
                             <div class="form-group">
                                 <label>Situação</label>
                                 <select class="form-control select2" name="situacao" style="width: 100%;" required="">
-                                    <option value="Em aberto" selected>Em aberto</option>
-                                    <option value="Em andamento">Em andamento</option>
-                                    <option value="Concretizada">Concretizada</option>
-                                    <option value="Cancelada">Cancelada</option>
+                                    <?php foreach ($situacoes_alteracao as $indice => $situacao) : ?>
+                                        <option value="<?= $situacao ?>" <?= ($indice == 0) ? "selected" : "" ?>><?= $situacao ?></option>
+                                    <?php endforeach; ?>
                                 </select>
                             </div>
                         </div>
@@ -66,7 +65,9 @@
                 <div class="card-body no-print">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/ordensDeServicos/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nova Ordem de Servico</a>
+                            <?php if ($exibe_botao_novo_orcamento) : ?>
+                                <a href="/ordensDeServicos/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Novo Orçamento</a>
+                            <?php endif; ?>
                             <!-- <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-filtrar"><i class="fa fa-filter"></i> Filtrar</button> -->
                             <!-- <button type="button" class="btn btn-info" onclick="print()"><i class="fas fa-print"></i> Imprimir</button> -->
                         </div>
@@ -79,7 +80,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="m-0 text-dark"><i class="fas fa-list"></i> 15 últimas ordens de serviços cadastradas</h6>
+                            <h6 class="m-0 text-dark"><i class="fas fa-list"></i> <?= $titulo_lista ?></h6>
                         </div><!-- /.col -->
                     </div>
                 </div>
@@ -105,8 +106,8 @@
                                         <td><?= date('d/m/Y', strtotime($ordem['data_de_entrada'])) ?> - <?= $ordem['hora_de_entrada'] ?></td>
                                         <td><?= ($ordem['data_de_saida'] == "0000-00-00") ? '00-00-0000' : date('d/m/Y', strtotime($ordem['data_de_saida'])) ?> - <?= $ordem['hora_de_saida'] ?></td>
                                         <td>
-                                            <?php if($ordem['situacao'] == "Em aberto"): ?>
-                                                <span class="badge badge-primary" style="height: 20px; font-size: 12px; color: white; border-radius: 2px;"><?= $ordem['situacao'] ?></span>
+                                            <?php if($ordem['situacao'] == "Em aberto" || $ordem['situacao'] == "Aberto"): ?>
+                                                <span class="badge badge-primary" style="height: 20px; font-size: 12px; color: white; border-radius: 2px;"><?= ($ordem['situacao'] == "Aberto") ? "Em aberto" : $ordem['situacao'] ?></span>
                                             <?php elseif($ordem['situacao'] == "Em andamento"): ?>
                                                 <span class="badge badge-warning" style="height: 20px; font-size: 12px; color: white; border-radius: 2px;"><?= $ordem['situacao'] ?></span>
                                             <?php elseif($ordem['situacao'] == "Concretizada"): ?>
@@ -125,7 +126,7 @@
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="8">Nenhum registro!</td>
+                                    <td colspan="6">Nenhum registro!</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
