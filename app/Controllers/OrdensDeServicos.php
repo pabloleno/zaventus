@@ -517,6 +517,7 @@ class OrdensDeServicos extends Controller
     public function alteraDadosServicoMaoDeObra()
     {
         $dados = $this->request->getvar();
+        $dados['valor'] = round($this->valorNumerico($dados['valor'] ?? 0), 2);
         $dados['desconto'] = 0;
 
         $this->servico_mao_de_obra_provisorio_model->save($dados);
@@ -565,6 +566,7 @@ class OrdensDeServicos extends Controller
     public function alteraDadosServicoMaoDeObraEdit()
     {
         $dados = $this->request->getvar();
+        $dados['valor'] = round($this->valorNumerico($dados['valor'] ?? 0), 2);
         $dados['desconto'] = 0;
 
         $this->servico_mao_de_obra_os_model->save($dados);

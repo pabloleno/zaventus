@@ -248,7 +248,7 @@
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
-            <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraDadosServicoMaoDeObraEdit' : 'alteraDadosServicoMaoDeObra' ?>" method="post">
+            <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraDadosServicoMaoDeObraEdit' : 'alteraDadosServicoMaoDeObra' ?>" method="post" onsubmit="formataCampoDecimalOs('altera_dados_servico_mao_de_obra_valor')">
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6">
@@ -260,7 +260,7 @@
                         <div class="col-lg-6">
                             <div class="form-group">
                                 <label for="">Valor</label>
-                                <input type="number" step="0.01" class="form-control" id="altera_dados_servico_mao_de_obra_valor" name="valor" value="">
+                                <input type="text" class="form-control" id="altera_dados_servico_mao_de_obra_valor" name="valor" value="">
                             </div>
                         </div>
                         <div class="col-lg-4">
@@ -792,9 +792,9 @@
         document.getElementById('form-finaliza-ou-edita-ordem-de-servico').submit(); // Aciona o formulário
     }
 
-    function valorDecimalDoCampo(id)
+    function valorDecimalOs(valor)
     {
-        var valor = document.getElementById(id).value.trim();
+        valor = String(valor).trim();
 
         if(valor == '')
         {
@@ -809,9 +809,14 @@
         return parseFloat(valor.replace(',', '.')) || 0;
     }
 
+    function valorDecimalDoCampo(id)
+    {
+        return valorDecimalOs(document.getElementById(id).value);
+    }
+
     function formataDecimalOs(valor)
     {
-        return valor.toLocaleString('pt-BR', {
+        return valorDecimalOs(valor).toLocaleString('pt-BR', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
@@ -841,6 +846,15 @@
         }
     });
 
+    var campoValorServico = document.getElementById('altera_dados_servico_mao_de_obra_valor');
+
+    if(campoValorServico)
+    {
+        campoValorServico.addEventListener('blur', function() {
+            formataCampoDecimalOs('altera_dados_servico_mao_de_obra_valor');
+        });
+    }
+
     function montaDadosDoEquipamento(equipamento, marca, modelo, serie, condicoes, defeitos, acessorios, solucao, laudo_tecnico, termos_de_garantia)
     {
         document.getElementById('visualiza_eq_equipamento').value        = equipamento;
@@ -858,7 +872,7 @@
     function alteraDadosServicoMaoDeObra(quantidade, valor, id_servico)
     {
         document.getElementById('altera_dados_servico_mao_de_obra_quantidade').value = quantidade;
-        document.getElementById('altera_dados_servico_mao_de_obra_valor').value      = valor;
+        document.getElementById('altera_dados_servico_mao_de_obra_valor').value      = formataDecimalOs(valor);
         document.getElementById('altera_dados_servico_mao_de_obra_id_servico').value = id_servico;
     }
 
