@@ -48,6 +48,7 @@ class HtmlTranslator
 
     private static function translateHtml(string $html, array $exact, array $fragments): string
     {
+        $html = self::translateScriptBlocks($html, $exact, $fragments);
         $parts = preg_split('/(<[^>]+>)/u', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
 
         if (! is_array($parts)) {
@@ -146,6 +147,73 @@ class HtmlTranslator
         }
 
         return $tag;
+    }
+
+    private static function translateScriptBlocks(string $html, array $exact, array $fragments): string
+    {
+        return preg_replace_callback(
+            '/(<script\b[^>]*>)(.*?)(<\/script>)/isu',
+            static function (array $match) use ($exact, $fragments): string {
+                return $match[1] . self::translateScriptText($match[2], $exact, $fragments) . $match[3];
+            },
+            $html
+        ) ?? $html;
+    }
+
+    private static function translateScriptText(string $script, array $exact, array $fragments): string
+    {
+        return preg_replace_callback(
+            '/(["\'`])((?:\\\\.|(?!\1).)*)\1/su',
+            static function (array $match) use ($exact, $fragments): string {
+                $quote = $match[1];
+                $body = $match[2];
+
+                if (! self::shouldTranslateScriptString($body, $exact, $fragments)) {
+                    return $match[0];
+                }
+
+                $translated = str_contains($body, '<')
+                    ? self::translateHtml($body, $exact, $fragments)
+                    : self::translateText($body, $exact, $fragments);
+
+                return $quote . self::escapeScriptString($translated, $quote) . $quote;
+            },
+            $script
+        ) ?? $script;
+    }
+
+    private static function shouldTranslateScriptString(string $text, array $exact, array $fragments): bool
+    {
+        $trimmed = trim(strip_tags($text));
+
+        if ($trimmed === '') {
+            return false;
+        }
+
+        if (
+            preg_match('#^(?:https?:)?//#i', $trimmed) === 1
+            || preg_match('#^/[A-Za-z0-9_./?=&%-]*$#', $trimmed) === 1
+            || preg_match('/^[#.][A-Za-z0-9_.:#[\]-]+$/', $trimmed) === 1
+        ) {
+            return false;
+        }
+
+        if (array_key_exists($trimmed, $exact)) {
+            return true;
+        }
+
+        foreach ($fragments as $source => $target) {
+            if ($source !== '' && str_contains($trimmed, (string) $source)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static function escapeScriptString(string $text, string $quote): string
+    {
+        return str_replace($quote, '\\' . $quote, $text);
     }
 
     private static function translateText(string $text, array $exact, array $fragments): string
