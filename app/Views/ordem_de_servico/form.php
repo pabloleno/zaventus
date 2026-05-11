@@ -645,28 +645,37 @@
                                     <?php endif; ?>
                                 </div>
                             </div>
+                            <?php
+                                $saida_registrada = isset($acao_user)
+                                    && !empty($dados_ordem_de_servico['data_de_saida'])
+                                    && $dados_ordem_de_servico['data_de_saida'] != '0000-00-00'
+                                    && !empty($dados_ordem_de_servico['hora_de_saida'])
+                                    && $dados_ordem_de_servico['hora_de_saida'] != '00:00:00';
+                                $data_de_saida = $saida_registrada ? date('d/m/Y', strtotime($dados_ordem_de_servico['data_de_saida'])) : 'Aguardando';
+                                $hora_de_saida = $saida_registrada ? $dados_ordem_de_servico['hora_de_saida'] : 'Aguardando';
+                            ?>
                             <div class="col-lg-2">
                                 <div class="form-group">
                                     <label for="">Dt Entrada</label>
-                                    <input type="date" class="form-control" name="data_de_entrada" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['data_de_entrada'] : date('Y-m-d') ?>" required="">
+                                    <input type="date" class="form-control" name="data_de_entrada" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['data_de_entrada'] : date('Y-m-d') ?>" readonly required="">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
                                     <label for="">Hr Entrada</label>
-                                    <input type="text" class="form-control" name="hora_de_entrada" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['hora_de_entrada'] : date('H:i:s') ?>" required="">
+                                    <input type="text" class="form-control" name="hora_de_entrada" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['hora_de_entrada'] : date('H:i:s') ?>" readonly required="">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
                                     <label for="">Dt Saída</label>
-                                    <input type="date" class="form-control" name="data_de_saida" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['data_de_saida'] : "" ?>">
+                                    <input type="text" class="form-control" value="<?= $data_de_saida ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
                                     <label for="">Hr Saída</label>
-                                    <input type="text" class="form-control" name="hora_de_saida" value="<?= (isset($acao_user)) ? $dados_ordem_de_servico['hora_de_saida'] : "" ?>">
+                                    <input type="text" class="form-control" value="<?= $hora_de_saida ?>" readonly>
                                 </div>
                             </div>
                             <div class="col-lg-4">

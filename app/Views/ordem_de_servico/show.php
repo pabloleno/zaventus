@@ -61,6 +61,14 @@
                                 <input type="text" class="form-control" value="<?= $dados_ordem_de_servico['situacao'] ?>" disabled>
                             </div>
                         </div>
+                        <?php
+                            $saida_registrada = !empty($dados_ordem_de_servico['data_de_saida'])
+                                && $dados_ordem_de_servico['data_de_saida'] != '0000-00-00'
+                                && !empty($dados_ordem_de_servico['hora_de_saida'])
+                                && $dados_ordem_de_servico['hora_de_saida'] != '00:00:00';
+                            $data_de_saida = $saida_registrada ? date('d/m/Y', strtotime($dados_ordem_de_servico['data_de_saida'])) : 'Aguardando';
+                            $hora_de_saida = $saida_registrada ? $dados_ordem_de_servico['hora_de_saida'] : 'Aguardando';
+                        ?>
                         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                             <div class="form-group">
                                 <label for="">Dt Entrada</label>
@@ -76,13 +84,13 @@
                         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                             <div class="form-group">
                                 <label for="">Dt Saída</label>
-                                <input type="date" class="form-control" value="<?= $dados_ordem_de_servico['data_de_saida'] ?>" disabled>
+                                <input type="text" class="form-control" value="<?= $data_de_saida ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-2 col-md-2 col-sm-2 col-xs-2">
                             <div class="form-group">
                                 <label for="">Hr Saída</label>
-                                <input type="text" class="form-control" value="<?= $dados_ordem_de_servico['hora_de_saida'] ?>" disabled>
+                                <input type="text" class="form-control" value="<?= $hora_de_saida ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">

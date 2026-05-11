@@ -102,15 +102,13 @@ class OrdensDeServicos extends Controller
             ['titulo' => "Ordens de Serviço", 'rota'   => "", 'active' => true]
         ];
 
-        $data['ordens_de_servicos'] = $this->ordem_de_servico_model
-            ->whereIn('situacao', ['Concretizada', 'Cancelada'])
-            ->orderBy('id_ordem', 'DESC')
-            ->limit(15)
-            ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
-            ->findAll();
+        $data += $this->dadosListagemOrdensDeServicos(
+            ['Concretizada', 'Cancelada'],
+            '15 últimas ordens de serviços cadastradas',
+            '/ordensDeServicos'
+        );
 
         $data['situacoes_alteracao'] = ['Em aberto', 'Em andamento'];
-        $data['titulo_lista'] = '15 últimas ordens de serviços cadastradas';
         $data['exibe_botao_novo_orcamento'] = false;
 
         echo view('templates/header');
@@ -134,15 +132,13 @@ class OrdensDeServicos extends Controller
             ['titulo' => "Orçamentos", 'rota'   => "", 'active' => true]
         ];
 
-        $data['ordens_de_servicos'] = $this->ordem_de_servico_model
-            ->whereIn('situacao', ['Em aberto', 'Em andamento', 'Aberto'])
-            ->orderBy('id_ordem', 'DESC')
-            ->limit(15)
-            ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
-            ->findAll();
+        $data += $this->dadosListagemOrdensDeServicos(
+            ['Em aberto', 'Em andamento', 'Aberto'],
+            '15 últimos orçamentos cadastrados',
+            '/ordensDeServicos/orcamentos'
+        );
 
         $data['situacoes_alteracao'] = ['Concretizada', 'Cancelada'];
-        $data['titulo_lista'] = '15 últimos orçamentos cadastrados';
         $data['exibe_botao_novo_orcamento'] = true;
 
         echo view('templates/header');
@@ -160,6 +156,15 @@ class OrdensDeServicos extends Controller
             return redirect()->to('/ordensDeServicos');
         }
 
+        $ordem_atual = $this->ordem_de_servico_model->where('id_ordem', $dados['id_ordem'] ?? 0)->first();
+
+        if(empty($ordem_atual))
+        {
+            return redirect()->to('/ordensDeServicos');
+        }
+
+        $dados = $this->aplicaDatasAutomaticasDaOrdem($dados, $ordem_atual);
+
         $this->ordem_de_servico_model->save($dados);
 
         $session = session();
@@ -176,6 +181,98 @@ class OrdensDeServicos extends Controller
         }
 
         return '/ordensDeServicos/orcamentos';
+    }
+
+    private function dadosListagemOrdensDeServicos(array $situacoes, string $titulo_padrao, string $rota_listagem): array
+    {
+        $dados = $this->request->getvar();
+
+        $filtros = [
+            'id_ordem'    => trim((string) ($dados['id_ordem'] ?? '')),
+            'data_inicio' => trim((string) ($dados['data_inicio'] ?? '')),
+            'data_final'  => trim((string) ($dados['data_final'] ?? '')),
+            'id_cliente'  => trim((string) ($dados['id_cliente'] ?? ''))
+        ];
+
+        $tem_filtro = $this->temFiltroListagemOrdens($filtros);
+
+        $data = [
+            'ordens_de_servicos' => $this->ordensDeServicosDaListagem($situacoes, $filtros, $tem_filtro ? null : 15),
+            'titulo_lista'       => $tem_filtro ? 'Registros' : $titulo_padrao,
+            'clientes'           => $this->cliente_model->findAll(),
+            'rota_listagem'      => $rota_listagem
+        ];
+
+        if($tem_filtro)
+        {
+            foreach($filtros as $campo => $valor)
+            {
+                if($valor !== '')
+                {
+                    $data[$campo] = $valor;
+                }
+            }
+
+            $session = session();
+            $session->setFlashdata('alert', 'success_filter');
+        }
+
+        return $data;
+    }
+
+    private function ordensDeServicosDaListagem(array $situacoes, array $filtros, ?int $limite = null): array
+    {
+        $ordens = $this->ordem_de_servico_model
+            ->select('ordens_de_servicos.*, clientes.nome, COALESCE((SELECT SUM(servicos_mao_de_obra_da_os.quantidade * servicos_mao_de_obra_da_os.valor) FROM servicos_mao_de_obra_da_os WHERE servicos_mao_de_obra_da_os.id_ordem = ordens_de_servicos.id_ordem), 0) AS valor_servicos', false)
+            ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
+            ->whereIn('ordens_de_servicos.situacao', $situacoes);
+
+        $this->aplicaFiltrosListagemOrdens($ordens, $filtros);
+
+        $ordens->orderBy('ordens_de_servicos.id_ordem', 'DESC');
+
+        if($limite !== null)
+        {
+            $ordens->limit($limite);
+        }
+
+        return $ordens->findAll();
+    }
+
+    private function aplicaFiltrosListagemOrdens($ordens, array $filtros): void
+    {
+        if($filtros['id_ordem'] !== '')
+        {
+            $ordens->where('ordens_de_servicos.id_ordem', $filtros['id_ordem']);
+        }
+
+        if($filtros['data_inicio'] !== '')
+        {
+            $ordens->where('ordens_de_servicos.data_de_entrada >=', $filtros['data_inicio']);
+        }
+
+        if($filtros['data_final'] !== '')
+        {
+            $ordens->where('ordens_de_servicos.data_de_entrada <=', $filtros['data_final']);
+        }
+
+        if($filtros['id_cliente'] !== '' && $filtros['id_cliente'] !== 'Todos')
+        {
+            $ordens->where('ordens_de_servicos.id_cliente', $filtros['id_cliente']);
+        }
+    }
+
+    private function temFiltroListagemOrdens(array $filtros): bool
+    {
+        foreach($filtros as $valor)
+        {
+            if($valor !== '')
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public function create()
@@ -203,6 +300,8 @@ class OrdensDeServicos extends Controller
                 'situacao'             => "Em aberto",
                 'data_de_entrada'      => date('Y-m-d'),
                 'hora_de_entrada'      => date('H:i:s'),
+                'data_de_saida'        => '0000-00-00',
+                'hora_de_saida'        => '00:00:00',
                 'canal_de_venda'       => "Presencial",
                 'centro_de_custo'      => "",
                 'frete'                => 0,
@@ -791,6 +890,7 @@ class OrdensDeServicos extends Controller
     public function finalizaOrdemDeServico()
     {
         $dados_da_ordem_de_servicos = $this->normalizaTotaisDaOrdem($this->request->getvar());
+        $dados_da_ordem_de_servicos = $this->aplicaDatasAutomaticasDaOrdem($dados_da_ordem_de_servicos, [], true);
         $this->produto_peca_os_provisorio_model->emptyTable('produtos_pecas_os_provisorio');
 
         $db = db_connect();
@@ -1079,6 +1179,58 @@ class OrdensDeServicos extends Controller
         return (float) $valor;
     }
 
+    private function aplicaDatasAutomaticasDaOrdem(array $dados, array $ordem_atual = [], bool $nova_ordem = false): array
+    {
+        if($nova_ordem)
+        {
+            $dados['data_de_entrada'] = date('Y-m-d');
+            $dados['hora_de_entrada'] = date('H:i:s');
+        }
+        elseif(!empty($ordem_atual))
+        {
+            $dados['data_de_entrada'] = $ordem_atual['data_de_entrada'];
+            $dados['hora_de_entrada'] = $ordem_atual['hora_de_entrada'];
+        }
+
+        $situacao = $dados['situacao'] ?? ($ordem_atual['situacao'] ?? '');
+
+        if($situacao == 'Concretizada')
+        {
+            if(
+                !empty($ordem_atual)
+                && ($ordem_atual['situacao'] ?? '') == 'Concretizada'
+                && $this->saidaDaOrdemRegistrada($ordem_atual)
+            )
+            {
+                $dados['data_de_saida'] = $ordem_atual['data_de_saida'];
+                $dados['hora_de_saida'] = $ordem_atual['hora_de_saida'];
+            }
+            else
+            {
+                $dados['data_de_saida'] = date('Y-m-d');
+                $dados['hora_de_saida'] = date('H:i:s');
+            }
+        }
+        else
+        {
+            $dados['data_de_saida'] = '0000-00-00';
+            $dados['hora_de_saida'] = '00:00:00';
+        }
+
+        return $dados;
+    }
+
+    private function saidaDaOrdemRegistrada(array $ordem): bool
+    {
+        $data_de_saida = $ordem['data_de_saida'] ?? '';
+        $hora_de_saida = $ordem['hora_de_saida'] ?? '';
+
+        return $data_de_saida !== ''
+            && $data_de_saida !== '0000-00-00'
+            && $hora_de_saida !== ''
+            && $hora_de_saida !== '00:00:00';
+    }
+
     private function normalizaTotaisDaOrdem(array $dados): array
     {
         foreach(['frete', 'outros', 'desconto'] as $campo)
@@ -1095,6 +1247,14 @@ class OrdensDeServicos extends Controller
     public function editDadosResponsaveis_e_DadosFinaisOrdemDeServico()
     {
         $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
+        $ordem_atual = $this->ordem_de_servico_model->where('id_ordem', $dados['id_ordem'] ?? 0)->first();
+
+        if(empty($ordem_atual))
+        {
+            return redirect()->to('/ordensDeServicos');
+        }
+
+        $dados = $this->aplicaDatasAutomaticasDaOrdem($dados, $ordem_atual);
 
         $this->ordem_de_servico_model->save($dados); // Altera os dados
 
