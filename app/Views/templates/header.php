@@ -19,7 +19,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>Zaventus Gestao<?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
+    <title><?= esc(lang('App.appName')) ?><?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
 
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32.png') ?>">

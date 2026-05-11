@@ -2,11 +2,11 @@
 <footer id="footer" class="main-footer">
     <!-- To the right -->
     <div class="float-right d-none d-sm-inline">
-        Desenv. Zaventus Tecnologia
+        <?= esc(lang('App.footer.developedBy')) ?>
     </div>
     <!-- Default to the left -->
     <?php $session = session() ?>
-    <strong><?= $session->get('nome_fantasia') ?> &copy; <?= date('Y') ?> </strong> - Todos os direitos reservados.
+    <strong><?= $session->get('nome_fantasia') ?> &copy; <?= date('Y') ?> </strong> - <?= esc(lang('App.footer.rights')) ?>
 </footer>
 </div>
 <!-- ./wrapper -->

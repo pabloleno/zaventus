@@ -30,6 +30,8 @@ class SystemSettings implements FilterInterface
             $request->setLocale($settings['idioma']);
         }
 
+        service('language')->setLocale($settings['idioma']);
+
         if (class_exists('\Locale')) {
             \Locale::setDefault($settings['idioma']);
         }

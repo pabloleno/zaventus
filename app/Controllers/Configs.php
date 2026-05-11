@@ -210,13 +210,13 @@ class Configs extends Controller
         ];
 
         $data['titulo'] = [
-            'modulo' => 'Config. Sistema',
+            'modulo' => lang('App.system.module'),
             'icone'  => 'fa fa-edit'
         ];
 
         $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Sistema", 'rota'   => "", 'active' => true]
+            ['titulo' => lang('App.menu.home'), 'rota' => "/inicio", 'active' => false],
+            ['titulo' => lang('App.menu.system'), 'rota'   => "", 'active' => true]
         ];
 
         $session      = session();
@@ -501,6 +501,7 @@ class Configs extends Controller
         $appConfig->appTimezone = $fuso_horario;
 
         $this->request->setLocale($idioma);
+        service('language')->setLocale($idioma);
 
         if (class_exists('\Locale')) {
             \Locale::setDefault($idioma);
@@ -522,14 +523,14 @@ class Configs extends Controller
         ];
 
         $data['titulo'] = [
-            'modulo' => 'Nova Forma de Pagamento',
+            'modulo' => lang('App.system.newPayment'),
             'icone'  => 'fa fa-circle-plus'
         ];
 
         $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Sistema", 'rota' => "/configs/sistema", 'active' => false],
-            ['titulo' => "Nova Forma de Pagamento", 'rota'   => "", 'active' => true]
+            ['titulo' => lang('App.menu.home'), 'rota' => "/inicio", 'active' => false],
+            ['titulo' => lang('App.menu.system'), 'rota' => "/configs/sistema", 'active' => false],
+            ['titulo' => lang('App.system.newPayment'), 'rota'   => "", 'active' => true]
         ];
 
         echo view('templates/header');
@@ -546,14 +547,14 @@ class Configs extends Controller
         ];
 
         $data['titulo'] = [
-            'modulo' => 'Editar Forma de Pagamento',
+            'modulo' => lang('App.system.editPayment'),
             'icone'  => 'fa fa-edit'
         ];
 
         $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Sistema", 'rota' => "/configs/sistema", 'active' => false],
-            ['titulo' => "Nova Forma de Pagamento", 'rota'   => "", 'active' => true]
+            ['titulo' => lang('App.menu.home'), 'rota' => "/inicio", 'active' => false],
+            ['titulo' => lang('App.menu.system'), 'rota' => "/configs/sistema", 'active' => false],
+            ['titulo' => lang('App.system.editPayment'), 'rota'   => "", 'active' => true]
         ];
 
         $data['forma_de_pagamento'] = $this->forma_de_pagamento_model->where('id_forma', $id_forma)->first();

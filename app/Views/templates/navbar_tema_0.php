@@ -14,7 +14,7 @@
     </ul>
 
     <h5 class="zaventus-nav-title">
-        <span>Zaventus Gestao</span>
+        <span><?= esc(lang('App.appName')) ?></span>
         <?php if ($session->get('nome_fantasia')) : ?>
             <small><?= esc($session->get('nome_fantasia')) ?></small>
         <?php endif; ?>

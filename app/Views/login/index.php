@@ -10,7 +10,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>Zaventus Gestao</title>
+    <title><?= esc(lang('App.appName')) ?></title>
 
     <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
     <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32.png') ?>">
@@ -77,12 +77,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- /.login-logo -->
         <div class="card">
             <div class="card-body login-card-body">
-                <p class="login-box-msg">Acesse sua conta</p>
+                <p class="login-box-msg"><?= esc(lang('App.login.accessAccount')) ?></p>
 
                 <form action="/login/autenticar" method="post">
                     <?= csrf_field() ?>
                     <div class="input-group mb-3">
-                        <input type="text" class="form-control" name="usuario" placeholder="Usuário" autofocus required>
+                        <input type="text" class="form-control" name="usuario" placeholder="<?= esc(lang('App.login.user')) ?>" autofocus required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-envelope"></span>
@@ -90,7 +90,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         </div>
                     </div>
                     <div class="input-group mb-3">
-                        <input type="password" class="form-control" name="senha" placeholder="Senha" required>
+                        <input type="password" class="form-control" name="senha" placeholder="<?= esc(lang('App.login.password')) ?>" required>
                         <div class="input-group-append">
                             <div class="input-group-text">
                                 <span class="fas fa-lock"></span>
@@ -99,7 +99,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     </div>
                     <div class="row">
                         <div class="col-12">
-                            <button type="submit" class="btn btn-primary btn-block">Autenticar</button>
+                            <button type="submit" class="btn btn-primary btn-block"><?= esc(lang('App.login.authenticate')) ?></button>
                         </div>
                         <!-- /.col -->
                     </div>
@@ -138,12 +138,12 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <?php if ($alert == "error_autentication") : ?>
                     Toast.fire({
                         type: 'error',
-                        title: 'Usuário ou senha incorretos!'
+                        title: <?= json_encode(lang('App.login.invalidCredentials')) ?>
                     })
                 <?php elseif ($alert == "session_expired") : ?>
                     Toast.fire({
                         type: 'warning',
-                        title: 'Sessão expirada! Acesse sua conta para continuar.'
+                        title: <?= json_encode(lang('App.login.sessionExpired')) ?>
                     })
                 <?php endif; ?>
             <?php endif; ?>
