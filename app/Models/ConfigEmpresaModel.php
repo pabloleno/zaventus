@@ -24,7 +24,9 @@ class ConfigEmpresaModel extends PadraoModel
         'municipio',
         'UF',
         'codigo_do_municipio',
-        'endereco'
+        'endereco',
+        'idioma',
+        'fuso_horario'
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

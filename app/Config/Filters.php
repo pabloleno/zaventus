@@ -3,6 +3,7 @@
 namespace Config;
 
 use App\Filters\AuthGuard;
+use App\Filters\SystemSettings;
 use CodeIgniter\Config\Filters as BaseFilters;
 use CodeIgniter\Filters\Cors;
 use CodeIgniter\Filters\CSRF;
@@ -28,6 +29,7 @@ class Filters extends BaseFilters
     public array $aliases = [
         'csrf'          => CSRF::class,
         'authguard'     => AuthGuard::class,
+        'systemsettings' => SystemSettings::class,
         'toolbar'       => DebugToolbar::class,
         'honeypot'      => Honeypot::class,
         'invalidchars'  => InvalidChars::class,
@@ -74,6 +76,7 @@ class Filters extends BaseFilters
     public array $globals = [
         'before' => [
             // 'honeypot',
+            'systemsettings',
             'invalidchars',
             'authguard',
         ],

@@ -66,6 +66,52 @@
                 </div>
                 
                 <div class="col-lg-6">
+                    <?php
+                    $idioma_selecionado = old('idioma', $config_sistema['idioma'] ?? 'pt-BR');
+                    $fuso_horario_selecionado = old('fuso_horario', $config_sistema['fuso_horario'] ?? 'America/Manaus');
+                    ?>
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <h6 class="m-0 text-dark"><i class="<?= $titulo['icone'] ?>"></i> Globalizacao</h6>
+                                </div><!-- /.col -->
+                            </div>
+                        </div>
+                        <!-- /.card-header -->
+                        <div class="card-body">
+                            <form action="/configs/store_sistema" method="post">
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label for="idioma">Idioma</label>
+                                        <select id="idioma" class="form-control select2" name="idioma" required>
+                                            <?php foreach ($idiomas as $codigo => $nome) : ?>
+                                                <option value="<?= esc($codigo) ?>" <?= $codigo === $idioma_selecionado ? 'selected' : '' ?>>
+                                                    <?= esc($nome) ?> (<?= esc($codigo) ?>)
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="fuso_horario">Fuso horario</label>
+                                        <select id="fuso_horario" class="form-control select2" name="fuso_horario" required>
+                                            <?php foreach ($fusos_horarios as $timezone => $rotulo) : ?>
+                                                <option value="<?= esc($timezone) ?>" <?= $timezone === $fuso_horario_selecionado ? 'selected' : '' ?>>
+                                                    <?= esc($rotulo) ?>
+                                                </option>
+                                            <?php endforeach; ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-lg-12 mt-3" style="text-align: right">
+                                        <button class="btn btn-primary">Aplicar</button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- /.card-body -->
+                    </div>
+                    <!-- /.card -->
+
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
@@ -138,6 +184,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Dados da Empresa atualizados com sucesso!'
+                })
+            <?php elseif ($alert == "success_config_sistema") : ?>
+                Toast.fire({
+                    type: 'success',
+                    title: 'Configuracoes globais aplicadas com sucesso!'
                 })
             <?php elseif ($alert == "success_create_forma_de_pagamento") : ?>
                 Toast.fire({

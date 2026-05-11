@@ -9,8 +9,10 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
         // Dados da Empresa
         $this->db->table('config_empresa')->insert([
             'nome_fantasia' => 'Sua Empresa',
-            'telefone'        => '6335710000',
-            'endereco'        => 'Av. 01 Quadra 02 Lote 03'
+            'telefone'      => '6335710000',
+            'endereco'      => 'Av. 01 Quadra 02 Lote 03',
+            'idioma'        => 'pt-BR',
+            'fuso_horario'  => 'America/Manaus'
         ]);
 
         // Dados do Usuário

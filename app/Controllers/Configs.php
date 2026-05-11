@@ -13,6 +13,7 @@ use App\Models\ConfigNFCeModel;
 use App\Models\FormaDePagamentoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
+use Config\SystemOptions;
 
 class Configs extends Controller
 {
@@ -223,10 +224,49 @@ class Configs extends Controller
         $data['tema'] = $this->login_model->where('id_login', $id_login)->first()['tema'];
 
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['config_sistema'] = $this->configSistema();
+        $data['idiomas'] = config(SystemOptions::class)->languages;
+        $data['fusos_horarios'] = $this->fusosHorarios();
 
         echo view('templates/header');
         echo view('configs/sistema', $data);
         echo view('templates/footer');
+    }
+
+    public function store_sistema()
+    {
+        $idioma = trim((string) $this->request->getPost('idioma'));
+        $fuso_horario = trim((string) $this->request->getPost('fuso_horario'));
+        $erros = [];
+
+        if (! $this->idiomaValido($idioma)) {
+            $erros[] = 'Selecione um idioma valido.';
+        }
+
+        if (! $this->fusoHorarioValido($fuso_horario)) {
+            $erros[] = 'Selecione um fuso horario valido.';
+        }
+
+        if (! empty($erros)) {
+            session()->setFlashdata('errors', $erros);
+            session()->setFlashdata('alert', 'error_config_sistema');
+
+            return redirect()->to('/configs/sistema')->withInput();
+        }
+
+        $this->config_empresa_model
+            ->set([
+                'idioma'       => $idioma,
+                'fuso_horario' => $fuso_horario,
+            ])
+            ->where('id_config', 1)
+            ->update();
+
+        $this->aplicarConfiguracaoSistema($idioma, $fuso_horario);
+
+        session()->setFlashdata('alert', 'success_config_sistema');
+
+        return redirect()->to('/configs/sistema');
     }
 
     public function alteraTema()
@@ -394,6 +434,82 @@ class Configs extends Controller
         }
 
         return $ufs;
+    }
+
+    private function configSistema(): array
+    {
+        $options = config(SystemOptions::class);
+        $empresa = $this->config_empresa_model->where('id_config', 1)->first() ?? [];
+
+        $idioma = (string) ($empresa['idioma'] ?? '');
+        $fuso_horario = (string) ($empresa['fuso_horario'] ?? '');
+
+        return [
+            'idioma'       => $this->idiomaValido($idioma) ? $idioma : $options->defaultLanguage,
+            'fuso_horario' => $this->fusoHorarioValido($fuso_horario) ? $fuso_horario : $options->defaultTimezone,
+        ];
+    }
+
+    private function fusosHorarios(): array
+    {
+        $opcoes = [];
+        $options = config(SystemOptions::class);
+
+        foreach ($options->timezones as $timezone => $nome) {
+            if (! in_array($timezone, timezone_identifiers_list(), true)) {
+                continue;
+            }
+
+            $opcoes[$timezone] = $this->rotuloFusoHorario($timezone, $nome);
+        }
+
+        return $opcoes;
+    }
+
+    private function rotuloFusoHorario(string $timezone, string $nome): string
+    {
+        $offset = (new \DateTimeImmutable('now', new \DateTimeZone($timezone)))->getOffset();
+        $sinal = $offset >= 0 ? '+' : '-';
+        $offset = abs($offset);
+
+        return sprintf(
+            'GMT %s%02d:%02d - %s',
+            $sinal,
+            (int) floor($offset / 3600),
+            (int) floor(($offset % 3600) / 60),
+            $nome
+        );
+    }
+
+    private function idiomaValido(string $idioma): bool
+    {
+        return array_key_exists($idioma, config(SystemOptions::class)->languages);
+    }
+
+    private function fusoHorarioValido(string $fuso_horario): bool
+    {
+        return array_key_exists($fuso_horario, config(SystemOptions::class)->timezones)
+            && in_array($fuso_horario, timezone_identifiers_list(), true);
+    }
+
+    private function aplicarConfiguracaoSistema(string $idioma, string $fuso_horario): void
+    {
+        date_default_timezone_set($fuso_horario);
+
+        $appConfig = config(\Config\App::class);
+        $appConfig->defaultLocale = $idioma;
+        $appConfig->appTimezone = $fuso_horario;
+
+        $this->request->setLocale($idioma);
+
+        if (class_exists('\Locale')) {
+            \Locale::setDefault($idioma);
+        }
+
+        session()->set([
+            'idioma'       => $idioma,
+            'fuso_horario' => $fuso_horario,
+        ]);
     }
 
     // ------------------------------ FORMA DE PAGAMENTO -------------------------------- //
