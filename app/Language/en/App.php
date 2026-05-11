@@ -21,6 +21,14 @@ return [
         'developedBy' => 'Dev. Zaventus Tecnologia',
         'rights' => 'All rights reserved.',
     ],
+    'dashboard' => [
+        'sales' => 'Sales',
+        'productRevenue' => 'Product Rev.',
+        'orders' => 'Orders',
+        'quotes' => 'Quotes',
+        'completedServiceOrders' => 'Completed SO',
+        'serviceRevenue' => 'Service Rev.',
+    ],
     'menu' => [
         'home' => 'Home',
         'salesOs' => 'Sales and Services',

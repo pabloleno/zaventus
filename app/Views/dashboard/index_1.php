@@ -22,7 +22,7 @@
                         <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Vendas <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.sales')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= $total_de_vendas ?></span>
                         </div>
                         <!-- /.info-box-content -->
@@ -35,7 +35,7 @@
                         <span class="info-box-icon"><i class="fas fa-comments"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Pedidos <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.orders')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= $total_de_pedidos ?></span>
                         </div>
                         <!-- /.info-box-content -->
@@ -48,7 +48,7 @@
                         <span class="info-box-icon"><i class="fas fa-comments"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Orcam. <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.quotes')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= $total_de_orcamentos ?></span>
                         </div>
                         <!-- /.info-box-content -->
@@ -61,7 +61,7 @@
                         <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">OS Concret. <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.completedServiceOrders')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= $total_de_orcamentos_concretizados ?></span>
                         </div>
                         <!-- /.info-box-content -->
@@ -74,7 +74,7 @@
                         <span class="info-box-icon"><i class="fas fa-comments"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Fat. Produtos <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.productRevenue')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= number_format($faturamento_produtos, 2, ',', '.') ?></span>
                         </div>
                         <!-- /.info-box-content -->
@@ -87,7 +87,7 @@
                         <span class="info-box-icon"><i class="fas fa-tools"></i></span>
 
                         <div class="info-box-content">
-                            <span class="info-box-text">Fat. Servicos <?= date('m/Y') ?></span>
+                            <span class="info-box-text"><?= esc(lang('App.dashboard.serviceRevenue')) ?> <?= date('m/Y') ?></span>
                             <span class="info-box-number"><?= number_format($faturamento_servicos, 2, ',', '.') ?></span>
                         </div>
                         <!-- /.info-box-content -->
