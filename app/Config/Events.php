@@ -1,6 +1,7 @@
 <?php namespace Config;
 
 use CodeIgniter\Events\Events;
+use App\Libraries\HtmlTranslator;
 
 /*
  * --------------------------------------------------------------------
@@ -28,7 +29,7 @@ Events::on('pre_system', function () {
 		}
 
 		\ob_start(function ($buffer) {
-			return $buffer;
+			return HtmlTranslator::translate($buffer);
 		});
 	}
 
