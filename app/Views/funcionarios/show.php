@@ -36,6 +36,7 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
+                        <?= view('components/foto_cadastro', ['foto' => $funcionario['foto'] ?? '']) ?>
                         <div class="col-lg-3">
                             <div class="form-group">
                                 <label for="">Status</label>

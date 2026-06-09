@@ -36,6 +36,7 @@
                 <!-- /.card-header -->
                 <div class="card-body">
                     <div class="row">
+                        <?= view('components/foto_cadastro', ['foto' => $fornecedor['foto'] ?? '']) ?>
                         <div class="col-lg-8">
                             <div class="form-group">
                                 <label for="">Nome do Representante</label>

@@ -18,7 +18,7 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form action="/funcionarios/store" method="post">
+            <form action="/funcionarios/store" method="post" enctype="multipart/form-data">
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
@@ -42,6 +42,7 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
+                            <?= view('components/foto_cadastro', ['foto' => $funcionario['foto'] ?? '', 'editavel' => true]) ?>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label>Status</label>

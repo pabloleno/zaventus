@@ -33,6 +33,7 @@ class FuncionarioModel extends PadraoModel
         'data_inicio_das_atividades',
         'salario',
         'detalhes_da_atividade',
+        'foto',
         'anotacoes'
     ];
     protected $useTimestamps = true;

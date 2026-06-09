@@ -3,7 +3,7 @@
 -- Host: localhost	Database: nxgestao
 -- ------------------------------------------------------
 -- Server version 	10.4.32-MariaDB
--- Date: Mon, 08 Jun 2026 23:53:11 -0400
+-- Date: Tue, 09 Jun 2026 00:22:01 -0400
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -147,6 +147,8 @@ CREATE TABLE `clientes` (
   `codigo_do_municipio` varchar(128) NOT NULL,
   `UF` varchar(128) NOT NULL,
   `celular` varchar(16) NOT NULL,
+  `whatsapp` varchar(16) DEFAULT NULL,
+  `telefone_fixo` varchar(16) DEFAULT NULL,
   `comercial` varchar(16) NOT NULL,
   `residencial` varchar(16) NOT NULL,
   `email` varchar(128) NOT NULL,
@@ -154,6 +156,7 @@ CREATE TABLE `clientes` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
+  `foto` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id_cliente`)
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -165,7 +168,7 @@ CREATE TABLE `clientes` (
 LOCK TABLES `clientes` WRITE;
 /*!40000 ALTER TABLE `clientes` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `clientes` VALUES (1,1,'Consumidor Final','0000-00-00','','','','','','','','','','','','','','','','','','','','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00');
+INSERT INTO `clientes` VALUES (1,1,'Consumidor Final','0000-00-00','','','','','','','','','','','','','','','',NULL,NULL,'','','','','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `clientes` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -185,8 +188,21 @@ CREATE TABLE `config_empresa` (
   `nome_fantasia` varchar(128) NOT NULL,
   `cnpj` varchar(128) NOT NULL,
   `inscricao_estadual` varchar(128) NOT NULL,
+  `celular` varchar(16) DEFAULT NULL,
+  `whatsapp` varchar(16) DEFAULT NULL,
+  `telefone_fixo` varchar(16) DEFAULT NULL,
   `telefone` varchar(16) NOT NULL,
+  `cep` varchar(9) DEFAULT NULL,
+  `logradouro` varchar(128) DEFAULT NULL,
+  `numero` varchar(16) DEFAULT NULL,
+  `complemento` varchar(128) DEFAULT NULL,
+  `bairro` varchar(128) DEFAULT NULL,
+  `municipio` varchar(128) DEFAULT NULL,
+  `UF` varchar(2) DEFAULT NULL,
+  `codigo_do_municipio` varchar(7) DEFAULT NULL,
   `endereco` varchar(128) NOT NULL,
+  `idioma` varchar(10) DEFAULT 'pt-BR',
+  `fuso_horario` varchar(64) DEFAULT 'America/Manaus',
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
@@ -203,7 +219,7 @@ CREATE TABLE `config_empresa` (
 LOCK TABLES `config_empresa` WRITE;
 /*!40000 ALTER TABLE `config_empresa` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `config_empresa` VALUES (1,'','Sua Empresa','','','6335710000','Av. 01 Quadra 02 Lote 03','0000-00-00 00:00:00','2026-06-08 23:52:11','0000-00-00 00:00:00','favicon.ico','assets/img/zaventus-login-marca.png');
+INSERT INTO `config_empresa` VALUES (1,'','Sua Empresa','','',NULL,NULL,NULL,'6335710000',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Av. 01 Quadra 02 Lote 03','pt-BR','America/Manaus','0000-00-00 00:00:00','2026-06-08 23:52:11','0000-00-00 00:00:00','favicon.ico','assets/img/zaventus-login-marca.png');
 /*!40000 ALTER TABLE `config_empresa` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -633,14 +649,18 @@ CREATE TABLE `fornecedores` (
   `complemento` varchar(128) NOT NULL,
   `bairro` varchar(128) NOT NULL,
   `municipio` varchar(128) NOT NULL,
+  `UF` varchar(2) DEFAULT NULL,
   `codigo_do_municipio` varchar(128) NOT NULL,
   `celular` varchar(16) NOT NULL,
+  `whatsapp` varchar(16) DEFAULT NULL,
+  `telefone_fixo` varchar(16) DEFAULT NULL,
   `comercial` varchar(16) NOT NULL,
   `email` varchar(128) NOT NULL,
   `anotacoes` varchar(512) NOT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
+  `foto` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id_fornecedor`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -652,7 +672,7 @@ CREATE TABLE `fornecedores` (
 LOCK TABLES `fornecedores` WRITE;
 /*!40000 ALTER TABLE `fornecedores` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `fornecedores` VALUES (1,'GERAL','GERAL','S/N','','','','','','','','','','','','','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00');
+INSERT INTO `fornecedores` VALUES (1,'GERAL','GERAL','S/N','','','','','','','',NULL,'','',NULL,NULL,'','','','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `fornecedores` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -669,6 +689,7 @@ COMMIT;
 CREATE TABLE `funcionarios` (
   `id_funcionario` int(9) NOT NULL AUTO_INCREMENT,
   `status` varchar(32) NOT NULL,
+  `tipo_funcionario` varchar(16) DEFAULT 'Outros',
   `nome` varchar(128) NOT NULL,
   `data_de_nascimento` date NOT NULL,
   `rg` varchar(32) NOT NULL,
@@ -679,7 +700,11 @@ CREATE TABLE `funcionarios` (
   `complemento` varchar(128) NOT NULL,
   `bairro` varchar(128) NOT NULL,
   `municipio` varchar(128) NOT NULL,
+  `UF` varchar(2) DEFAULT NULL,
+  `codigo_do_municipio` varchar(7) DEFAULT NULL,
   `celular` varchar(16) NOT NULL,
+  `whatsapp` varchar(16) DEFAULT NULL,
+  `telefone_fixo` varchar(16) DEFAULT NULL,
   `comercial` varchar(16) NOT NULL,
   `residencial` varchar(16) NOT NULL,
   `email` varchar(128) NOT NULL,
@@ -692,6 +717,7 @@ CREATE TABLE `funcionarios` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
+  `foto` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id_funcionario`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -830,7 +856,7 @@ CREATE TABLE `migrations` (
   `time` int(11) NOT NULL,
   `batch` int(11) unsigned NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -840,12 +866,12 @@ CREATE TABLE `migrations` (
 LOCK TABLES `migrations` WRITE;
 /*!40000 ALTER TABLE `migrations` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `migrations` VALUES (1,'2020-03-05-162549','App\\Database\\Migrations\\Clientes','default','App',1589316019,1),(2,'2020-03-05-162613','App\\Database\\Migrations\\CategoriasDosProdutos','default','App',1589316019,1),(3,'2020-03-05-162621','App\\Database\\Migrations\\Fornecedores','default','App',1589316019,1),(4,'2020-03-05-162622','App\\Database\\Migrations\\Produtos','default','App',1589316020,1),(5,'2020-03-05-162633','App\\Database\\Migrations\\Caixas','default','App',1589316020,1),(6,'2020-03-05-162644','App\\Database\\Migrations\\Lancamentos','default','App',1589316020,1),(7,'2020-03-05-162654','App\\Database\\Migrations\\Retiradas','default','App',1589316021,1),(8,'2020-03-05-162704','App\\Database\\Migrations\\Despesas','default','App',1589316021,1),(9,'2020-03-05-162715','App\\Database\\Migrations\\Reposicoes','default','App',1589316021,1),(10,'2020-03-05-162725','App\\Database\\Migrations\\SaidaDeMercadorias','default','App',1589316022,1),(11,'2020-03-05-162734','App\\Database\\Migrations\\ContasAPagar','default','App',1589316022,1),(12,'2020-03-05-162749','App\\Database\\Migrations\\ContasAReceber','default','App',1589316022,1),(13,'2020-03-05-162800','App\\Database\\Migrations\\ProdutosDoPdv','default','App',1589316022,1),(14,'2020-03-05-162811','App\\Database\\Migrations\\ConfigNfeNfce','default','App',1589316022,1),(15,'2020-03-05-162821','App\\Database\\Migrations\\ConfigEmpresa','default','App',1589316023,1),(16,'2020-03-05-162849','App\\Database\\Migrations\\Login','default','App',1589316023,1),(17,'2020-03-05-162918','App\\Database\\Migrations\\FormasDePagamento','default','App',1589316023,1),(18,'2020-03-05-162928','App\\Database\\Migrations\\InventarioDoEstoque','default','App',1589316023,1),(19,'2020-03-05-162937','App\\Database\\Migrations\\ProdutosDoInventarioDoEstoque','default','App',1589316024,1),(20,'2020-03-05-162949','App\\Database\\Migrations\\Funcionarios','default','App',1589316025,1),(21,'2020-03-05-163007','App\\Database\\Migrations\\PagamentosDoCliente','default','App',1589316026,1),(22,'2020-03-05-163016','App\\Database\\Migrations\\Vendedores','default','App',1589316026,1),(23,'2020-03-05-163025','App\\Database\\Migrations\\Vendas','default','App',1589316027,1),(24,'2020-03-05-163035','App\\Database\\Migrations\\ProdutosDaVenda','default','App',1589316028,1),(25,'2020-03-05-163044','App\\Database\\Migrations\\VendaRapida','default','App',1589316029,1),(26,'2020-03-05-163059','App\\Database\\Migrations\\ProdutosDaVendaRapida','default','App',1589316030,1),(27,'2020-03-05-163109','App\\Database\\Migrations\\Nfces','default','App',1589316030,1),(28,'2020-03-05-163117','App\\Database\\Migrations\\Nfes','default','App',1589316031,1),(29,'2020-03-11-205355','App\\Database\\Migrations\\ConfigNfce','default','App',1589316031,1),(30,'2020-03-12-143912','App\\Database\\Migrations\\Orcamentos','default','App',1589316032,1),(31,'2020-03-12-144141','App\\Database\\Migrations\\ProdutosDoOrcamento','default','App',1589316032,1),(32,'2020-03-12-152203','App\\Database\\Migrations\\Pedidos','default','App',1589316032,1),(33,'2020-03-12-152215','App\\Database\\Migrations\\ProdutosDoPedido','default','App',1589316033,1),(34,'2020-04-12-124532','App\\Database\\Migrations\\Tecnicos','default','App',1589316036,1),(35,'2020-04-12-124605','App\\Database\\Migrations\\ServicosMaoDeObra','default','App',1589316036,1),(36,'2020-04-12-124632','App\\Database\\Migrations\\OrdensDeServicosProvisorio','default','App',1589316036,1),(37,'2020-04-12-124657','App\\Database\\Migrations\\PagamentosOsProvisorio','default','App',1589316037,1),(38,'2020-04-12-124744','App\\Database\\Migrations\\ParcelasDoPagamentoOsProvisorio','default','App',1589316037,1),(39,'2020-04-12-124809','App\\Database\\Migrations\\AnexosOsProvisorio','default','App',1589316037,1),(40,'2020-04-12-124831','App\\Database\\Migrations\\ServicosMaoDeObraProvisorio','default','App',1589316038,1),(41,'2020-04-12-124854','App\\Database\\Migrations\\EquipamentosOsProvisorio','default','App',1589316040,1),(42,'2020-04-12-124919','App\\Database\\Migrations\\ProdutosPecasOsProvisorio','default','App',1589316041,1),(43,'2020-04-13-162524','App\\Database\\Migrations\\OrdensDeServicos','default','App',1589316042,1),(44,'2020-04-13-162643','App\\Database\\Migrations\\PagamentosOs','default','App',1589316043,1),(45,'2020-04-13-162834','App\\Database\\Migrations\\ParcelasDoPagamentoOs','default','App',1589316043,1),(46,'2020-04-13-163231','App\\Database\\Migrations\\ServicosMaoDeObraDaOs','default','App',1589316043,1),(47,'2020-04-13-163337','App\\Database\\Migrations\\EquipamentosOs','default','App',1589316044,1),(48,'2020-04-13-163457','App\\Database\\Migrations\\ProdutosPecasOs','default','App',1589316044,1),(49,'2020-05-07-140303','App\\Database\\Migrations\\ProvisorioAddProdutoPorXml','default','App',1589316044,1),(50,'2020-05-08-155616','App\\Database\\Migrations\\ControleDeAcessoModulos','default','App',1589316045,1),(51,'2020-05-08-155757','App\\Database\\Migrations\\ControleDeAcessoFuncionalidades','default','App',1589316045,1),(52,'2020-05-14-155936','App\\Database\\Migrations\\ProvisorioReposicaoProdutosPorXml','default','App',1777490806,2),(53,'2026-04-29-021700','App\\Database\\Migrations\\AddIdCaixaToProdutosDoPdv','default','App',1777490806,2),(54,'2026-04-30-000000','App\\Database\\Migrations\\PrepareFiscalAmHomologation','default','App',1777523604,3),(55,'2026-04-30-010000','App\\Database\\Migrations\\RebrandToZaventusGestao','default','App',1777525222,4),(56,'2026-06-09-000001','App\\Database\\Migrations\\ConfigEmpresaPersonalizacao','default','App',1780977056,5);
+INSERT INTO `migrations` VALUES (1,'2020-03-05-162549','App\\Database\\Migrations\\Clientes','default','App',1589316019,1),(2,'2020-03-05-162613','App\\Database\\Migrations\\CategoriasDosProdutos','default','App',1589316019,1),(3,'2020-03-05-162621','App\\Database\\Migrations\\Fornecedores','default','App',1589316019,1),(4,'2020-03-05-162622','App\\Database\\Migrations\\Produtos','default','App',1589316020,1),(5,'2020-03-05-162633','App\\Database\\Migrations\\Caixas','default','App',1589316020,1),(6,'2020-03-05-162644','App\\Database\\Migrations\\Lancamentos','default','App',1589316020,1),(7,'2020-03-05-162654','App\\Database\\Migrations\\Retiradas','default','App',1589316021,1),(8,'2020-03-05-162704','App\\Database\\Migrations\\Despesas','default','App',1589316021,1),(9,'2020-03-05-162715','App\\Database\\Migrations\\Reposicoes','default','App',1589316021,1),(10,'2020-03-05-162725','App\\Database\\Migrations\\SaidaDeMercadorias','default','App',1589316022,1),(11,'2020-03-05-162734','App\\Database\\Migrations\\ContasAPagar','default','App',1589316022,1),(12,'2020-03-05-162749','App\\Database\\Migrations\\ContasAReceber','default','App',1589316022,1),(13,'2020-03-05-162800','App\\Database\\Migrations\\ProdutosDoPdv','default','App',1589316022,1),(14,'2020-03-05-162811','App\\Database\\Migrations\\ConfigNfeNfce','default','App',1589316022,1),(15,'2020-03-05-162821','App\\Database\\Migrations\\ConfigEmpresa','default','App',1589316023,1),(16,'2020-03-05-162849','App\\Database\\Migrations\\Login','default','App',1589316023,1),(17,'2020-03-05-162918','App\\Database\\Migrations\\FormasDePagamento','default','App',1589316023,1),(18,'2020-03-05-162928','App\\Database\\Migrations\\InventarioDoEstoque','default','App',1589316023,1),(19,'2020-03-05-162937','App\\Database\\Migrations\\ProdutosDoInventarioDoEstoque','default','App',1589316024,1),(20,'2020-03-05-162949','App\\Database\\Migrations\\Funcionarios','default','App',1589316025,1),(21,'2020-03-05-163007','App\\Database\\Migrations\\PagamentosDoCliente','default','App',1589316026,1),(22,'2020-03-05-163016','App\\Database\\Migrations\\Vendedores','default','App',1589316026,1),(23,'2020-03-05-163025','App\\Database\\Migrations\\Vendas','default','App',1589316027,1),(24,'2020-03-05-163035','App\\Database\\Migrations\\ProdutosDaVenda','default','App',1589316028,1),(25,'2020-03-05-163044','App\\Database\\Migrations\\VendaRapida','default','App',1589316029,1),(26,'2020-03-05-163059','App\\Database\\Migrations\\ProdutosDaVendaRapida','default','App',1589316030,1),(27,'2020-03-05-163109','App\\Database\\Migrations\\Nfces','default','App',1589316030,1),(28,'2020-03-05-163117','App\\Database\\Migrations\\Nfes','default','App',1589316031,1),(29,'2020-03-11-205355','App\\Database\\Migrations\\ConfigNfce','default','App',1589316031,1),(30,'2020-03-12-143912','App\\Database\\Migrations\\Orcamentos','default','App',1589316032,1),(31,'2020-03-12-144141','App\\Database\\Migrations\\ProdutosDoOrcamento','default','App',1589316032,1),(32,'2020-03-12-152203','App\\Database\\Migrations\\Pedidos','default','App',1589316032,1),(33,'2020-03-12-152215','App\\Database\\Migrations\\ProdutosDoPedido','default','App',1589316033,1),(34,'2020-04-12-124532','App\\Database\\Migrations\\Tecnicos','default','App',1589316036,1),(35,'2020-04-12-124605','App\\Database\\Migrations\\ServicosMaoDeObra','default','App',1589316036,1),(36,'2020-04-12-124632','App\\Database\\Migrations\\OrdensDeServicosProvisorio','default','App',1589316036,1),(37,'2020-04-12-124657','App\\Database\\Migrations\\PagamentosOsProvisorio','default','App',1589316037,1),(38,'2020-04-12-124744','App\\Database\\Migrations\\ParcelasDoPagamentoOsProvisorio','default','App',1589316037,1),(39,'2020-04-12-124809','App\\Database\\Migrations\\AnexosOsProvisorio','default','App',1589316037,1),(40,'2020-04-12-124831','App\\Database\\Migrations\\ServicosMaoDeObraProvisorio','default','App',1589316038,1),(41,'2020-04-12-124854','App\\Database\\Migrations\\EquipamentosOsProvisorio','default','App',1589316040,1),(42,'2020-04-12-124919','App\\Database\\Migrations\\ProdutosPecasOsProvisorio','default','App',1589316041,1),(43,'2020-04-13-162524','App\\Database\\Migrations\\OrdensDeServicos','default','App',1589316042,1),(44,'2020-04-13-162643','App\\Database\\Migrations\\PagamentosOs','default','App',1589316043,1),(45,'2020-04-13-162834','App\\Database\\Migrations\\ParcelasDoPagamentoOs','default','App',1589316043,1),(46,'2020-04-13-163231','App\\Database\\Migrations\\ServicosMaoDeObraDaOs','default','App',1589316043,1),(47,'2020-04-13-163337','App\\Database\\Migrations\\EquipamentosOs','default','App',1589316044,1),(48,'2020-04-13-163457','App\\Database\\Migrations\\ProdutosPecasOs','default','App',1589316044,1),(49,'2020-05-07-140303','App\\Database\\Migrations\\ProvisorioAddProdutoPorXml','default','App',1589316044,1),(50,'2020-05-08-155616','App\\Database\\Migrations\\ControleDeAcessoModulos','default','App',1589316045,1),(51,'2020-05-08-155757','App\\Database\\Migrations\\ControleDeAcessoFuncionalidades','default','App',1589316045,1),(52,'2020-05-14-155936','App\\Database\\Migrations\\ProvisorioReposicaoProdutosPorXml','default','App',1777490806,2),(53,'2026-04-29-021700','App\\Database\\Migrations\\AddIdCaixaToProdutosDoPdv','default','App',1777490806,2),(54,'2026-04-30-000000','App\\Database\\Migrations\\PrepareFiscalAmHomologation','default','App',1777523604,3),(55,'2026-04-30-010000','App\\Database\\Migrations\\RebrandToZaventusGestao','default','App',1777525222,4),(56,'2026-06-09-000001','App\\Database\\Migrations\\ConfigEmpresaPersonalizacao','default','App',1780977056,5),(57,'2026-05-01-000001','App\\Database\\Migrations\\ConfigEmpresaEnderecoContatos','default','App',1780978631,6),(58,'2026-05-01-000002','App\\Database\\Migrations\\ContatosPadraoControleGeral','default','App',1780978631,6),(59,'2026-05-01-000003','App\\Database\\Migrations\\EnderecoPadraoControleGeral','default','App',1780978631,6),(60,'2026-05-01-000004','App\\Database\\Migrations\\VinculaVendedoresFuncionarios','default','App',1780978631,6),(61,'2026-05-01-000005','App\\Database\\Migrations\\VinculaProdutosPecasOsEstoque','default','App',1780978631,6),(62,'2026-05-11-000001','App\\Database\\Migrations\\ConfigEmpresaGlobalizacao','default','App',1780978631,6),(63,'2026-06-09-000002','App\\Database\\Migrations\\CadastrosControleGeralFotos','default','App',1780978631,6);
 /*!40000 ALTER TABLE `migrations` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
 
--- Dumped table `migrations` with 56 row(s)
+-- Dumped table `migrations` with 63 row(s)
 --
 
 --
@@ -1603,6 +1629,7 @@ COMMIT;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `produtos_pecas_os` (
   `id_produto` int(9) NOT NULL AUTO_INCREMENT,
+  `id_produto_estoque` int(9) DEFAULT NULL,
   `nome` varchar(128) NOT NULL,
   `quantidade` int(11) NOT NULL,
   `valor_unitario` double NOT NULL,
@@ -1639,6 +1666,7 @@ COMMIT;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `produtos_pecas_os_provisorio` (
   `id_produto` int(9) NOT NULL AUTO_INCREMENT,
+  `id_produto_estoque` int(9) DEFAULT NULL,
   `nome` varchar(128) NOT NULL,
   `quantidade` int(11) NOT NULL,
   `valor_unitario` double NOT NULL,
@@ -2041,6 +2069,9 @@ CREATE TABLE `tecnicos` (
   `comissao` double NOT NULL,
   `observacoes` varchar(128) NOT NULL,
   `foto` varchar(128) NOT NULL,
+  `celular` varchar(16) DEFAULT NULL,
+  `whatsapp` varchar(16) DEFAULT NULL,
+  `telefone_fixo` varchar(16) DEFAULT NULL,
   `fixo` varchar(128) NOT NULL,
   `celular_1` varchar(128) NOT NULL,
   `celular_2` varchar(128) NOT NULL,
@@ -2051,6 +2082,7 @@ CREATE TABLE `tecnicos` (
   `bairro` varchar(128) NOT NULL,
   `cidade` varchar(128) NOT NULL,
   `uf` varchar(2) NOT NULL,
+  `codigo_do_municipio` varchar(7) DEFAULT NULL,
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
@@ -2065,7 +2097,7 @@ CREATE TABLE `tecnicos` (
 LOCK TABLES `tecnicos` WRITE;
 /*!40000 ALTER TABLE `tecnicos` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `tecnicos` VALUES (1,'GERAL','S/N','','','','',0,'','','','S/N','','','','','','','','','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00');
+INSERT INTO `tecnicos` VALUES (1,'GERAL','S/N','','','','',0,'','',NULL,NULL,NULL,'','S/N','','','','','','','','',NULL,'0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `tecnicos` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -2172,6 +2204,7 @@ COMMIT;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `vendedores` (
   `id_vendedor` int(9) NOT NULL AUTO_INCREMENT,
+  `id_funcionario` int(9) DEFAULT NULL,
   `status` varchar(32) NOT NULL,
   `nome` varchar(128) NOT NULL,
   `data_inicio_das_atividades` date NOT NULL,
@@ -2179,6 +2212,7 @@ CREATE TABLE `vendedores` (
   `created_at` datetime NOT NULL,
   `updated_at` datetime NOT NULL,
   `deleted_at` datetime NOT NULL,
+  `foto` varchar(255) NOT NULL DEFAULT '',
   PRIMARY KEY (`id_vendedor`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -2190,7 +2224,7 @@ CREATE TABLE `vendedores` (
 LOCK TABLES `vendedores` WRITE;
 /*!40000 ALTER TABLE `vendedores` DISABLE KEYS */;
 SET autocommit=0;
-INSERT INTO `vendedores` VALUES (1,'Ativo','GERAL','2020-05-12','Vendedor para vendas em geral.','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00');
+INSERT INTO `vendedores` VALUES (1,NULL,'Ativo','GERAL','2020-05-12','Vendedor para vendas em geral.','0000-00-00 00:00:00','0000-00-00 00:00:00','0000-00-00 00:00:00','');
 /*!40000 ALTER TABLE `vendedores` ENABLE KEYS */;
 UNLOCK TABLES;
 COMMIT;
@@ -2207,4 +2241,4 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on: Mon, 08 Jun 2026 23:53:11 -0400
+-- Dump completed on: Tue, 09 Jun 2026 00:22:02 -0400

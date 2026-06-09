@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
+use App\Libraries\ImagemCadastro;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Models\OrdemDeServicoModel;
 use App\Models\PagamentoDoClienteModel;
@@ -11,6 +12,7 @@ use App\Models\PedidoModel;
 use App\Models\VendaModel;
 use App\Models\ClienteModel;
 use CodeIgniter\Controller;
+use InvalidArgumentException;
 
 class Clientes extends Controller
 {
@@ -187,12 +189,29 @@ class Clientes extends Controller
         }
 
         $dados = $preparo['dados'];
+        $clienteAnterior = ! empty($dados['id_cliente'])
+            ? $this->cliente_model->where('id_cliente', $dados['id_cliente'])->first()
+            : [];
 
         // Prepara dados de endereco e municipio.
         $dados = $this->prepararEnderecoCliente($dados);
         $dados = ContatoPadrao::sincronizarCliente($dados);
 
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'clientes');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        }
+
         $this->cliente_model->save($dados);
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($clienteAnterior['foto'] ?? '');
+        }
 
         // Caso a ação é editar
         if(isset($dados['id_cliente']))
@@ -244,7 +263,9 @@ class Clientes extends Controller
 
     public function delete($id_cliente)
     {
+        $cliente = $this->cliente_model->where('id_cliente', $id_cliente)->first();
         $this->cliente_model->where('id_cliente', $id_cliente)->delete();
+        ImagemCadastro::remover($cliente['foto'] ?? '');
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

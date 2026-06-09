@@ -11,6 +11,35 @@
     margin-right: 15px
 }
 
+.foto-cadastro-container{
+    align-items: center;
+    display: flex;
+    gap: 16px;
+}
+
+.foto-cadastro-controles{
+    flex: 1;
+    max-width: 520px;
+}
+
+.foto-cadastro-preview{
+    background: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    height: 96px;
+    object-fit: cover;
+    width: 96px;
+}
+
+.foto-cadastro-miniatura{
+    background: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 50%;
+    height: 44px;
+    object-fit: cover;
+    width: 44px;
+}
+
 .zaventus-brand-link{
     border-bottom: 1px solid rgba(255,255,255,.12);
     text-align: center;

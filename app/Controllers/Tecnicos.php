@@ -4,9 +4,11 @@ namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
 use App\Libraries\EnderecoPadrao;
+use App\Libraries\ImagemCadastro;
 use App\Models\TecnicoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
+use InvalidArgumentException;
 
 class Tecnicos extends Controller
 {
@@ -125,8 +127,25 @@ class Tecnicos extends Controller
 
         $dados = EnderecoPadrao::preparar($preparo['dados'], $this->tabela_municipios_ibge_model, 'uf', 'cidade');
         $dados = ContatoPadrao::sincronizarTecnico($dados);
+        $tecnicoAnterior = ! empty($dados['id_tecnico'])
+            ? $this->tecnico_model->where('id_tecnico', $dados['id_tecnico'])->first()
+            : [];
+
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'tecnicos');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        }
 
         $this->tecnico_model->save($dados);
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($tecnicoAnterior['foto'] ?? '');
+        }
 
         // Caso a ação é editar
         if(isset($dados['id_tecnico']))
@@ -152,7 +171,9 @@ class Tecnicos extends Controller
 
     public function delete($id_tecnico)
     {
+        $tecnico = $this->tecnico_model->where('id_tecnico', $id_tecnico)->first();
         $this->tecnico_model->where('id_tecnico', $id_tecnico)->delete();
+        ImagemCadastro::remover($tecnico['foto'] ?? '');
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

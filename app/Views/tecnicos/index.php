@@ -1,3 +1,4 @@
+<?php use App\Libraries\ImagemCadastro; ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -36,6 +37,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th style="width: 60px">Foto</th>
                                 <th>Nome</th>
                                 <th>CPF</th>
                                 <th>Celular</th>
@@ -47,6 +49,7 @@
                                 <?php foreach ($tecnicos as $tecnico) : ?>
                                     <tr>
                                         <td><?= $tecnico['id_tecnico'] ?></td>
+                                        <td class="text-center"><img src="<?= esc(ImagemCadastro::url($tecnico['foto'] ?? '')) ?>" alt="Foto" class="foto-cadastro-miniatura"></td>
                                         <td><?= $tecnico['nome'] ?></td>
                                         <td><?= $tecnico['cpf'] ?></td>
                                         <td><?= esc(\App\Libraries\ContatoPadrao::primeiroValor($tecnico, ['celular', 'celular_1'])) ?></td>

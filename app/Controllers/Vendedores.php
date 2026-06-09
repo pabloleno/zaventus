@@ -2,9 +2,11 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ImagemCadastro;
 use App\Models\FuncionarioModel;
 use App\Models\VendedorModel;
 use CodeIgniter\Controller;
+use InvalidArgumentException;
 
 class Vendedores extends Controller
 {
@@ -90,8 +92,25 @@ class Vendedores extends Controller
         }
 
         $dados = $preparo['dados'];
+        $vendedorAnterior = ! empty($dados['id_vendedor'])
+            ? $this->vendedor_model->where('id_vendedor', $dados['id_vendedor'])->first()
+            : [];
+
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'vendedores');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        }
 
         $this->vendedor_model->save($dados);
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($vendedorAnterior['foto'] ?? '');
+        }
 
         $session = session();
 
@@ -124,6 +143,8 @@ class Vendedores extends Controller
 
         if (! empty($vendedor['id_funcionario'])) {
             $this->funcionario_model->update($vendedor['id_funcionario'], ['tipo_funcionario' => 'Outros']);
+        } else {
+            ImagemCadastro::remover($vendedor['foto'] ?? '');
         }
 
         $this->vendedor_model->ocultar((int) $id_vendedor);

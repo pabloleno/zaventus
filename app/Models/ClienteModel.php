@@ -30,6 +30,7 @@ class ClienteModel extends PadraoModel
         'comercial',
         'residencial',
         'email',
+        'foto',
         'anotacoes'
     ];
     protected $useTimestamps = true;

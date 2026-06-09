@@ -25,6 +25,7 @@ class FornecedorModel extends PadraoModel
         'telefone_fixo',
         'comercial',
         'email',
+        'foto',
         'anotacoes'
     ];
     protected $useTimestamps = true;

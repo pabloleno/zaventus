@@ -16,7 +16,7 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form action="/fornecedores/store" method="post">
+            <form action="/fornecedores/store" method="post" enctype="multipart/form-data">
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
@@ -40,6 +40,7 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
+                            <?= view('components/foto_cadastro', ['foto' => $fornecedor['foto'] ?? '', 'editavel' => true]) ?>
                             <div class="col-lg-8">
                                 <div class="form-group">
                                     <label for="">Nome do Representante</label>

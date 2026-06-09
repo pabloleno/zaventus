@@ -1,3 +1,4 @@
+<?php use App\Libraries\ImagemCadastro; ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -36,6 +37,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th style="width: 60px">Foto</th>
                                 <th>Empresa</th>
                                 <th>Representante</th>
                                 <th>CNPJ</th>
@@ -47,6 +49,7 @@
                                 <?php foreach ($fornecedores as $fornecedor) : ?>
                                     <tr>
                                         <td><?= $fornecedor['id_fornecedor'] ?></td>
+                                        <td class="text-center"><img src="<?= esc(ImagemCadastro::url($fornecedor['foto'] ?? '')) ?>" alt="Foto" class="foto-cadastro-miniatura"></td>
                                         <td><?= $fornecedor['nome_da_empresa'] ?></td>
                                         <td><?= $fornecedor['nome_do_representante'] ?></td>
                                         <td><?= $fornecedor['cnpj'] ?></td>

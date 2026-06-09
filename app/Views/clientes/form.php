@@ -16,7 +16,7 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form action="/clientes/store" method="post">
+            <form action="/clientes/store" method="post" enctype="multipart/form-data">
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
@@ -44,6 +44,7 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
+                            <?= view('components/foto_cadastro', ['foto' => $cliente['foto'] ?? '', 'editavel' => true]) ?>
                             <?php if (isset($cliente)) : ?>
                                 <div class="col-lg-4">
                                     <div class="form-group">

@@ -14,6 +14,7 @@ class VendedorModel extends PadraoModel
         'status',
         'nome',
         'data_inicio_das_atividades',
+        'foto',
         'anotacoes'
     ];
     protected $useTimestamps = true;
@@ -104,6 +105,7 @@ class VendedorModel extends PadraoModel
             'status'                     => $funcionario['status'] ?? 'Ativo',
             'nome'                       => $funcionario['nome'] ?? '',
             'data_inicio_das_atividades' => $this->dataInicio($funcionario),
+            'foto'                       => $funcionario['foto'] ?? '',
             'anotacoes'                  => $funcionario['anotacoes'] ?? '',
         ];
 

@@ -4,10 +4,12 @@ namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
 use App\Libraries\EnderecoPadrao;
+use App\Libraries\ImagemCadastro;
 use CodeIgniter\Controller;
 use App\Models\FuncionarioModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Models\VendedorModel;
+use InvalidArgumentException;
 
 class Funcionarios extends Controller
 {
@@ -131,12 +133,29 @@ class Funcionarios extends Controller
 
         $dados = EnderecoPadrao::preparar($preparo['dados'], $this->tabela_municipios_ibge_model);
         $dados = ContatoPadrao::sincronizarFuncionario($dados);
+        $funcionarioAnterior = ! empty($dados['id_funcionario'])
+            ? $this->funcionario_model->where('id_funcionario', $dados['id_funcionario'])->first()
+            : [];
+
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'funcionarios');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        }
 
         $this->funcionario_model->save($dados);
         $idFuncionario = (int) ($dados['id_funcionario'] ?? $this->funcionario_model->getInsertID());
 
         if ($idFuncionario > 0) {
             $this->vendedor_model->sincronizarFuncionario($dados, $idFuncionario);
+        }
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($funcionarioAnterior['foto'] ?? '');
         }
 
         $session = session();
@@ -163,8 +182,10 @@ class Funcionarios extends Controller
 
     public function delete($id_funcionario)
     {
+        $funcionario = $this->funcionario_model->where('id_funcionario', $id_funcionario)->first();
         $this->vendedor_model->ocultarPorFuncionario((int) $id_funcionario);
         $this->funcionario_model->where('id_funcionario', $id_funcionario)->delete();
+        ImagemCadastro::remover($funcionario['foto'] ?? '');
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

@@ -67,6 +67,7 @@
                         <div class="tab-content">
                         <div class="tab-pane active" id="dados">
                             <div class="row">
+                                <?= view('components/foto_cadastro', ['foto' => $cliente['foto'] ?? '']) ?>
                                 <?php if ($cliente['tipo'] == 1) : ?>
                                     <div class="col-lg-4">
                                         <div class="form-group">

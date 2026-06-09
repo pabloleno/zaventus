@@ -63,6 +63,8 @@ public/assets/temp_baixar_xmls/*
 !public/assets/temp_baixar_xmls/.gitkeep
 public/uploads/personalizacao/*
 !public/uploads/personalizacao/.gitkeep
+public/uploads/cadastros/*
+!public/uploads/cadastros/.gitkeep
 
 writable/debugbar/*
 

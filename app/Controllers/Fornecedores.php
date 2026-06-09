@@ -4,9 +4,11 @@ namespace App\Controllers;
 
 use App\Libraries\ContatoPadrao;
 use App\Libraries\EnderecoPadrao;
+use App\Libraries\ImagemCadastro;
 use CodeIgniter\Controller;
 use App\Models\FornecedorModel;
 use App\Models\TabelaMunicipiosIBGEModel;
+use InvalidArgumentException;
 
 class Fornecedores extends Controller
 {
@@ -125,8 +127,25 @@ class Fornecedores extends Controller
 
         $dados = EnderecoPadrao::preparar($preparo['dados'], $this->tabela_municipios_ibge_model);
         $dados = ContatoPadrao::sincronizarFornecedor($dados);
+        $fornecedorAnterior = ! empty($dados['id_fornecedor'])
+            ? $this->fornecedor_model->where('id_fornecedor', $dados['id_fornecedor'])->first()
+            : [];
+
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'fornecedores');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        }
 
         $this->fornecedor_model->save($dados);
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($fornecedorAnterior['foto'] ?? '');
+        }
 
         $session = session();
         
@@ -152,7 +171,9 @@ class Fornecedores extends Controller
 
     public function delete($id_fornecedor)
     {
+        $fornecedor = $this->fornecedor_model->where('id_fornecedor', $id_fornecedor)->first();
         $this->fornecedor_model->where('id_fornecedor', $id_fornecedor)->delete();
+        ImagemCadastro::remover($fornecedor['foto'] ?? '');
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');
