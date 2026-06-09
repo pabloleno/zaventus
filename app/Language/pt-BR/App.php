@@ -21,14 +21,6 @@ return [
         'developedBy' => 'Desenv. Zaventus Tecnologia',
         'rights' => 'Todos os direitos reservados.',
     ],
-    'dashboard' => [
-        'sales' => 'Vendas',
-        'productRevenue' => 'Fat. Produtos',
-        'orders' => 'Pedidos',
-        'quotes' => 'Orcam.',
-        'completedServiceOrders' => 'OS Concret.',
-        'serviceRevenue' => 'Fat. Servicos',
-    ],
     'menu' => [
         'home' => 'Inicio',
         'salesOs' => 'Vendas e OS',

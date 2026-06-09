@@ -20,14 +20,6 @@ return array_replace_recursive(require __DIR__ . '/../en/App.php', [
     'footer' => [
         'rights' => 'Tutti i diritti riservati.',
     ],
-    'dashboard' => [
-        'sales' => 'Vendite',
-        'productRevenue' => 'Ricavi Prod.',
-        'orders' => 'Ordini',
-        'quotes' => 'Preventivi',
-        'completedServiceOrders' => 'OS Complet.',
-        'serviceRevenue' => 'Ricavi Serv.',
-    ],
     'menu' => [
         'home' => 'Home',
         'salesOs' => 'Vendite e Servizi',
