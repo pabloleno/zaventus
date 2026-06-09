@@ -72,18 +72,32 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th style="width: 130px">Imagem</th>
                                 <th>Nome</th>
-                                <th style="width: 180px">Cód. de Barras</th>
+                                <th style="width: 130px">Preço</th>
+                                <th style="width: 150px">Qtd. disponível</th>
+                                <th style="width: 170px">Localização</th>
+                                <th style="width: 160px">Cód. de Barras</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php if (!empty($produtos)) : ?>
                                 <?php foreach ($produtos as $produto) : ?>
+                                    <?php
+                                        $arquivoProduto = basename((string) ($produto['arquivo'] ?? ''));
+                                        $imagemProduto = $arquivoProduto !== '' && is_file(FCPATH . 'assets/img/produtos/' . $arquivoProduto)
+                                            ? 'assets/img/produtos/' . $arquivoProduto
+                                            : 'assets/img/produtos/produto-sem-imagem.jpg';
+                                    ?>
                                     <tr>
                                         <td><?= $produto['id_produto'] ?></td>
-                                        <td><?= $produto['nome'] ?></td>
-                                        <td><?= $produto['codigo_de_barras'] ?></td>
+                                        <td class="text-center"><img src="<?= esc(base_url($imagemProduto)) ?>" alt="Imagem do produto" class="foto-cadastro-miniatura foto-produto-miniatura"></td>
+                                        <td><?= esc($produto['nome']) ?></td>
+                                        <td>R$ <?= number_format((float) $produto['valor_de_venda'], 2, ',', '.') ?></td>
+                                        <td><?= esc($produto['quantidade']) ?></td>
+                                        <td><?= esc(trim((string) $produto['localizacao']) !== '' ? $produto['localizacao'] : 'Não cadastrada') ?></td>
+                                        <td><?= esc($produto['codigo_de_barras']) ?></td>
                                         <td>
                                             <a href="/produtos/show/<?= $produto['id_produto'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                             <a href="/produtos/edit/<?= $produto['id_produto'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>

@@ -40,6 +40,10 @@
     width: 112px;
 }
 
+.foto-produto-miniatura{
+    border-radius: 0;
+}
+
 td:has(> .foto-cadastro-miniatura){
     vertical-align: middle;
 }
