@@ -452,6 +452,10 @@
         }
     }
 
-    $(configuraEnderecoCliente);
+    $(function () {
+        configuraEnderecoPadrao({
+            municipiosUrl: <?= json_encode(rtrim(base_url('clientes/municipiosPorUf'), '/')) ?>
+        });
+    });
     alteraTipoDoCliente();
 </script>

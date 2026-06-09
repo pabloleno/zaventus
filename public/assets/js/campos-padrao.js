@@ -11,11 +11,19 @@
 
     function aplicarMascara($campo, mascara, opcoes) {
         if ($.fn.inputmask) {
-            $campo.inputmask(mascara, $.extend({
+            var configuracao = $.extend({
                 clearIncomplete: true,
                 removeMaskOnSubmit: true,
                 showMaskOnHover: false
-            }, opcoes || {}));
+            }, opcoes || {});
+
+            if (Array.isArray(mascara)) {
+                configuracao.mask = mascara;
+                $campo.inputmask(configuracao);
+                return;
+            }
+
+            $campo.inputmask(mascara, configuracao);
         }
     }
 
@@ -131,12 +139,13 @@
             $campo.attr({
                 type: 'text',
                 inputmode: 'numeric',
-                maxlength: 14,
-                minlength: 14,
                 placeholder: '(xx) xxxx-xxxx',
-                title: 'Informe 10 digitos com DDD.'
+                title: 'Informe 10 ou 11 digitos com DDD.'
             });
-            aplicarMascara($campo, '(99) 9999-9999');
+            $campo.removeAttr('maxlength minlength');
+            aplicarMascara($campo, ['(99) 9999-9999', '(99) 99999-9999'], {
+                keepStatic: true
+            });
             return;
         }
 

@@ -132,43 +132,43 @@
                             </div>
                             <div class="col-lg-7">
                                 <div class="form-group">
-                                    <label for="">xLgr</label>
+                                    <label for="">Endere&ccedil;o</label>
                                     <input type="text" class="form-control" name="xLgr" value="<?= $dados['xLgr'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-2">
                                 <div class="form-group">
-                                    <label for="">nro</label>
+                                    <label for="">N&deg;</label>
                                     <input type="text" class="form-control" name="nro" value="<?= $dados['nro'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-7">
                                 <div class="form-group">
-                                    <label for="">xCpl</label>
+                                    <label for="">Complemento</label>
                                     <input type="text" class="form-control" name="xCpl" value="<?= $dados['xCpl'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-5">
                                 <div class="form-group">
-                                    <label for="">xBairro</label>
+                                    <label for="">Bairro</label>
                                     <input type="text" class="form-control" name="xBairro" value="<?= $dados['xBairro'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">cMun</label>
+                                    <label for="">C&oacute;d. munic&iacute;pio</label>
                                     <input type="text" class="form-control" name="cMun" value="<?= $dados['cMun'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">xMun</label>
+                                    <label for="">Cidade</label>
                                     <input type="text" class="form-control" name="xMun" value="<?= $dados['xMun'] ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">UF</label>
+                                    <label for="">Estado</label>
                                     <input type="text" class="form-control" name="UF" value="<?= $dados['UF'] ?>" required="">
                                 </div>
                             </div>
@@ -314,6 +314,17 @@
 
 <script>
     $(function() {
+        configuraEnderecoPadrao({
+            cepSelector: 'input[name="CEP"]',
+            logradouroSelector: 'input[name="xLgr"]',
+            numeroSelector: 'input[name="nro"]',
+            complementoSelector: 'input[name="xCpl"]',
+            bairroSelector: 'input[name="xBairro"]',
+            ufSelector: 'input[name="UF"]',
+            cidadeSelector: 'input[name="cMun"]',
+            municipioSelector: 'input[name="xMun"]'
+        });
+
         const Toast = Swal.mixin({
             toast: true,
             position: 'top-end',

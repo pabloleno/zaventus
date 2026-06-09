@@ -343,7 +343,9 @@
     }
 
     $(function() {
-        configuraEnderecoEmpresa();
+        configuraEnderecoPadrao({
+            municipiosUrl: <?= json_encode(rtrim(base_url('configs/municipiosPorUf'), '/')) ?>
+        });
 
         const Toast = Swal.mixin({
             toast: true,
