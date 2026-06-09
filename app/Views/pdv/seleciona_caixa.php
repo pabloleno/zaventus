@@ -12,7 +12,7 @@
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
-                            <table class="table table-bordered table-striped tabela-listagem">
+                            <table class="table table-bordered table-striped tabela-listagem tabela-periodo">
                                 <thead>
                                     <tr>
                                         <th>Cód.</th>

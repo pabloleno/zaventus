@@ -41,6 +41,7 @@
                                 <th>Empresa</th>
                                 <th>Representante</th>
                                 <th>CNPJ</th>
+                                <th>Contatos</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
                         </thead>
@@ -53,6 +54,7 @@
                                         <td><?= $fornecedor['nome_da_empresa'] ?></td>
                                         <td><?= $fornecedor['nome_do_representante'] ?></td>
                                         <td><?= $fornecedor['cnpj'] ?></td>
+                                        <td><?= view('components/contatos_clicaveis', ['contato' => $fornecedor]) ?></td>
                                         <td>
                                             <a href="/fornecedores/show/<?= $fornecedor['id_fornecedor'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                             <a href="/fornecedores/edit/<?= $fornecedor['id_fornecedor'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>

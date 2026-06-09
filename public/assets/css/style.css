@@ -48,6 +48,44 @@ td:has(> .foto-cadastro-miniatura){
     vertical-align: middle;
 }
 
+.contatos-listagem{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 210px;
+}
+
+.contato-listagem-link{
+    align-items: center;
+    color: #334155;
+    display: inline-flex;
+    gap: 8px;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+}
+
+.contato-listagem-link i{
+    flex: 0 0 18px;
+    text-align: center;
+}
+
+.contato-listagem-link:hover{
+    color: #0f766e;
+    text-decoration: underline;
+}
+
+.contato-listagem-telefone i{
+    color: #2563eb;
+}
+
+.contato-listagem-whatsapp i{
+    color: #16a34a;
+}
+
+.contato-listagem-email i{
+    color: #d97706;
+}
+
 .zaventus-brand-link{
     border-bottom: 1px solid rgba(255,255,255,.12);
     text-align: center;

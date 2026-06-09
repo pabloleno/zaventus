@@ -49,9 +49,11 @@ class VendedorModel extends PadraoModel
     {
         $this->garantirGeral();
 
-        return $this->db->table($this->table)
-            ->where('status !=', self::STATUS_REMOVIDO)
-            ->orderBy('nome', 'ASC')
+        return $this->db->table($this->table . ' AS vendedores')
+            ->select('vendedores.*, funcionarios.telefone_fixo, funcionarios.celular, funcionarios.whatsapp, funcionarios.comercial, funcionarios.residencial, funcionarios.email')
+            ->join('funcionarios', 'funcionarios.id_funcionario = vendedores.id_funcionario', 'left')
+            ->where('vendedores.status !=', self::STATUS_REMOVIDO)
+            ->orderBy('vendedores.nome', 'ASC')
             ->get()
             ->getResultArray();
     }

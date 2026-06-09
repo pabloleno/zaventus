@@ -41,6 +41,7 @@
                                 <th>Nome</th>
                                 <th>Status</th>
                                 <th>Data Inicio das Vendas</th>
+                                <th>Contatos</th>
                                 <th>Anotações</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
@@ -54,6 +55,7 @@
                                         <td><?= $vendedor['nome'] ?></td>
                                         <td><?= $vendedor['status'] ?></td>
                                         <td><?= $vendedor['data_inicio_das_atividades'] ?></td>
+                                        <td><?= view('components/contatos_clicaveis', ['contato' => $vendedor]) ?></td>
                                         <td><?= $vendedor['anotacoes'] ?></td>
                                         <td>
                                             <a href="/vendedores/edit/<?= $vendedor['id_vendedor'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>

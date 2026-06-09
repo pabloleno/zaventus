@@ -40,6 +40,7 @@
                                 <th style="width: 130px">Foto</th>
                                 <th>Nome/Razão social</th>
                                 <th>CPF/CNPJ</th>
+                                <th>Contatos</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
                         </thead>
@@ -56,6 +57,7 @@
                                             <td><?= $cliente['razao_social'] ?></td>
                                             <td><?= $cliente['cnpj'] ?></td>
                                         <?php endif; ?>
+                                        <td><?= view('components/contatos_clicaveis', ['contato' => $cliente]) ?></td>
                                         <td>
                                             <a href="/clientes/show/<?= $cliente['id_cliente'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                         </td>

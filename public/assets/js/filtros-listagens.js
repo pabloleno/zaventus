@@ -220,7 +220,13 @@
             lengthMenu: [[30, 60, 100], [30, 60, 100]],
             autoWidth: false,
             initComplete: function() {
-                criarFiltroPeriodo(this.api(), identificarCamposTemporais(this.api().table().node()));
+                var api = this.api();
+                var tabela = api.table().node();
+                var campos = $(tabela).hasClass('tabela-periodo')
+                    ? identificarCamposTemporais(tabela)
+                    : [];
+
+                criarFiltroPeriodo(api, campos);
             }
         };
     }

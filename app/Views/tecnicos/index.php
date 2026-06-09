@@ -40,7 +40,7 @@
                                 <th style="width: 130px">Foto</th>
                                 <th>Nome</th>
                                 <th>CPF</th>
-                                <th>Celular</th>
+                                <th>Contatos</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
                         </thead>
@@ -52,7 +52,7 @@
                                         <td class="text-center"><img src="<?= esc(ImagemCadastro::url($tecnico['foto'] ?? '')) ?>" alt="Foto" class="foto-cadastro-miniatura"></td>
                                         <td><?= $tecnico['nome'] ?></td>
                                         <td><?= $tecnico['cpf'] ?></td>
-                                        <td><?= esc(\App\Libraries\ContatoPadrao::primeiroValor($tecnico, ['celular', 'celular_1'])) ?></td>
+                                        <td><?= view('components/contatos_clicaveis', ['contato' => $tecnico]) ?></td>
                                         <td>
                                             <a href="/tecnicos/show/<?= $tecnico['id_tecnico'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                         </td>

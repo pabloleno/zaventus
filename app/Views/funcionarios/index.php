@@ -42,6 +42,7 @@
                                 <th>Nome</th>
                                 <th>Tipo</th>
                                 <th>CPF</th>
+                                <th>Contatos</th>
                                 <th style="width: 110px">Ações</th>
                             </tr>
                         </thead>
@@ -54,6 +55,7 @@
                                         <td><?= $funcionario['nome'] ?></td>
                                         <td><?= esc(FuncionarioModel::descricaoTipo($funcionario['tipo_funcionario'] ?? 'Outros')) ?></td>
                                         <td><?= $funcionario['cpf'] ?></td>
+                                        <td><?= view('components/contatos_clicaveis', ['contato' => $funcionario]) ?></td>
                                         <td>
                                             <a href="/funcionarios/show/<?= $funcionario['id_funcionario'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                             <a href="/funcionarios/edit/<?= $funcionario['id_funcionario'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
