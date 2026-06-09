@@ -79,7 +79,7 @@
                                                         <td><?= $retirada['descricao'] ?></td>
                                                         <td><?= $retirada['data'] ?></td>
                                                         <td><?= $retirada['hora'] ?></td>
-                                                        <td><?= $retirada['valor'] ?></td>
+                                                        <td><?= moeda($retirada['valor']) ?></td>
                                                         <td><?= $retirada['id_caixa'] ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>

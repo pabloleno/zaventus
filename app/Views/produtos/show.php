@@ -66,7 +66,7 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Margem de lucro %</label>
-                                    <input type="text" class="form-control" value="<?= round($produto['margem_de_lucro'], 1) ?>%" disabled="">
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($produto['margem_de_lucro']) ?>%" disabled="">
                                 </div>
                             </div>
                             <div class="col-lg-3">

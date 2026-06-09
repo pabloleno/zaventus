@@ -40,30 +40,13 @@
 <script src="<?= base_url('theme/dist/js/adminlte.js') ?>"></script>
 <script src="<?= base_url('assets/js/endereco-padrao.js?v=' . filemtime(FCPATH . 'assets/js/endereco-padrao.js')) ?>"></script>
 <script src="<?= base_url('assets/js/campos-padrao.js?v=' . filemtime(FCPATH . 'assets/js/campos-padrao.js')) ?>"></script>
+<script src="<?= base_url('assets/js/moeda-padrao.js?v=' . filemtime(FCPATH . 'assets/js/moeda-padrao.js')) ?>"></script>
+<script src="<?= base_url('assets/js/filtros-listagens.js?v=' . filemtime(FCPATH . 'assets/js/filtros-listagens.js')) ?>"></script>
 <script>
     $(function() {
         var dataTablesLanguage = <?= json_encode(lang('Ui.datatables'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         var select2Language = <?= json_encode($select2_locale, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
-        var dataTableOptions = function() {
-            return {
-                language: dataTablesLanguage
-            };
-        };
-
-        // DataTables
-        $("#example1").DataTable(dataTableOptions());
-        $("#example1-2").DataTable(dataTableOptions());
-        $("#example1-3").DataTable(dataTableOptions());
-        $("#example1-4").DataTable(dataTableOptions());
-        $('#example2').DataTable({
-            "language": dataTablesLanguage,
-            "paging": true,
-            "lengthChange": false,
-            "searching": false,
-            "ordering": true,
-            "info": true,
-            "autoWidth": false,
-        });
+        FiltrosListagens.inicializar(dataTablesLanguage);
 
         //Initialize Select2 Elements
         $('.select2').select2({
@@ -100,8 +83,11 @@
     }
 
     function trocaVirguraPorPonto(id) {
-        var valor = document.getElementById(id).value;
-        document.getElementById(id).value = valor.replace(',', '.')
+        var elemento = document.getElementById(id);
+
+        if (elemento) {
+            elemento.value = elemento.value.replace(',', '.');
+        }
     }
 
     function adicionaClasseMenu(id, classe) {

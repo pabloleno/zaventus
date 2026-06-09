@@ -105,16 +105,14 @@ class Pedidos extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $pedidos = $this->pedido_model->orderBy('id_pedido', 'DESC')->limit(5)->join('clientes', 'pedidos.id_cliente = clientes.id_cliente')->find();
-                $data['ultimos_cinco'] = TRUE;
+                $pedidos = $this->pedido_model->orderBy('id_pedido', 'DESC')->join('clientes', 'pedidos.id_cliente = clientes.id_cliente')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $pedidos = $this->pedido_model->orderBy('id_pedido', 'DESC')->limit(5)->join('clientes', 'pedidos.id_cliente = clientes.id_cliente')->find();
-            $data['ultimos_cinco'] = TRUE;
+            $pedidos = $this->pedido_model->orderBy('id_pedido', 'DESC')->join('clientes', 'pedidos.id_cliente = clientes.id_cliente')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

@@ -54,6 +54,7 @@ class SystemSettings implements FilterInterface
             'fuso_horario' => $options->defaultTimezone,
             'favicon'       => 'favicon.ico',
             'logo_login'    => 'assets/img/zaventus-login-marca.png',
+            'finalizacao_pdv' => 'cupom_nao_fiscal',
         ];
 
         try {
@@ -85,12 +86,16 @@ class SystemSettings implements FilterInterface
         $timezone = (string) ($row['fuso_horario'] ?? '');
         $favicon = trim((string) ($row['favicon'] ?? ''));
         $logoLogin = trim((string) ($row['logo_login'] ?? ''));
+        $finalizacaoPdv = trim((string) ($row['finalizacao_pdv'] ?? ''));
 
         return [
             'idioma'       => $this->validLanguage($language, $options) ? $language : $defaults['idioma'],
             'fuso_horario' => $this->validTimezone($timezone, $options) ? $timezone : $defaults['fuso_horario'],
             'favicon'       => $favicon !== '' ? $favicon : $defaults['favicon'],
             'logo_login'    => $logoLogin !== '' ? $logoLogin : $defaults['logo_login'],
+            'finalizacao_pdv' => in_array($finalizacaoPdv, ['cupom_nao_fiscal', 'nfce'], true)
+                ? $finalizacaoPdv
+                : $defaults['finalizacao_pdv'],
         ];
     }
 

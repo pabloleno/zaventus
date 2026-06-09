@@ -64,7 +64,7 @@
                                                         <td><?= $funcionario['rg'] ?></td>
                                                         <td><?= $funcionario['cpf'] ?></td>
                                                         <td><?= $funcionario['cargo'] ?></td>
-                                                        <td><?= $funcionario['salario'] ?></td>
+                                                        <td><?= moeda($funcionario['salario']) ?></td>
                                                         <td><?= $funcionario['data_de_contratacao'] ?></td>
                                                         <td><?= $funcionario['data_inicio_das_atividades'] ?></td>
                                                     </tr>

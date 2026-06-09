@@ -197,7 +197,7 @@ class OrdensDeServicos extends Controller
         $tem_filtro = $this->temFiltroListagemOrdens($filtros);
 
         $data = [
-            'ordens_de_servicos' => $this->ordensDeServicosDaListagem($situacoes, $filtros, $tem_filtro ? null : 15),
+            'ordens_de_servicos' => $this->ordensDeServicosDaListagem($situacoes, $filtros),
             'titulo_lista'       => $tem_filtro ? 'Registros' : $titulo_padrao,
             'clientes'           => $this->cliente_model->findAll(),
             'rota_listagem'      => $rota_listagem

@@ -37,4 +37,28 @@ class ClienteModel extends PadraoModel
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
+
+    public function consumidorFinal(): array
+    {
+        $cliente = $this->db->table($this->table)
+            ->where('id_cliente', 1)
+            ->get()
+            ->getRowArray();
+
+        if (empty($cliente)) {
+            $cliente = $this->db->table($this->table)
+                ->where('nome', 'Consumidor Final')
+                ->get()
+                ->getRowArray();
+        }
+
+        return $cliente ?? [];
+    }
+
+    public function idConsumidorFinal(): int
+    {
+        $cliente = $this->consumidorFinal();
+
+        return (int) ($cliente['id_cliente'] ?? 0);
+    }
 }

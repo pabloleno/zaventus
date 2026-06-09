@@ -122,6 +122,11 @@ class CampoPadrao
             $campoNormalizado = self::normalizarNomeCampo($campo);
             $valor = trim($valor);
 
+            if ($valor !== '' && Moeda::campoMonetario($campoNormalizado)) {
+                $dados[$campo] = Moeda::normalizar($valor);
+                continue;
+            }
+
             if (self::campoData($campoNormalizado)) {
                 $dados[$campo] = self::normalizarData($valor);
                 continue;

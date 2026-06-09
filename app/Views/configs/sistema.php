@@ -69,6 +69,7 @@
                     <?php
                     $idioma_selecionado = old('idioma', $config_sistema['idioma'] ?? 'pt-BR');
                     $fuso_horario_selecionado = old('fuso_horario', $config_sistema['fuso_horario'] ?? 'America/Manaus');
+                    $finalizacao_pdv_selecionada = old('finalizacao_pdv', $config_sistema['finalizacao_pdv'] ?? 'cupom_nao_fiscal');
                     ?>
                     <div class="card">
                         <div class="card-header">
@@ -101,6 +102,14 @@
                                                 </option>
                                             <?php endforeach; ?>
                                         </select>
+                                    </div>
+                                    <div class="col-lg-12 mt-3">
+                                        <label for="finalizacao_pdv">Finalização do PDV</label>
+                                        <select id="finalizacao_pdv" class="form-control select2" name="finalizacao_pdv" required>
+                                            <option value="cupom_nao_fiscal" <?= $finalizacao_pdv_selecionada === 'cupom_nao_fiscal' ? 'selected' : '' ?>>Cupom não fiscal</option>
+                                            <option value="nfce" <?= $finalizacao_pdv_selecionada === 'nfce' ? 'selected' : '' ?>>NFC-e (nota fiscal do consumidor)</option>
+                                        </select>
+                                        <small class="form-text text-muted">A NFC-e exige configuração fiscal e certificado válidos em Configs &gt; NFCe.</small>
                                     </div>
                                     <div class="col-lg-12 mt-3" style="text-align: right">
                                         <button class="btn btn-primary"><?= esc(lang('App.common.apply')) ?></button>

@@ -109,16 +109,14 @@ class Orcamentos extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $orcamentos = $this->orcamento_model->orderBy('id_orcamento', 'DESC')->limit(5)->join('clientes', 'orcamentos.id_cliente = clientes.id_cliente')->find();
-                $data['ultimos_cinco'] = TRUE;
+                $orcamentos = $this->orcamento_model->orderBy('id_orcamento', 'DESC')->join('clientes', 'orcamentos.id_cliente = clientes.id_cliente')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $orcamentos = $this->orcamento_model->orderBy('id_orcamento', 'DESC')->limit(5)->join('clientes', 'orcamentos.id_cliente = clientes.id_cliente')->find();
-            $data['ultimos_cinco'] = TRUE;
+            $orcamentos = $this->orcamento_model->orderBy('id_orcamento', 'DESC')->join('clientes', 'orcamentos.id_cliente = clientes.id_cliente')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

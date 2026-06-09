@@ -213,6 +213,7 @@ class Configs extends Controller
     {
         $idioma = trim((string) $this->request->getPost('idioma'));
         $fuso_horario = trim((string) $this->request->getPost('fuso_horario'));
+        $finalizacao_pdv = trim((string) $this->request->getPost('finalizacao_pdv'));
         $erros = [];
 
         if (! $this->idiomaValido($idioma)) {
@@ -221,6 +222,10 @@ class Configs extends Controller
 
         if (! $this->fusoHorarioValido($fuso_horario)) {
             $erros[] = 'Selecione um fuso horario valido.';
+        }
+
+        if (! in_array($finalizacao_pdv, ['cupom_nao_fiscal', 'nfce'], true)) {
+            $erros[] = 'Selecione uma forma valida para finalizar o PDV.';
         }
 
         if (! empty($erros)) {
@@ -234,6 +239,7 @@ class Configs extends Controller
             ->set([
                 'idioma'       => $idioma,
                 'fuso_horario' => $fuso_horario,
+                'finalizacao_pdv' => $finalizacao_pdv,
             ])
             ->where('id_config', 1)
             ->update();
@@ -397,6 +403,9 @@ class Configs extends Controller
             'fuso_horario' => $this->fusoHorarioValido($fuso_horario) ? $fuso_horario : $options->defaultTimezone,
             'favicon'       => trim((string) ($empresa['favicon'] ?? '')) ?: self::FAVICON_PADRAO,
             'logo_login'    => trim((string) ($empresa['logo_login'] ?? '')) ?: self::LOGO_LOGIN_PADRAO,
+            'finalizacao_pdv' => in_array(($empresa['finalizacao_pdv'] ?? ''), ['cupom_nao_fiscal', 'nfce'], true)
+                ? $empresa['finalizacao_pdv']
+                : 'cupom_nao_fiscal',
         ];
     }
 

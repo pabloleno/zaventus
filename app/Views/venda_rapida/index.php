@@ -227,13 +227,13 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Valor da Venda</label>
-                                    <input type="text" class="form-control" value="<?= (!empty($valor_da_venda['valor_final'])) ? $valor_da_venda['valor_final'] : "0" ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($valor_da_venda['valor_final'] ?? 0) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Valor a Pagar</label>
-                                    <input type="text" class="form-control" id="valor_a_pagar" name="valor_a_pagar" onkeyup="trocaVirguraPorPonto('valor_a_pagar')" value="<?= (!empty($valor_da_venda['valor_final'])) ? $valor_da_venda['valor_final'] : "0" ?>" required="">
+                                    <input type="text" class="form-control" id="valor_a_pagar" name="valor_a_pagar" onkeyup="trocaVirguraPorPonto('valor_a_pagar')" value="<?= decimal_monetario($valor_da_venda['valor_final'] ?? 0) ?>" required="">
                                 </div>
                             </div>
                             <!-- <div class="col-lg-2">
@@ -245,13 +245,13 @@
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Valor Recebido</label>
-                                    <input type="text" class="form-control" id="valor_recebido" name="valor_recebido" onkeyup="trocaVirguraPorPonto('valor_recebido')" value="<?= (!empty($valor_da_venda['valor_final'])) ? $valor_da_venda['valor_final'] : "0" ?>" required="">
+                                    <input type="text" class="form-control" id="valor_recebido" name="valor_recebido" onkeyup="trocaVirguraPorPonto('valor_recebido')" value="<?= decimal_monetario($valor_da_venda['valor_final'] ?? 0) ?>" required="">
                                 </div>
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
                                     <label for="">Troco</label>
-                                    <input type="text" class="form-control" id="troco" name="troco" onkeyup="trocaVirguraPorPonto('troco')" value="0" required="">
+                                    <input type="text" class="form-control" id="troco" name="troco" onkeyup="trocaVirguraPorPonto('troco')" value="0.00" required="">
                                 </div>
                             </div>
                             <div class="col-lg-3">
@@ -281,9 +281,9 @@
                                         <?php if (!empty($clientes)) : ?>
                                             <?php foreach ($clientes as $cliente) : ?>
                                                 <?php if ($cliente['tipo'] == 1) : ?>
-                                                    <option value="<?= $cliente['id_cliente'] ?>"><?= $cliente['nome'] ?></option>
+                                                    <option value="<?= $cliente['id_cliente'] ?>" <?= (int) $cliente['id_cliente'] === (int) $id_cliente_padrao ? 'selected' : '' ?>><?= $cliente['nome'] ?></option>
                                                 <?php else : ?>
-                                                    <option value="<?= $cliente['id_cliente'] ?>"><?= $cliente['razao_social'] ?></option>
+                                                    <option value="<?= $cliente['id_cliente'] ?>" <?= (int) $cliente['id_cliente'] === (int) $id_cliente_padrao ? 'selected' : '' ?>><?= $cliente['razao_social'] ?></option>
                                                 <?php endif; ?>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
@@ -296,7 +296,7 @@
                                     <select class="form-control select2" name="id_vendedor" style="width: 100%;" required="">
                                         <?php if (!empty($vendedores)) : ?>
                                             <?php foreach ($vendedores as $vendedor) : ?>
-                                                <option value="<?= $vendedor['id_vendedor'] ?>"><?= $vendedor['nome'] ?></option>
+                                                <option value="<?= $vendedor['id_vendedor'] ?>" <?= (int) $vendedor['id_vendedor'] === (int) $id_vendedor_padrao ? 'selected' : '' ?>><?= $vendedor['nome'] ?></option>
                                             <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>

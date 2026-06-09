@@ -81,16 +81,14 @@ class ControleFiscal extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimas contas cadastrados
             {
-                $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
+                $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+            $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

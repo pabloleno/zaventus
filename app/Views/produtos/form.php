@@ -296,25 +296,26 @@
 
     function calculaMargemDeLucro()
     {
-        var margem_de_lucro = document.getElementById('margem_de_lucro').value;
-        var valor_de_custo = document.getElementById('valor_de_custo').value;
+        var margem_de_lucro = numeroMonetario(document.getElementById('margem_de_lucro').value);
+        var valor_de_custo = numeroMonetario(document.getElementById('valor_de_custo').value);
         
         var valor_com_margem = (margem_de_lucro * valor_de_custo / 100);
 
-        var valor_de_venda = document.getElementById('valor_de_venda').value = (parseFloat(valor_de_custo) + valor_com_margem);
+        var valor_de_venda = numeroMonetario(valor_de_custo) + valor_com_margem;
+        document.getElementById('valor_de_venda').value = decimalMonetario(valor_de_venda);
 
-        document.getElementById('lucro').value = valor_de_venda-valor_de_custo;
+        document.getElementById('lucro').value = decimalMonetario(valor_de_venda - numeroMonetario(valor_de_custo));
     }
 
     function calculaMargemDeLucroInverso()
     {
-        var valor_de_venda = document.getElementById('valor_de_venda').value;
-        var valor_de_custo  = document.getElementById('valor_de_custo').value;
+        var valor_de_venda = numeroMonetario(document.getElementById('valor_de_venda').value);
+        var valor_de_custo  = numeroMonetario(document.getElementById('valor_de_custo').value);
 
         var lucro = valor_de_venda - valor_de_custo;
 
-        document.getElementById('margem_de_lucro').value = (lucro/valor_de_custo*100);
-        document.getElementById('lucro').value = lucro;
+        document.getElementById('margem_de_lucro').value = decimalMonetario(valor_de_custo ? lucro / valor_de_custo * 100 : 0);
+        document.getElementById('lucro').value = decimalMonetario(lucro);
     }
 
     function calculaMargemDeLucroInversoLucro()
@@ -322,7 +323,7 @@
         var valor_de_custo = document.getElementById('valor_de_custo').value;
         var lucro          = document.getElementById('lucro').value;
 
-        document.getElementById('valor_de_venda').value = (parseFloat(valor_de_custo)+parseFloat(lucro));
+        document.getElementById('valor_de_venda').value = decimalMonetario(numeroMonetario(valor_de_custo) + numeroMonetario(lucro));
 
         calculaMargemDeLucroInverso();
     }

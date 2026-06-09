@@ -71,16 +71,14 @@ class InventarioDoEstoque extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $inventarios = $this->inventario_do_estoque_model->orderBy('id_inventario', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
+                $inventarios = $this->inventario_do_estoque_model->orderBy('id_inventario', 'DESC')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $inventarios = $this->inventario_do_estoque_model->orderBy('id_inventario', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+            $inventarios = $this->inventario_do_estoque_model->orderBy('id_inventario', 'DESC')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

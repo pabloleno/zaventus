@@ -96,13 +96,13 @@
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label for="">Valor de custo</label>
-                                        <input type="text" class="form-control" id="valor_de_custo" name="valor_de_custo" value="<?= $produto['valor_de_custo'] ?>" required="">
+                                        <input type="text" class="form-control" id="valor_de_custo" name="valor_de_custo" value="<?= decimal_monetario($produto['valor_de_custo']) ?>" required="">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">
                                     <div class="form-group">
                                         <label for="">Valor de Venda</label>
-                                        <input type="text" class="form-control" id="valor_de_venda" name="valor_de_venda" value="<?= $produto['valor_de_venda'] ?>" required="">
+                                        <input type="text" class="form-control" id="valor_de_venda" name="valor_de_venda" value="<?= decimal_monetario($produto['valor_de_venda']) ?>" required="">
                                     </div>
                                 </div>
                                 <div class="col-lg-3">

@@ -105,16 +105,14 @@ class Caixas extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $caixas = $this->caixa_model->orderBy('id_caixa', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
+                $caixas = $this->caixa_model->orderBy('id_caixa', 'DESC')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $caixas = $this->caixa_model->orderBy('id_caixa', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+            $caixas = $this->caixa_model->orderBy('id_caixa', 'DESC')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

@@ -36,14 +36,12 @@ class ContasPagar extends Controller
         $query = $this->conta_a_pagar_model->orderBy('id_conta', 'DESC');
         $this->aplicaFiltros($query, $filtros);
 
-        $data['contas_a_pagar'] = $temFiltro ? $query->findAll() : $query->limit(5)->find();
+        $data['contas_a_pagar'] = $query->findAll();
         $data['tipos_negocio'] = TipoNegocio::opcoes(true);
 
         if ($temFiltro) {
             $data += array_filter($filtros, static fn ($valor) => $valor !== '');
             session()->setFlashdata('alert', 'success_filter');
-        } else {
-            $data['ultimos_cinco'] = true;
         }
 
         echo view('templates/header');

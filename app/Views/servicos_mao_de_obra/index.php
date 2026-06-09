@@ -50,7 +50,7 @@
                                         <td><?= $servico['id_servico'] ?></td>
                                         <td><?= $servico['nome'] ?></td>
                                         <td><?= $servico['descricao'] ?></td>
-                                        <td><?= $servico['valor'] ?></td>
+                                        <td><?= moeda($servico['valor']) ?></td>
                                         <td><?= $servico['observacoes'] ?></td>
                                         <td>
                                             <a href="/servicosMaoDeObra/edit/<?= $servico['id_servico'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>

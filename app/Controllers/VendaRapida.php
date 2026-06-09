@@ -12,6 +12,7 @@ use App\Models\ProdutoDoPedidoModel;
 use App\Models\ProdutoModel;
 use App\Models\VendaModel;
 use App\Models\VendedorModel;
+use App\Libraries\Moeda;
 use CodeIgniter\Controller;
 
 class VendaRapida extends Controller
@@ -69,6 +70,8 @@ class VendaRapida extends Controller
         $data['valor_da_venda']           = $this->produto_da_venda_rapida_model->selectSum('valor_final')->first();
         $data['formas_de_pagamento']      = $this->forma_de_pagamento_model->findAll();
         $data['vendedores']               = $this->vendedor_model->paraVenda();
+        $data['id_cliente_padrao']        = $this->cliente_model->idConsumidorFinal();
+        $data['id_vendedor_padrao']       = $this->vendedor_model->idGeral();
 
         echo view('templates/header');
         echo view('venda_rapida/index', $data);
@@ -87,9 +90,9 @@ class VendaRapida extends Controller
             'codigo_de_barras' => $produto['codigo_de_barras'],
             'quantidade'       => $dados['quantidade'],
             'valor_unitario'   => $produto['valor_de_venda'],
-            'subtotal'         => $dados['quantidade'] * $produto['valor_de_venda'],
-            'desconto'         => 0,
-            'valor_final'      => $dados['quantidade'] * $produto['valor_de_venda'],
+            'subtotal'         => Moeda::normalizar($dados['quantidade'] * $produto['valor_de_venda']),
+            'desconto'         => 0.0,
+            'valor_final'      => Moeda::normalizar($dados['quantidade'] * $produto['valor_de_venda']),
             'NCM'              => $produto['NCM'],
             'CSOSN'            => $produto['CSOSN'],
             'CFOP'             => $produto['CFOP'],
@@ -157,7 +160,7 @@ class VendaRapida extends Controller
 
     public function store()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->normalizaDadosMonetarios($this->request->getvar());
 
         // $dados['data'] = date('Y-m-d');
         // $dados['hora'] = date('H:i:s');
@@ -192,13 +195,13 @@ class VendaRapida extends Controller
 
         // dd($produto_da_venda_rapida);
 
-        $subtotal = $dados['quantidade'] * $produto_da_venda_rapida['valor_unitario'];
+        $subtotal = Moeda::normalizar($dados['quantidade'] * $produto_da_venda_rapida['valor_unitario']);
 
         $this->produto_da_venda_rapida_model->save([
             'id_produto_da_venda_rapida' => $dados['id_produto_da_venda_rapida'],
             'quantidade'                 => $dados['quantidade'],
             'subtotal'                   => $subtotal,
-            'valor_final'                => $subtotal - $produto_da_venda_rapida['desconto']
+            'valor_final'                => Moeda::normalizar($subtotal - $produto_da_venda_rapida['desconto'])
         ]);
 
         $session = session();
@@ -216,13 +219,14 @@ class VendaRapida extends Controller
 
         // dd($produto_da_venda_rapida);
 
-        $subtotal = $produto_da_venda_rapida['quantidade'] * $produto_da_venda_rapida['valor_unitario'];
+        $desconto = Moeda::normalizar($dados['desconto'] ?? 0);
+        $subtotal = Moeda::normalizar($produto_da_venda_rapida['quantidade'] * $produto_da_venda_rapida['valor_unitario']);
 
         $this->produto_da_venda_rapida_model->save([
             'id_produto_da_venda_rapida' => $dados['id_produto_da_venda_rapida'],
-            'desconto'                   => $dados['desconto'],
+            'desconto'                   => $desconto,
             'subtotal'                   => $subtotal,
-            'valor_final'                => $subtotal - $dados['desconto']
+            'valor_final'                => Moeda::normalizar($subtotal - $desconto)
         ]);
 
         $session = session();
@@ -239,19 +243,31 @@ class VendaRapida extends Controller
 
         // dd($produto_da_venda_rapida);
 
-        $subtotal = $produto_da_venda_rapida['quantidade'] * $dados['valor_unitario'];
+        $valorUnitario = Moeda::normalizar($dados['valor_unitario'] ?? 0);
+        $subtotal = Moeda::normalizar($produto_da_venda_rapida['quantidade'] * $valorUnitario);
 
         $this->produto_da_venda_rapida_model->save([
             'id_produto_da_venda_rapida' => $dados['id_produto_da_venda_rapida'],
-            'valor_unitario'             => $dados['valor_unitario'],
+            'valor_unitario'             => $valorUnitario,
             'desconto'                   => $produto_da_venda_rapida['desconto'],
             'subtotal'                   => $subtotal,
-            'valor_final'                => $subtotal - $produto_da_venda_rapida['desconto']
+            'valor_final'                => Moeda::normalizar($subtotal - $produto_da_venda_rapida['desconto'])
         ]);
 
         $session = session();
         $session->setFlashdata('alert', 'success_update_valor_unitario_produto');
 
         return redirect()->to('/vendaRapida');
+    }
+
+    private function normalizaDadosMonetarios(array $dados): array
+    {
+        foreach ($dados as $campo => $valor) {
+            if (Moeda::campoMonetario($campo)) {
+                $dados[$campo] = Moeda::normalizar($valor);
+            }
+        }
+
+        return $dados;
     }
 }

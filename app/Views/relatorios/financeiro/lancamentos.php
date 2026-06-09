@@ -90,7 +90,7 @@
                                                         <td><?= $lancamento['descricao'] ?></td>
                                                         <td><?= $lancamento['data'] ?></td>
                                                         <td><?= $lancamento['hora'] ?></td>
-                                                        <td><?= $lancamento['valor'] ?></td>
+                                                        <td><?= moeda($lancamento['valor']) ?></td>
                                                         <td><?= $lancamento['id_caixa'] ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>

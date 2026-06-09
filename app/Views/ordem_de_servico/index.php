@@ -149,7 +149,7 @@
                 </div>
                 <!-- /.card-header -->
                 <div class="card-body">
-                    <table id="" class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped tabela-listagem">
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>

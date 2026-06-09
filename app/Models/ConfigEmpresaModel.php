@@ -28,7 +28,8 @@ class ConfigEmpresaModel extends PadraoModel
         'idioma',
         'fuso_horario',
         'favicon',
-        'logo_login'
+        'logo_login',
+        'finalizacao_pdv'
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

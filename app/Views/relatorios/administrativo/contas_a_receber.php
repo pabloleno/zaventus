@@ -119,7 +119,7 @@
                                                         <td><?= \App\Libraries\TipoNegocio::rotulo($conta['tipo_negocio'] ?? 'Geral') ?></td>
                                                         <td><?= $conta['nome'] ?></td>
                                                         <td><?= $conta['data_de_vencimento'] ?></td>
-                                                        <td><?= $conta['valor'] ?></td>
+                                                        <td><?= moeda($conta['valor']) ?></td>
                                                         <td><?= $conta['observacoes'] ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>

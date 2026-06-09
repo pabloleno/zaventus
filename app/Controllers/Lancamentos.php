@@ -55,13 +55,11 @@ class Lancamentos extends Controller
             $query->where('data <=', $filtros['data_final']);
         }
 
-        $data['lancamentos'] = $temFiltro ? $query->findAll() : $query->limit(5)->find();
+        $data['lancamentos'] = $query->findAll();
 
         if ($temFiltro) {
             $data += array_filter($filtros, static fn ($valor) => $valor !== '');
             session()->setFlashdata('alert', 'success_filter');
-        } else {
-            $data['ultimos_cinco'] = true;
         }
 
         echo view('templates/header');

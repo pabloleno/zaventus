@@ -114,16 +114,14 @@ class Vendas extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $vendas = $this->venda_model->join('clientes', 'vendas.id_cliente = clientes.id_cliente')->orderBy('id_venda', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
+                $vendas = $this->venda_model->join('clientes', 'vendas.id_cliente = clientes.id_cliente')->orderBy('id_venda', 'DESC')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $vendas = $this->venda_model->join('clientes', 'vendas.id_cliente = clientes.id_cliente')->orderBy('id_venda', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+            $vendas = $this->venda_model->join('clientes', 'vendas.id_cliente = clientes.id_cliente')->orderBy('id_venda', 'DESC')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

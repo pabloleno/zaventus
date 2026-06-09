@@ -10,6 +10,7 @@ use App\Models\FormaDePagamentoModel;
 use App\Models\NFeModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\VendaModel;
+use App\Libraries\Moeda;
 use App\Libraries\ThirdPartyComposerLoader;
 use CodeIgniter\Controller;
 
@@ -55,7 +56,7 @@ class NFe extends Controller
 
     public function format($valor)
     {
-        return number_format($valor, 2, '.', '');
+        return Moeda::decimal($valor);
     }
 
     private function normalizaValor($valor, $padrao = 0)
@@ -64,15 +65,7 @@ class NFe extends Controller
             return (float) $padrao;
         }
 
-        $valor = preg_replace('/[^0-9,.\-]/', '', (string) $valor);
-
-        if (strpos($valor, ',') !== false && strpos($valor, '.') !== false) {
-            $valor = str_replace('.', '', $valor);
-        }
-
-        $valor = str_replace(',', '.', $valor);
-
-        return is_numeric($valor) ? (float) $valor : (float) $padrao;
+        return Moeda::normalizar($valor);
     }
 
     private function codigoFiscalFormaPagamento($nome)

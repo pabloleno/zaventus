@@ -64,7 +64,7 @@
                                                         <td><?= ($produto['codigo_de_barras'] != 0) ? $produto['codigo_de_barras'] : "S/N" ?></td>
                                                         <td><?= $produto['quantidade'] ?></td>
                                                         <td><?= $produto['quantidade_minima'] ?></td>
-                                                        <td><?= round($produto['margem_de_lucro'], 1) ?>%</td>
+                                                        <td><?= decimal_monetario($produto['margem_de_lucro']) ?>%</td>
                                                         <td><?= number_format($produto['valor_de_custo'], 2, ",", ".") ?></td>
                                                         <td><?= number_format($produto['valor_de_venda'], 2, ",", ".") ?></td>
                                                         <td><?= number_format($produto['lucro'], 2, ",", ".") ?></td>

@@ -91,7 +91,7 @@
                                                         <td><?= $despesa['descricao'] ?></td>
                                                         <td><?= $despesa['data'] ?></td>
                                                         <td><?= $despesa['hora'] ?></td>
-                                                        <td><?= $despesa['valor'] ?></td>
+                                                        <td><?= moeda($despesa['valor']) ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             <?php else: ?>

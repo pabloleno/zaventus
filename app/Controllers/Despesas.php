@@ -56,13 +56,11 @@ class Despesas extends Controller
             $query->where('data <=', $filtros['data_final']);
         }
 
-        $data['despesas'] = $temFiltro ? $query->findAll() : $query->limit(5)->find();
+        $data['despesas'] = $query->findAll();
 
         if ($temFiltro) {
             $data += array_filter($filtros, static fn ($valor) => $valor !== '');
             session()->setFlashdata('alert', 'success_filter');
-        } else {
-            $data['ultimos_cinco'] = true;
         }
 
         echo view('templates/header');

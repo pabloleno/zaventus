@@ -14,6 +14,7 @@ use App\Models\ProdutoModel;
 use App\Models\ProdutoPdvModel;
 use App\Models\VendaModel;
 use App\Models\VendedorModel;
+use App\Libraries\Moeda;
 use App\Libraries\ThirdPartyComposerLoader;
 use CodeIgniter\Controller;
 
@@ -37,6 +38,7 @@ class Pdv extends Controller
     private $produto_da_venda_model;
     private $config_nfce_model;
     private $nfce_model;
+    private $caixa_model;
     private $forma_de_pagamento_model;
     private $vendedor_model;
 
@@ -85,13 +87,18 @@ class Pdv extends Controller
 
     public function start($id_caixa)
     {
+        $empresa = $this->config_empresa_model->where('id_config', 1)->first() ?? [];
+
         $data['id_caixa']            = $id_caixa;
+        $data['empresa']             = $empresa;
         $data['clientes']            = $this->cliente_model->select('id_cliente, tipo, nome, razao_social')->findAll();
         $data['produtos']            = $this->produto_model->select('id_produto, nome')->findAll();
         $data['produtos_do_pdv']     = $this->produto_pdv_model->where('id_caixa', $id_caixa)->findAll();
         $data['valor_a_pagar']       = $this->produto_pdv_model->selectSum('valor_final')->where('id_caixa', $id_caixa)->first();
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['vendedores']          = $this->vendedor_model->paraVenda();
+        $data['id_cliente_padrao']   = $this->cliente_model->idConsumidorFinal();
+        $data['id_vendedor_padrao']  = $this->vendedor_model->idGeral();
 
         echo view('pdv/start', $data);
     }
@@ -108,10 +115,10 @@ class Pdv extends Controller
         }
 
         $quantidade     = 1;
-        $valor_unitario = $produto['valor_de_venda'];
-        $subtotal       = $quantidade * $valor_unitario;
-        $desconto       = 0;
-        $valor_final    = $subtotal - $desconto;
+        $valor_unitario = Moeda::normalizar($produto['valor_de_venda']);
+        $subtotal       = Moeda::normalizar($quantidade * $valor_unitario);
+        $desconto       = 0.0;
+        $valor_final    = Moeda::normalizar($subtotal - $desconto);
 
         $this->produto_pdv_model->save([
             'nome'             => $produto['nome'],
@@ -142,10 +149,10 @@ class Pdv extends Controller
         }
 
         $quantidade     = 1;
-        $valor_unitario = $produto['valor_de_venda'];
-        $subtotal       = $quantidade * $valor_unitario;
-        $desconto       = 0;
-        $valor_final    = $subtotal - $desconto;
+        $valor_unitario = Moeda::normalizar($produto['valor_de_venda']);
+        $subtotal       = Moeda::normalizar($quantidade * $valor_unitario);
+        $desconto       = 0.0;
+        $valor_final    = Moeda::normalizar($subtotal - $desconto);
 
         $this->produto_pdv_model->save([
             'nome'             => $produto['nome'],
@@ -189,8 +196,8 @@ class Pdv extends Controller
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
-        $dados['subtotal'] = ($dados['quantidade'] * $produto['valor_unitario']);
-        $dados['valor_final'] = (($dados['quantidade'] * $produto['valor_unitario']) - $produto['desconto']);
+        $dados['subtotal'] = Moeda::normalizar($dados['quantidade'] * $produto['valor_unitario']);
+        $dados['valor_final'] = Moeda::normalizar($dados['subtotal'] - $produto['desconto']);
 
         // Atualiza com os novos dados
         $dados['id_caixa'] = $id_caixa;
@@ -214,8 +221,9 @@ class Pdv extends Controller
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
-        $dados['subtotal'] = ($produto['quantidade'] * $dados['valor_unitario']);
-        $dados['valor_final'] = (($produto['quantidade'] * $dados['valor_unitario']) - $produto['desconto']);
+        $dados['valor_unitario'] = Moeda::normalizar($dados['valor_unitario'] ?? 0);
+        $dados['subtotal'] = Moeda::normalizar($produto['quantidade'] * $dados['valor_unitario']);
+        $dados['valor_final'] = Moeda::normalizar($dados['subtotal'] - $produto['desconto']);
 
         // Atualiza com os novos dados
         $dados['id_caixa'] = $id_caixa;
@@ -239,7 +247,8 @@ class Pdv extends Controller
 
         // Prepara os dados para alterar
         $dados = $this->request->getvar();
-        $dados['valor_final'] = (($produto['quantidade'] * $produto['valor_unitario']) - $dados['desconto']);
+        $dados['desconto'] = Moeda::normalizar($dados['desconto'] ?? 0);
+        $dados['valor_final'] = Moeda::normalizar(($produto['quantidade'] * $produto['valor_unitario']) - $dados['desconto']);
 
         // Atualiza com os novos dados
         $dados['id_caixa'] = $id_caixa;
@@ -253,7 +262,7 @@ class Pdv extends Controller
 
     public function format($valor)
     {
-        return number_format($valor, 2, '.', '');
+        return Moeda::decimal($valor);
     }
 
     private function normalizaValor($valor, $padrao = 0)
@@ -262,15 +271,7 @@ class Pdv extends Controller
             return (float) $padrao;
         }
 
-        $valor = preg_replace('/[^0-9,.\-]/', '', (string) $valor);
-
-        if (strpos($valor, ',') !== false && strpos($valor, '.') !== false) {
-            $valor = str_replace('.', '', $valor);
-        }
-
-        $valor = str_replace(',', '.', $valor);
-
-        return is_numeric($valor) ? (float) $valor : (float) $padrao;
+        return Moeda::normalizar($valor);
     }
 
     private function codigoFiscalFormaPagamento($nome)
@@ -346,7 +347,7 @@ class Pdv extends Controller
 
     private function formataMoeda($valor)
     {
-        return 'R$ ' . number_format((float) $valor, 2, ',', '.');
+        return Moeda::formatar($valor, true);
     }
 
     private function escapaCupom($valor)
@@ -363,87 +364,157 @@ class Pdv extends Controller
         return !empty($cliente['nome']) ? $cliente['nome'] : ($cliente['razao_social'] ?? 'Consumidor');
     }
 
+    private function enderecoEmpresaParaCupom(array $empresa): string
+    {
+        $endereco = trim((string) ($empresa['endereco'] ?? ''));
+
+        if ($endereco !== '') {
+            return $endereco;
+        }
+
+        $logradouro = trim((string) ($empresa['logradouro'] ?? ''));
+        $numero = trim((string) ($empresa['numero'] ?? ''));
+        $bairro = trim((string) ($empresa['bairro'] ?? ''));
+        $cidadeUf = trim(implode(' - ', array_filter([
+            trim((string) ($empresa['municipio'] ?? '')),
+            trim((string) ($empresa['UF'] ?? '')),
+        ])));
+
+        return implode(', ', array_filter([
+            trim($logradouro . ($numero !== '' ? ', ' . $numero : '')),
+            $bairro,
+            $cidadeUf,
+        ]));
+    }
+
+    private function telefoneEmpresaParaCupom(array $empresa): string
+    {
+        foreach (['telefone', 'telefone_fixo', 'celular', 'whatsapp'] as $campo) {
+            $telefone = trim((string) ($empresa[$campo] ?? ''));
+
+            if ($telefone !== '') {
+                return $telefone;
+            }
+        }
+
+        return '';
+    }
+
     private function montaCupomNaoFiscal($empresa, $cliente, $vendedor, $produtos, $venda, $id_venda)
     {
+        $empresa = is_array($empresa) ? $empresa : [];
         $linhas = '';
+        $subtotalProdutos = 0;
+        $descontoItens = 0;
 
         foreach ($produtos as $produto) {
             $subtotal = $this->normalizaValor($produto['quantidade']) * $this->normalizaValor($produto['valor_unitario']);
+            $descontoItem = $this->normalizaValor($produto['desconto'] ?? 0);
+            $totalItem = $this->normalizaValor($produto['valor_final'] ?? ($subtotal - $descontoItem));
+            $subtotalProdutos += $subtotal;
+            $descontoItens += $descontoItem;
+            $detalheDesconto = $descontoItem > 0
+                ? "<div class='cupom-item-desconto'>Desconto do item: {$this->formataMoeda($descontoItem)}</div>"
+                : '';
 
             $linhas .= "
-                <tr>
-                    <td>{$this->escapaCupom($produto['id_produto'])}</td>
-                    <td>{$this->escapaCupom($produto['nome'])}</td>
-                    <td>{$this->escapaCupom($produto['quantidade'])} x {$this->formataMoeda($produto['valor_unitario'])}</td>
-                    <td>{$this->formataMoeda($subtotal)}</td>
-                </tr>
+                <div class='cupom-item'>
+                    <strong>{$this->escapaCupom($produto['id_produto'])} - {$this->escapaCupom($produto['nome'])}</strong>
+                    <div class='cupom-linha'>
+                        <span>{$this->escapaCupom($produto['quantidade'])} {$this->escapaCupom($produto['unidade'] ?? '')} x {$this->formataMoeda($produto['valor_unitario'])}</span>
+                        <strong>{$this->formataMoeda($totalItem)}</strong>
+                    </div>
+                    {$detalheDesconto}
+                </div>
             ";
         }
 
         $nomeCliente = $this->nomeClienteParaCupom($cliente);
         $nomeVendedor = !empty($vendedor['nome']) ? $vendedor['nome'] : 'Nao informado';
         $data = date('d/m/Y', strtotime($venda['data']));
-        $hora = date('H:i', strtotime($venda['hora']));
+        $hora = date('H:i:s', strtotime($venda['hora']));
+        $endereco = $this->enderecoEmpresaParaCupom($empresa);
+        $telefone = $this->telefoneEmpresaParaCupom($empresa);
+        $logo = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-login-marca.png';
+        $logoHtml = "<img class='cupom-logo' src='{$this->escapaCupom(base_url($logo))}' alt='Logo'>";
+        $descontoGeral = $this->normalizaValor($venda['desconto'] ?? 0);
+        $descontoTotal = $descontoItens + $descontoGeral;
+        $detalheDescontoTotal = $descontoTotal > 0
+            ? "<div class='cupom-linha'><span>Descontos</span><strong>- {$this->formataMoeda($descontoTotal)}</strong></div>"
+            : '';
 
         return "
-            <p style='text-align: center'>
-                <b>{$this->escapaCupom($empresa['nome_fantasia'] ?? '')}</b><br>
-                {$this->escapaCupom($empresa['razao_social'] ?? '')}<br>
-                {$this->escapaCupom($empresa['endereco'] ?? '')}<br>
-                {$this->escapaCupom($empresa['telefone'] ?? '')}
-            </p>
+            <div class='cupom-nao-fiscal-conteudo'>
+                <div class='cupom-cabecalho'>
+                    {$logoHtml}
+                    <strong class='cupom-empresa'>{$this->escapaCupom($empresa['nome_fantasia'] ?? '')}</strong>
+                    <span>{$this->escapaCupom($empresa['razao_social'] ?? '')}</span>
+                    <span>CNPJ: {$this->escapaCupom($empresa['cnpj'] ?? '')}</span>
+                    <span>{$this->escapaCupom($endereco)}</span>
+                    <span>{$this->escapaCupom($telefone)}</span>
+                </div>
 
-            <p style='text-align: center; font-weight: bold; border-top: 1px dashed #000; border-bottom: 1px dashed #000; padding: 6px 0'>
-                CUPOM NAO FISCAL<br>
-                NAO E DOCUMENTO FISCAL
-            </p>
+                <div class='cupom-titulo'>
+                    <strong>CUPOM NAO FISCAL</strong>
+                    <span>Documento sem valor fiscal</span>
+                </div>
 
-            <p>
-                <b>CNPJ:</b> {$this->escapaCupom($empresa['cnpj'] ?? '')}<br>
-                <b>Cliente:</b> {$this->escapaCupom($nomeCliente)}<br>
-                {$data} as {$hora} - <b>No {$this->escapaCupom($id_venda)}</b>
-            </p>
+                <div class='cupom-dados'>
+                    <div><b>Venda:</b> #{$this->escapaCupom($id_venda)}</div>
+                    <div><b>Emissao:</b> {$data} as {$hora}</div>
+                    <div><b>Cliente:</b> {$this->escapaCupom($nomeCliente)}</div>
+                    <div><b>Vendedor:</b> {$this->escapaCupom($nomeVendedor)}</div>
+                </div>
 
-            <hr>
+                <div class='cupom-separador'>ITENS DA VENDA</div>
+                {$linhas}
 
-            <table width='100%'>
-                <thead>
-                    <tr>
-                        <th>Cod.</th>
-                        <th>Desc.</th>
-                        <th>Qtd X Unit.</th>
-                        <th>Total</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {$linhas}
-                </tbody>
-            </table>
+                <div class='cupom-totais'>
+                    <div class='cupom-linha'><span>Subtotal</span><strong>{$this->formataMoeda($subtotalProdutos)}</strong></div>
+                    {$detalheDescontoTotal}
+                    <div class='cupom-linha cupom-total-final'><span>TOTAL</span><strong>{$this->formataMoeda($venda['valor_a_pagar'])}</strong></div>
+                    <div class='cupom-linha'><span>Recebido</span><strong>{$this->formataMoeda($venda['valor_recebido'])}</strong></div>
+                    <div class='cupom-linha'><span>Troco</span><strong>{$this->formataMoeda($venda['troco'])}</strong></div>
+                    <div class='cupom-pagamento'><b>Forma de pagamento:</b> {$this->escapaCupom($venda['forma_de_pagamento'])}</div>
+                </div>
 
-            <hr>
-
-            <p>
-                <b>Total:</b> {$this->formataMoeda($venda['valor_a_pagar'])}<br>
-                <b>Recebido:</b> {$this->formataMoeda($venda['valor_recebido'])}<br>
-                <b>Troco:</b> {$this->formataMoeda($venda['troco'])}<br>
-                <b>Forma de PGTO:</b> {$this->escapaCupom($venda['forma_de_pagamento'])}
-            </p>
-
-            <hr>
-
-            <p><b>Vendedor:</b> {$this->escapaCupom($nomeVendedor)}</p>
-
-            <hr>
-
-            <p style='text-align: center'>
-                ____________________________
-                <br>
-                Assinatura do Cliente
-            </p>
+                <div class='cupom-rodape'>
+                    Obrigado pela preferencia.<br>
+                    Documento sem valor fiscal.
+                </div>
+            </div>
         ";
     }
 
     public function finalizaVenda($id_caixa)
+    {
+        if ($this->tipoFinalizacaoPdv() !== 'cupom_nao_fiscal') {
+            return $this->response
+                ->setStatusCode(409)
+                ->setBody('O PDV esta configurado para finalizar com NFC-e.');
+        }
+
+        try {
+            $resultado = $this->registraVendaPdv($id_caixa);
+
+            session()->setFlashdata('alert', 'success_venda');
+
+            $cupom = $this->montaCupomNaoFiscal(
+                $resultado['empresa'],
+                $resultado['cliente'],
+                $resultado['vendedor'],
+                $resultado['produtos'],
+                $resultado['venda'],
+                $resultado['id_venda']
+            );
+
+            return $this->response->setBody($cupom);
+        } catch (\Throwable $e) {
+            return $this->response->setStatusCode(400)->setBody($e->getMessage());
+        }
+    }
+
+    private function registraVendaPdv($id_caixa): array
     {
         $db = \Config\Database::connect();
         $dados = $this->request->getVar();
@@ -472,9 +543,9 @@ class Pdv extends Controller
                 $total_dos_itens += $this->normalizaValor($produto['valor_final']);
             }
 
-            $valor_a_pagar = max(0, $total_dos_itens - $desconto);
+            $valor_a_pagar = Moeda::normalizar(max(0, $total_dos_itens - $desconto));
             $valor_recebido = $this->normalizaValor($dados['valor_recebido'] ?? '', $valor_a_pagar);
-            $troco = max(0, $valor_recebido - $valor_a_pagar);
+            $troco = Moeda::normalizar(max(0, $valor_recebido - $valor_a_pagar));
 
             if ($valor_recebido < $valor_a_pagar) {
                 throw new \RuntimeException('Valor recebido menor que o valor a pagar.');
@@ -551,20 +622,34 @@ class Pdv extends Controller
             $db->transCommit();
             $transacao_iniciada = false;
 
-            session()->setFlashdata('alert', 'success_venda');
-
-            $empresa = $this->config_empresa_model->where('id_config', 1)->first();
             $venda['id_venda'] = $id_venda;
-            $cupom = $this->montaCupomNaoFiscal($empresa, $cliente, $vendedor, $produtos_do_pdv, $venda, $id_venda);
 
-            return $this->response->setBody($cupom);
+            return [
+                'id_venda' => $id_venda,
+                'empresa' => $this->config_empresa_model->where('id_config', 1)->first() ?? [],
+                'cliente' => $cliente,
+                'vendedor' => $vendedor,
+                'produtos' => $produtos_do_pdv,
+                'venda' => $venda,
+            ];
         } catch (\Throwable $e) {
             if ($transacao_iniciada) {
                 $db->transRollback();
             }
 
-            return $this->response->setStatusCode(400)->setBody($e->getMessage());
+            throw $e;
         }
+    }
+
+    private function tipoFinalizacaoPdv(): string
+    {
+        $empresa = $this->config_empresa_model
+            ->select('finalizacao_pdv')
+            ->where('id_config', 1)
+            ->first() ?? [];
+        $tipo = trim((string) ($empresa['finalizacao_pdv'] ?? ''));
+
+        return in_array($tipo, ['cupom_nao_fiscal', 'nfce'], true) ? $tipo : 'cupom_nao_fiscal';
     }
 
     private function finalizaVendaLegado($id_caixa)
@@ -1056,8 +1141,21 @@ class Pdv extends Controller
 
     public function finalizaVendaEmiteNFCe($id_caixa)
     {
-        return $this->response
-            ->setStatusCode(409)
-            ->setBody('Emissao NFCe direta pelo PDV esta em preparacao. Finalize pelo cupom nao fiscal e use o historico de vendas para testar a emissao fiscal.');
+        if ($this->tipoFinalizacaoPdv() !== 'nfce') {
+            return $this->response
+                ->setStatusCode(409)
+                ->setBody('O PDV esta configurado para finalizar com cupom nao fiscal.');
+        }
+
+        try {
+            $resultado = $this->registraVendaPdv($id_caixa);
+
+            return $this->response->setJSON([
+                'id_venda' => $resultado['id_venda'],
+                'redirect' => site_url("pdv/emiteNFCe/{$resultado['id_venda']}/2"),
+            ]);
+        } catch (\Throwable $e) {
+            return $this->response->setStatusCode(400)->setBody($e->getMessage());
+        }
     }
 }

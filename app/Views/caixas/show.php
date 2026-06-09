@@ -192,7 +192,7 @@
                                     <tr>
                                         <td><?= $venda['id_venda'] ?></td>
                                         <td><?= number_format($venda['valor_a_pagar'], 2, ',', '.') ?></td>
-                                        <td><?= $venda['desconto'] ?></td>
+                                        <td><?= moeda($venda['desconto']) ?></td>
                                         <td><?= number_format($venda['valor_recebido'], 2, ',', '.') ?></td>
                                         <td><?= number_format($venda['troco'], 2, ',', '.') ?></td>
                                         <td><?= $venda['forma_de_pagamento'] ?></td>

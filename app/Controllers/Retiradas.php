@@ -96,16 +96,14 @@ class Retiradas extends Controller
             }
             else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
             {
-                $retiradas = $this->retirada_model->orderBy('id_retirada', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
+                $retiradas = $this->retirada_model->orderBy('id_retirada', 'DESC')->findAll();
             }
 
             $session->setFlashdata('alert', 'success_filter');
         }
         else
         {
-            $retiradas = $this->retirada_model->orderBy('id_retirada', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+            $retiradas = $this->retirada_model->orderBy('id_retirada', 'DESC')->findAll();
         }
         // ------------------------------------------------------------------------------------------ //
 

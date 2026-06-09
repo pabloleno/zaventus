@@ -170,14 +170,14 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-sm-12">
-                            <h6 class="m-0 text-dark"><i class="fas fa-list"></i> <?= (isset($ultimos_cinco)) ? "Cinco últimas despesas cadastradas" : "Registros" ?></h6>
+                            <h6 class="m-0 text-dark"><i class="fas fa-list"></i> Registros</h6>
                         </div><!-- /.col -->
                     </div>
                 </div>
                 <!-- /.card-header -->
 
                 <div class="card-body">
-                    <table class="table table-bordered table-striped">
+                    <table class="table table-bordered table-striped tabela-listagem">
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>

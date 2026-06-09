@@ -246,13 +246,14 @@
                                             <tr>
                                                 <td><?= $produto['nome'] ?></td>
                                                 <td><?= $produto['quantidade'] ?></td>
-                                                <td><?= $produto['valor_unitario'] ?></td>
-                                                <td><?= $produto['quantidade'] * $produto['valor_unitario'] ?></td>
-                                                <td><?= $produto['desconto'] ?></td>
+                                                <td><?= moeda($produto['valor_unitario']) ?></td>
+                                                <td><?= moeda($produto['quantidade'] * $produto['valor_unitario']) ?></td>
+                                                <td><?= moeda($produto['desconto']) ?></td>
                                                 <td>
                                                     <?php
                                                         $total = $produto['quantidade'] * $produto['valor_unitario'] - $produto['desconto'];
                                                     ?>
+                                                    <?= moeda($total) ?>
                                                 </td>
                                             <tr>
 
@@ -306,11 +307,12 @@
                                             <tr>
                                                 <td><?= $servico['nome'] ?></td>
                                                 <td><?= $servico['quantidade'] ?></td>
-                                                <td><?= $servico['valor'] ?></td>
-                                                <td><?= $servico['valor'] * $servico['valor'] ?></td>
-                                                <td><?= $servico['desconto'] ?></td>
+                                                <td><?= moeda($servico['valor']) ?></td>
+                                                <td><?= moeda($servico['quantidade'] * $servico['valor']) ?></td>
+                                                <td><?= moeda($servico['desconto']) ?></td>
                                                 <td>
-                                                    <?php $total = $servico['valor'] * $servico['valor'] - $servico['desconto']; ?>
+                                                    <?php $total = $servico['quantidade'] * $servico['valor'] - $servico['desconto']; ?>
+                                                    <?= moeda($total) ?>
                                                 </td>
                                             <tr>
 
@@ -345,31 +347,31 @@
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="form-group">
                                     <label for="">Produtos/Peças</label>
-                                    <input type="text" class="form-control" value="<?= $total_produtos_pecas ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($total_produtos_pecas) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="form-group">
                                     <label for="">Servico/Mão de obra</label>
-                                    <input type="text" class="form-control" value="<?= $total_servicos_mao_de_obra ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($total_servicos_mao_de_obra) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="form-group">
                                     <label for="">Frete</label>
-                                    <input type="text" class="form-control" value="<?= $dados_ordem_de_servico['frete'] ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($dados_ordem_de_servico['frete']) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="form-group">
                                     <label for="">Outros</label>
-                                    <input type="text" class="form-control" value="<?= $dados_ordem_de_servico['outros'] ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($dados_ordem_de_servico['outros']) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
                                 <div class="form-group">
                                     <label for="">Desconto</label>
-                                    <input type="text" class="form-control" value="<?= $dados_ordem_de_servico['desconto'] ?>" disabled>
+                                    <input type="text" class="form-control" value="<?= decimal_monetario($dados_ordem_de_servico['desconto']) ?>" disabled>
                                 </div>
                             </div>
                             <div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
@@ -378,7 +380,7 @@
                                     <?php
                                         $valor_total_do_pagamento = ($total_produtos_pecas + $total_servicos_mao_de_obra + $dados_ordem_de_servico['frete'] + $dados_ordem_de_servico['outros']) - $dados_ordem_de_servico['desconto'];
                                     ?>
-                                    <input type="text" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= $valor_total_do_pagamento ?>" disabled>
+                                    <input type="text" class="form-control" id="valor_total_do_pagamento" name="valor_total_do_pagamento" value="<?= decimal_monetario($valor_total_do_pagamento) ?>" disabled>
                                 </div>
                             </div>
                         </div>
@@ -424,7 +426,7 @@
                                         <tr>
                                             <td><?= $ordem ?></td>
                                             <td><?= $parcela['data_de_vencimento'] ?></td>
-                                            <td><?= $parcela['valor_da_parcela'] ?></td>
+                                            <td><?= moeda($parcela['valor_da_parcela']) ?></td>
                                             <td><?= $parcela['forma_de_pagamento'] ?></td>
                                             <td><?= $parcela['observacoes'] ?></td>
                                         </tr>

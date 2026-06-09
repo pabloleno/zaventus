@@ -225,7 +225,7 @@
                         <!-- <div class="col-lg-3">
                             <div class="form-group">
                                 <label for="">Desconto</label>
-                                <input type="text" class="form-control" value="<?= $venda['desconto'] ?>" disabled="">
+                                <input type="text" class="form-control" value="<?= decimal_monetario($venda['desconto']) ?>" disabled="">
                             </div>
                         </div> -->
                         <div class="col-lg-3">

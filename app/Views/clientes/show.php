@@ -257,7 +257,7 @@
                                                     <tr>
                                                         <td><?= $pagamento['id_pagamento'] ?></td>
                                                         <td><?= $pagamento['descricao'] ?></td>
-                                                        <td><?= $pagamento['valor'] ?></td>
+                                                        <td><?= moeda($pagamento['valor']) ?></td>
                                                         <td><?= $pagamento['data'] ?></td>
                                                         <td><?= $pagamento['hora'] ?></td>
                                                         <td><?= $pagamento['observacoes'] ?></td>
@@ -304,10 +304,10 @@
                                                         <td><?= $venda['id_venda'] ?></td>
                                                         <td><?= $venda['data'] ?></td>
                                                         <td><?= $venda['hora'] ?></td>
-                                                        <td><?= $venda['valor_a_pagar'] ?></td>
-                                                        <td><?= $venda['desconto'] ?></td>
-                                                        <td><?= $venda['valor_recebido'] ?></td>
-                                                        <td><?= $venda['troco'] ?></td>
+                                                        <td><?= moeda($venda['valor_a_pagar']) ?></td>
+                                                        <td><?= moeda($venda['desconto']) ?></td>
+                                                        <td><?= moeda($venda['valor_recebido']) ?></td>
+                                                        <td><?= moeda($venda['troco']) ?></td>
                                                         <td><?= $venda['forma_de_pagamento'] ?></td>
                                                         <td><?= $venda['id_cliente'] ?></td>
                                                         <td><?= $venda['id_caixa'] ?></td>
