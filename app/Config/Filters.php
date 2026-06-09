@@ -115,6 +115,7 @@ class Filters extends BaseFilters
             'before' => [
                 'login/autenticar',
                 'login/store',
+                'configs/store_personalizacao',
             ],
         ],
     ];

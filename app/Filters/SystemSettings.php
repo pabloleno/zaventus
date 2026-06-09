@@ -52,34 +52,45 @@ class SystemSettings implements FilterInterface
         $defaults = [
             'idioma'       => $options->defaultLanguage,
             'fuso_horario' => $options->defaultTimezone,
+            'favicon'       => 'favicon.ico',
+            'logo_login'    => 'assets/img/zaventus-login-marca.png',
         ];
 
         try {
             $db = db_connect();
 
-            if (
-                ! $db->tableExists('config_empresa')
-                || ! $db->fieldExists('idioma', 'config_empresa')
-                || ! $db->fieldExists('fuso_horario', 'config_empresa')
-            ) {
+            if (! $db->tableExists('config_empresa')) {
+                return $defaults;
+            }
+
+            $campos = array_values(array_filter(
+                array_keys($defaults),
+                static fn (string $campo): bool => $db->fieldExists($campo, 'config_empresa')
+            ));
+
+            if (empty($campos)) {
                 return $defaults;
             }
 
             $row = $db->table('config_empresa')
-                ->select('idioma, fuso_horario')
+                ->select($campos)
                 ->where('id_config', 1)
                 ->get(1)
-                ->getRowArray();
+                ->getRowArray() ?? [];
         } catch (\Throwable $exception) {
             return $defaults;
         }
 
         $language = (string) ($row['idioma'] ?? '');
         $timezone = (string) ($row['fuso_horario'] ?? '');
+        $favicon = trim((string) ($row['favicon'] ?? ''));
+        $logoLogin = trim((string) ($row['logo_login'] ?? ''));
 
         return [
             'idioma'       => $this->validLanguage($language, $options) ? $language : $defaults['idioma'],
             'fuso_horario' => $this->validTimezone($timezone, $options) ? $timezone : $defaults['fuso_horario'],
+            'favicon'       => $favicon !== '' ? $favicon : $defaults['favicon'],
+            'logo_login'    => $logoLogin !== '' ? $logoLogin : $defaults['logo_login'],
         ];
     }
 

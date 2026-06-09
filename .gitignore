@@ -61,6 +61,8 @@ writable/uploads/*
 !writable/uploads/index.html
 public/assets/temp_baixar_xmls/*
 !public/assets/temp_baixar_xmls/.gitkeep
+public/uploads/personalizacao/*
+!public/uploads/personalizacao/.gitkeep
 
 writable/debugbar/*
 

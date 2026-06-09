@@ -13,10 +13,15 @@ use App\Models\ConfigNFCeModel;
 use App\Models\FormaDePagamentoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
+use CodeIgniter\HTTP\Files\UploadedFile;
 use Config\SystemOptions;
 
 class Configs extends Controller
 {
+    private const DIRETORIO_PERSONALIZACAO = 'uploads/personalizacao';
+    private const FAVICON_PADRAO = 'favicon.ico';
+    private const LOGO_LOGIN_PADRAO = 'assets/img/zaventus-login-marca.png';
+
     private const CODIGOS_UF_IBGE = [
         'RO' => '11',
         'AC' => '12',
@@ -269,6 +274,76 @@ class Configs extends Controller
         return redirect()->to('/configs/sistema');
     }
 
+    public function store_personalizacao()
+    {
+        if (! $this->request->is('post')) {
+            return $this->response->setStatusCode(405);
+        }
+
+        $empresa = $this->config_empresa_model->where('id_config', 1)->first() ?? [];
+        $arquivos = [
+            'favicon' => $this->request->getFile('favicon'),
+            'logo_login' => $this->request->getFile('logo_login'),
+        ];
+        $selecionados = [];
+        $erros = [];
+
+        foreach ($arquivos as $campo => $arquivo) {
+            if (! $arquivo instanceof UploadedFile || $arquivo->getError() === UPLOAD_ERR_NO_FILE) {
+                continue;
+            }
+
+            $erro = $this->validarImagemPersonalizacao($arquivo, $campo);
+
+            if ($erro !== null) {
+                $erros[] = $erro;
+                continue;
+            }
+
+            $selecionados[$campo] = $arquivo;
+        }
+
+        if (empty($selecionados) && empty($erros)) {
+            $erros[] = 'Selecione um favicon ou uma logo para atualizar.';
+        }
+
+        if (! empty($erros)) {
+            return $this->redirecionarErroPersonalizacao($erros);
+        }
+
+        $novosCaminhos = [];
+
+        try {
+            foreach ($selecionados as $campo => $arquivo) {
+                $novosCaminhos[$campo] = $this->salvarImagemPersonalizacao($arquivo, $campo);
+            }
+
+            $atualizado = $this->config_empresa_model
+                ->set($novosCaminhos)
+                ->where('id_config', 1)
+                ->update();
+
+            if (! $atualizado) {
+                throw new \RuntimeException('Nao foi possivel salvar a personalizacao.');
+            }
+        } catch (\Throwable $exception) {
+            foreach ($novosCaminhos as $caminho) {
+                $this->removerImagemPersonalizacao($caminho);
+            }
+
+            return $this->redirecionarErroPersonalizacao([$exception->getMessage()]);
+        }
+
+        foreach ($novosCaminhos as $campo => $caminho) {
+            $this->removerImagemPersonalizacao((string) ($empresa[$campo] ?? ''));
+        }
+
+        session()->set($novosCaminhos);
+        session()->setFlashdata('alert', 'success_personalizacao');
+
+        return redirect()->to('/configs/sistema');
+    }
+
     public function alteraTema()
     {
         $tema = $this->request->getvar('tema');
@@ -447,6 +522,8 @@ class Configs extends Controller
         return [
             'idioma'       => $this->idiomaValido($idioma) ? $idioma : $options->defaultLanguage,
             'fuso_horario' => $this->fusoHorarioValido($fuso_horario) ? $fuso_horario : $options->defaultTimezone,
+            'favicon'       => trim((string) ($empresa['favicon'] ?? '')) ?: self::FAVICON_PADRAO,
+            'logo_login'    => trim((string) ($empresa['logo_login'] ?? '')) ?: self::LOGO_LOGIN_PADRAO,
         ];
     }
 
@@ -511,6 +588,81 @@ class Configs extends Controller
             'idioma'       => $idioma,
             'fuso_horario' => $fuso_horario,
         ]);
+    }
+
+    private function validarImagemPersonalizacao(UploadedFile $arquivo, string $campo): ?string
+    {
+        $rotulo = $campo === 'favicon' ? 'favicon' : 'logo do login';
+
+        if (! $arquivo->isValid()) {
+            return sprintf('Falha no envio da %s: %s', $rotulo, $arquivo->getErrorString());
+        }
+
+        if ((int) $arquivo->getSize() > 2 * 1024 * 1024) {
+            return sprintf('A %s deve ter no maximo 2 MB.', $rotulo);
+        }
+
+        $extensao = strtolower($arquivo->getClientExtension());
+        $permitidas = $campo === 'favicon'
+            ? ['ico', 'png']
+            : ['png', 'jpg', 'jpeg', 'webp'];
+
+        if (! in_array($extensao, $permitidas, true)) {
+            return sprintf(
+                'Formato invalido para %s. Use: %s.',
+                $rotulo,
+                implode(', ', $permitidas)
+            );
+        }
+
+        if ($extensao === 'ico') {
+            $cabecalho = @file_get_contents($arquivo->getTempName(), false, null, 0, 4);
+
+            if ($cabecalho !== "\x00\x00\x01\x00") {
+                return 'O arquivo selecionado nao e um favicon ICO valido.';
+            }
+
+            return null;
+        }
+
+        if (@getimagesize($arquivo->getTempName()) === false) {
+            return sprintf('O arquivo selecionado nao e uma imagem valida para %s.', $rotulo);
+        }
+
+        return null;
+    }
+
+    private function salvarImagemPersonalizacao(UploadedFile $arquivo, string $campo): string
+    {
+        $extensao = strtolower($arquivo->getClientExtension());
+        $nome = sprintf('%s-%s.%s', $campo, bin2hex(random_bytes(12)), $extensao);
+        $arquivo->move(FCPATH . self::DIRETORIO_PERSONALIZACAO, $nome);
+
+        return self::DIRETORIO_PERSONALIZACAO . '/' . $nome;
+    }
+
+    private function removerImagemPersonalizacao(string $caminho): void
+    {
+        $caminho = str_replace('\\', '/', trim($caminho));
+
+        if (! str_starts_with($caminho, self::DIRETORIO_PERSONALIZACAO . '/')) {
+            return;
+        }
+
+        $arquivo = realpath(FCPATH . $caminho);
+        $diretorio = realpath(FCPATH . self::DIRETORIO_PERSONALIZACAO);
+
+        if ($arquivo !== false && $diretorio !== false && str_starts_with($arquivo, $diretorio . DIRECTORY_SEPARATOR)) {
+            @unlink($arquivo);
+        }
+    }
+
+    private function redirecionarErroPersonalizacao(array $erros)
+    {
+        session()->setFlashdata('errors', $erros);
+        session()->setFlashdata('alert', 'error_personalizacao');
+
+        return redirect()->to('/configs/sistema')->withInput();
     }
 
     // ------------------------------ FORMA DE PAGAMENTO -------------------------------- //

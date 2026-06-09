@@ -231,6 +231,8 @@ class Login extends Controller
             $session->set('controle_de_acesso', $login['controle_de_acesso']);
             $session->set('idioma', $empresa['idioma'] ?? config(SystemOptions::class)->defaultLanguage);
             $session->set('fuso_horario', $empresa['fuso_horario'] ?? config(SystemOptions::class)->defaultTimezone);
+            $session->set('favicon', $empresa['favicon'] ?? 'favicon.ico');
+            $session->set('logo_login', $empresa['logo_login'] ?? 'assets/img/zaventus-login-marca.png');
 
             if ($this->senhaPrecisaAtualizar((string) $login['senha'])) {
                 $this->login_model->update($login['id_login'], [

@@ -1,3 +1,8 @@
+<?php
+$favicon = trim((string) ($empresa['favicon'] ?? '')) ?: 'favicon.ico';
+$logo_login = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-login-marca.png';
+$nome_sistema = lang('App.appName');
+?>
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -12,9 +17,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title><?= esc(lang('App.appName')) ?></title>
 
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32.png') ?>">
-    <link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+    <link rel="icon" href="<?= esc(base_url($favicon)) ?>" sizes="any">
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= base_url('theme/plugins/fontawesome-free/css/all.css') ?>">
@@ -71,8 +74,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
 <body class="hold-transition login-page">
     <div class="login-box">
         <div class="login-logo zaventus-login-logo">
-            <img class="zaventus-login-mark" src="<?= base_url('assets/img/zaventus-login-marca.png') ?>" alt="Zaventus Tecnologia">
-            <strong class="zaventus-login-title">Zaventus Gest&atilde;o</strong>
+            <img class="zaventus-login-mark" src="<?= esc(base_url($logo_login)) ?>" alt="<?= esc($nome_sistema) ?>">
+            <strong class="zaventus-login-title"><?= esc($nome_sistema) ?></strong>
         </div>
         <!-- /.login-logo -->
         <div class="card">

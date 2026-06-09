@@ -1,6 +1,7 @@
 <?php
     $session = session();
     $usuario = $session->get('usuario');
+    $favicon = trim((string) $session->get('favicon')) ?: 'favicon.ico';
 
     if (!isset($usuario)) {
         echo "<script>window.location.href = '/login'; </script>";
@@ -21,9 +22,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <title><?= esc(lang('App.appName')) ?><?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
 
-    <link rel="icon" href="<?= base_url('favicon.ico') ?>" sizes="any">
-    <link rel="icon" type="image/png" sizes="32x32" href="<?= base_url('favicon-32.png') ?>">
-    <link rel="apple-touch-icon" href="<?= base_url('apple-touch-icon.png') ?>">
+    <link rel="icon" href="<?= esc(base_url($favicon)) ?>" sizes="any">
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="<?= base_url('theme/plugins/fontawesome-free/css/all.css') ?>">

@@ -155,6 +155,42 @@
                         </div> -->
                     </div>
                     <!-- /.card -->        
+
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="row">
+                                <div class="col-sm-12">
+                                    <h6 class="m-0 text-dark"><i class="<?= $titulo['icone'] ?>"></i> <?= esc(lang('App.system.personalization')) ?></h6>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <form action="/configs/store_personalizacao" method="post" enctype="multipart/form-data">
+                                <?= csrf_field() ?>
+                                <div class="row">
+                                    <div class="col-lg-6">
+                                        <label for="favicon"><?= esc(lang('App.system.favicon')) ?></label>
+                                        <div class="mb-2">
+                                            <img src="<?= esc(base_url($config_sistema['favicon'])) ?>" alt="<?= esc(lang('App.system.favicon')) ?>" style="max-height: 48px; max-width: 100%;">
+                                        </div>
+                                        <input id="favicon" class="form-control-file" type="file" name="favicon" accept=".ico,.png">
+                                        <small class="form-text text-muted"><?= esc(lang('App.system.faviconHelp')) ?></small>
+                                    </div>
+                                    <div class="col-lg-6">
+                                        <label for="logo_login"><?= esc(lang('App.system.loginLogo')) ?></label>
+                                        <div class="mb-2">
+                                            <img src="<?= esc(base_url($config_sistema['logo_login'])) ?>" alt="<?= esc(lang('App.system.loginLogo')) ?>" style="max-height: 80px; max-width: 100%;">
+                                        </div>
+                                        <input id="logo_login" class="form-control-file" type="file" name="logo_login" accept=".png,.jpg,.jpeg,.webp">
+                                        <small class="form-text text-muted"><?= esc(lang('App.system.loginLogoHelp')) ?></small>
+                                    </div>
+                                    <div class="col-lg-12 mt-3" style="text-align: right">
+                                        <button class="btn btn-primary"><?= esc(lang('App.common.save')) ?></button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
                 </div>
                 
             </div>
@@ -189,6 +225,16 @@
                 Toast.fire({
                     type: 'success',
                     title: <?= json_encode(lang('App.alerts.globalSaved')) ?>
+                })
+            <?php elseif ($alert == "success_personalizacao") : ?>
+                Toast.fire({
+                    type: 'success',
+                    title: <?= json_encode(lang('App.alerts.personalizationSaved')) ?>
+                })
+            <?php elseif ($alert == "error_personalizacao") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: <?= json_encode(implode(' ', (array) $session->getFlashdata('errors'))) ?>
                 })
             <?php elseif ($alert == "success_create_forma_de_pagamento") : ?>
                 Toast.fire({
