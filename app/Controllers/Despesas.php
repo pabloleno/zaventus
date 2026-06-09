@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\TipoNegocio;
 use App\Models\DespesaModel;
 use CodeIgniter\Controller;
 
@@ -10,103 +11,59 @@ class Despesas extends Controller
     private $links;
     private $despesa_model;
 
-    function __construct()
+    public function __construct()
     {
-        $this->links = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.5'
-        ];
-
+        $this->links = ['menu' => '5.m', 'item' => '5.0', 'subItem' => '5.5'];
         $this->despesa_model = new DespesaModel();
     }
 
     public function index()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Despesas',
-            'icone'  => 'fa fa-database'
+        $data = [
+            'links' => $this->links,
+            'titulo' => ['modulo' => 'Despesas', 'icone' => 'fa fa-database'],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Despesas', 'rota' => '', 'active' => true],
+            ],
+            'tipos_negocio' => TipoNegocio::opcoes(true),
         ];
 
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Despesas", 'rota'   => "", 'active' => true]
+        $dados = $this->request->getGet();
+        $filtros = [
+            'id_despesa' => trim((string) ($dados['id_despesa'] ?? '')),
+            'tipo' => trim((string) ($dados['tipo'] ?? '')),
+            'tipo_negocio' => trim((string) ($dados['tipo_negocio'] ?? '')),
+            'data_inicio' => trim((string) ($dados['data_inicio'] ?? '')),
+            'data_final' => trim((string) ($dados['data_final'] ?? '')),
         ];
+        $temFiltro = count(array_filter($filtros, static fn ($valor) => $valor !== '')) > 0;
+        $query = $this->despesa_model->orderBy('id_despesa', 'DESC');
 
-        // ---------------------------------------- FILTRAR ----------------------------------------- //
-        $dados = $this->request->getvar();
-
-        $session = session();
-
-        if(!empty($dados))
-        {
-            $id_despesa = $dados['id_despesa'];
-
-            $tipo = $dados['tipo'];
-
-            $data_inicio = $dados['data_inicio'];
-            $data_final = $dados['data_final'];
-
-            if($dados['id_despesa'] != "") // Filtra somente pelo Cód do caixa
-            {
-                $despesas = $this->despesa_model->where('id_despesa', $id_despesa)->findAll();
-
-                $data['id_despesa'] = $id_despesa;
-            }
-            else if($tipo != "" && $data_inicio == "" && $data_final == "") // Filtra somente pelo tipo com data inicio e final em branco.
-            {
-                if($tipo == "Todos")
-                {
-                    $despesas = $this->despesa_model->findAll(); // Retorna todas as despesas
-                }
-                else
-                {
-                    $despesas = $this->despesa_model->where('tipo', $tipo)->find(); // Retorna a despesa pelo seu tipo
-                }
-
-                $data['tipo'] = $tipo;
-            }
-            else if($tipo != "" && $data_inicio != "" && $data_final != "") // Filtra tipo com data inicio e data final
-            {
-                if($tipo == "Todos")
-                {
-                    $despesas = $this->despesa_model->where('data >=', $data_inicio)->where('data <=', $data_final)->find(); // Retorna todas as despesas com a data inicio e final correspondentes
-                }
-                else
-                {
-                    $despesas = $this->despesa_model->where('tipo', $tipo)->where('data >=', $data_inicio)->where('data <=', $data_final)->find(); // Retorna as despesas com tipo e data inicio e final correspondentes
-                }
-
-                $data['data_inicio'] = $data_inicio;
-                $data['data_final'] = $data_final;
-
-                $data['tipo'] = $tipo;
-            }
-            else if($data_inicio != "" && $data_final != "") // Filtra em conjunto, status e data inicio e final
-            {
-                $despesas = $this->despesa_model->where('data >=', $data_inicio)->where('data <=', $data_final)->find();
-
-                $data['data_inicio'] = $data_inicio;
-                $data['data_final'] = $data_final;
-            }
-            else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
-            {
-                $despesas = $this->despesa_model->orderBy('id_despesa', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
-            }
-
-            $session->setFlashdata('alert', 'success_filter');
+        if ($filtros['id_despesa'] !== '') {
+            $query->where('id_despesa', $filtros['id_despesa']);
         }
-        else
-        {
-            $despesas = $this->despesa_model->orderBy('id_despesa', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+        if ($filtros['tipo'] !== '' && $filtros['tipo'] !== TipoNegocio::TODOS) {
+            $query->where('tipo', $filtros['tipo']);
         }
-        // ------------------------------------------------------------------------------------------ //
+        if ($filtros['tipo_negocio'] !== '' && $filtros['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $query->where('tipo_negocio', TipoNegocio::normalizar($filtros['tipo_negocio']));
+        }
+        if ($filtros['data_inicio'] !== '') {
+            $query->where('data >=', $filtros['data_inicio']);
+        }
+        if ($filtros['data_final'] !== '') {
+            $query->where('data <=', $filtros['data_final']);
+        }
 
-        $data['despesas'] = $despesas;
+        $data['despesas'] = $temFiltro ? $query->findAll() : $query->limit(5)->find();
+
+        if ($temFiltro) {
+            $data += array_filter($filtros, static fn ($valor) => $valor !== '');
+            session()->setFlashdata('alert', 'success_filter');
+        } else {
+            $data['ultimos_cinco'] = true;
+        }
 
         echo view('templates/header');
         echo view('despesas/index', $data);
@@ -115,18 +72,7 @@ class Despesas extends Controller
 
     public function create()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Nova Despesa',
-            'icone'  => 'fa fa-plus-circle'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Despesas", 'rota' => "/despesas", 'active' => false],
-            ['titulo' => "Nova", 'rota'   => "", 'active' => true]
-        ];
+        $data = $this->dadosFormulario('Nova Despesa', 'fa fa-plus-circle');
 
         echo view('templates/header');
         echo view('despesas/form', $data);
@@ -135,19 +81,7 @@ class Despesas extends Controller
 
     public function edit($id_despesa)
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Editar Despesa',
-            'icone'  => 'fa fa-edit'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Despesas", 'rota' => "/despesas", 'active' => false],
-            ['titulo' => "Editar", 'rota'   => "", 'active' => true]
-        ];
-
+        $data = $this->dadosFormulario('Editar Despesa', 'fa fa-edit');
         $data['despesa'] = $this->despesa_model->where('id_despesa', $id_despesa)->first();
 
         echo view('templates/header');
@@ -157,20 +91,11 @@ class Despesas extends Controller
 
     public function store()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->request->getVar();
+        $dados['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? null);
         $this->despesa_model->save($dados);
 
-        // Se a ação do usuário for editar
-        if(isset($dados['id_despesa']))
-        {
-            $session = session();
-            $session->setFlashdata('alert', 'success_edit');
-
-            return redirect()->to('/despesas');
-        }
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_create');
+        session()->setFlashdata('alert', isset($dados['id_despesa']) ? 'success_edit' : 'success_create');
 
         return redirect()->to('/despesas');
     }
@@ -178,10 +103,22 @@ class Despesas extends Controller
     public function delete($id_despesa)
     {
         $this->despesa_model->where('id_despesa', $id_despesa)->delete();
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_delete');
+        session()->setFlashdata('alert', 'success_delete');
 
         return redirect()->to('/despesas');
+    }
+
+    private function dadosFormulario(string $modulo, string $icone): array
+    {
+        return [
+            'links' => $this->links,
+            'titulo' => ['modulo' => $modulo, 'icone' => $icone],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Despesas', 'rota' => '/despesas', 'active' => false],
+                ['titulo' => 'Dados', 'rota' => '', 'active' => true],
+            ],
+            'tipos_negocio' => TipoNegocio::opcoes(),
+        ];
     }
 }

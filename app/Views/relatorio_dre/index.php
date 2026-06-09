@@ -25,6 +25,16 @@
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label>Área do negócio</label>
+                                    <select class="form-control select2" name="tipo_negocio" style="width: 100%;">
+                                        <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                            <option value="<?= $valor ?>" <?= $tipo_negocio === $valor ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
                                     <label for="">Data Inicio</label>
                                     <input type="date" class="form-control" name="data_inicio" value="<?= isset($data_inicio) ? $data_inicio : date('Y-m-01') ?>">
                                 </div>
@@ -56,7 +66,8 @@
                                 <div class="col-lg-12">
                                     <p>EMPRESA: <?= $empresa['nome_fantasia'] ?></p>
                                     <p>CNPJ: <?= $empresa['cnpj'] ?></p>
-                                    <p>PERÍODO DO DRE: 01/01/2019 até 31/12/2019</p>
+                                    <p>PERÍODO DO DRE: <?= date('d/m/Y', strtotime($data_inicio)) ?> até <?= date('d/m/Y', strtotime($data_final)) ?></p>
+                                    <p>ÁREA DO NEGÓCIO: <?= \App\Libraries\TipoNegocio::rotulo($tipo_negocio) ?></p>
                                 </div>
                             </div>
                         </div>
@@ -80,6 +91,18 @@
                                             <tr>
                                                 <td><b>(=) FATURAMENTO</b></td>
                                                 <td><b><?= number_format($faturamento, 2, ',', '.') ?></b></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 50px">Vendas de produtos</td>
+                                                <td><?= number_format($faturamento_produtos, 2, ',', '.') ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 50px">Vendas de serviços</td>
+                                                <td><?= number_format($faturamento_servicos, 2, ',', '.') ?></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding-left: 50px">Outros lançamentos</td>
+                                                <td><?= number_format($faturamento_lancamentos, 2, ',', '.') ?></td>
                                             </tr>
                                             <tr>
                                                 <td style="padding-left: 50px">(-) Ipostos</td>
@@ -134,7 +157,7 @@
                                             <tr>
                                                 <td><b>(=) LUCRO LÍQUIDO</b></td>
                                                 <td>
-                                                    <b><?= number_format($lucro_operacional - $despesas_fixas, 2, ',', '.') ?></b>
+                                                    <b><?= number_format($lucro_operacional - $despesas_fixas - $gastos_com_pessoas - $prolabore, 2, ',', '.') ?></b>
                                                 </td>
                                             </tr>
                                         </tbody>

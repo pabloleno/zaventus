@@ -1,6 +1,4 @@
-<!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
-    <!-- Main content -->
     <div class="content">
         <div class="container">
             <div class="card no-print">
@@ -8,161 +6,75 @@
                     <form action="/relatorios/faturamentoDetalhado" method="post">
                         <div class="row">
                             <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label for="">Data Inicio</label>
-                                    <input type="date" class="form-control" name="data_inicio" value="<?= (isset($data_inicio)) ? $data_inicio : "" ?>">
-                                </div>
+                                <label>Área do negócio</label>
+                                <select class="form-control select2" name="tipo_negocio" style="width: 100%;">
+                                    <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                        <option value="<?= $valor ?>" <?= $tipo_negocio === $valor ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
                             <div class="col-lg-3">
-                                <div class="form-group">
-                                    <label for="">Data Final</label>
-                                    <input type="date" class="form-control" name="data_final" value="<?= (isset($data_final)) ? $data_final : "" ?>">
-                                </div>
+                                <label>Data Início</label>
+                                <input type="date" class="form-control" name="data_inicio" value="<?= $data_inicio ?>">
                             </div>
-                            <div class="col-lg-4">
+                            <div class="col-lg-3">
+                                <label>Data Final</label>
+                                <input type="date" class="form-control" name="data_final" value="<?= $data_final ?>">
+                            </div>
+                            <div class="col-lg-3">
                                 <button type="submit" class="btn btn-success" style="margin-top: 30px">Gerar Relatório</button>
-                                <button type="button" class="btn btn-info" onclick="print()" style="margin-top: 30px"><i class="fas fa-print"></i> Imprimir / Salvar PDF</button>
+                                <button type="button" class="btn btn-info" onclick="print()" style="margin-top: 30px"><i class="fas fa-print"></i> Imprimir</button>
                             </div>
                         </div>
                     </form>
                 </div>
             </div>
-            <!-- /.card -->
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <!-- /.card-header -->
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <h6 class="m-0 text-dark" style="text-align: center"><b><?= $titulo['modulo'] ?></b></h6>
-                                    <hr>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 30px">
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                                    <p><b>EMPRESA:</b> <?= $empresa['nome_fantasia'] ?></p>
-                                    <p><b>CNPJ:</b> <?= $empresa['cnpj'] ?></p>
-                                </div>
-                                <div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
-                                    <p><b>CONTATO:</b> <?= $empresa['telefone'] ?></p>
-                                    <p><b>ENDEREÇO:</b> <?= $empresa['endereco'] ?></p>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 50px">
-                                <div class="col-lg-12">
-                                    <table id="" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="6" style="text-align: center">VENDAS</th>
-                                            </tr>
-                                            <tr>
-                                                <th>Cód.</th>
-                                                <th>Data</th>
-                                                <th>Hora</th>
-                                                <th>Valor</th>
-                                                <th>Cód. Cliente</th>
-                                                <th>Cód. Caixa</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if(!empty($vendas)): ?>
-                                                <?php foreach($vendas as $venda): ?>
-                                                    <tr>
-                                                        <td><?= $venda['id_venda'] ?></td>
-                                                        <td><?= $venda['data'] ?></td>
-                                                        <td><?= $venda['hora'] ?></td>
-                                                        <td><?= $venda['valor_a_pagar'] ?></td>
-                                                        <td><?= $venda['id_cliente'] ?></td>
-                                                        <td><?= $venda['id_caixa'] ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td colspan="6">Nenhum registro!</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row" style="margin-top: 50px">
-                                <div class="col-lg-12">
-                                    <table id="" class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th colspan="6" style="text-align: center">LANÇAMENTOS</th>
-                                            </tr>
-                                            <tr>
-                                                <th>Cód.</th>
-                                                <th>Descrição</th>
-                                                <th>Data</th>
-                                                <th>Hora</th>
-                                                <th>Valor</th>
-                                                <th>Cód. Caixa</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if(!empty($lancamentos)): ?>
-                                                <?php foreach($lancamentos as $lancamento): ?>
-                                                    <tr>
-                                                        <td><?= $lancamento['id_lancamento'] ?></td>
-                                                        <td><?= $lancamento['descricao'] ?></td>
-                                                        <td><?= $lancamento['data'] ?></td>
-                                                        <td><?= $lancamento['hora'] ?></td>
-                                                        <td><?= $lancamento['valor'] ?></td>
-                                                        <td><?= $lancamento['id_caixa'] ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td colspan="6">Nenhum registro!</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <p>Relatório gerado em: <?= date('d/m/Y') ?> às <?= date('H:i') ?></p>
-                                    <br>
-                                    <p><b>Tipo: </b>Detalhado</p>
-                                    <p><b>Data: </b>de <?= $data_inicio?> até <?= $data_final ?></p>
-                                </div>
-                            </div>
-                        </div>
+            <div class="card">
+                <div class="card-body">
+                    <h6 class="text-center"><b><?= $titulo['modulo'] ?> - <?= \App\Libraries\TipoNegocio::rotulo($tipo_negocio) ?></b></h6>
+                    <div class="row" style="margin-top: 25px">
+                        <div class="col-lg-3"><b>Produtos:</b><br>R$ <?= number_format($resumo_faturamento['produtos'], 2, ',', '.') ?></div>
+                        <div class="col-lg-3"><b>Serviços:</b><br>R$ <?= number_format($resumo_faturamento['servicos'], 2, ',', '.') ?></div>
+                        <div class="col-lg-3"><b>Outros lançamentos:</b><br>R$ <?= number_format($resumo_faturamento['lancamentos'], 2, ',', '.') ?></div>
+                        <div class="col-lg-3"><b>Total:</b><br>R$ <?= number_format($resumo_faturamento['total'], 2, ',', '.') ?></div>
                     </div>
+
+                    <?php if (in_array($tipo_negocio, ['Todos', 'Produtos'], true)) : ?>
+                        <h6 style="margin-top: 35px"><b>Vendas de Produtos</b></h6>
+                        <table class="table table-bordered table-striped">
+                            <thead><tr><th>Cód.</th><th>Data</th><th>Cliente</th><th>Valor</th><th>Caixa</th></tr></thead>
+                            <tbody>
+                                <?php if (!empty($vendas)) : foreach ($vendas as $venda) : ?>
+                                    <tr><td><?= $venda['id_venda'] ?></td><td><?= date('d/m/Y', strtotime($venda['data'])) ?></td><td><?= $venda['nome_cliente'] ?? $venda['id_cliente'] ?></td><td>R$ <?= number_format($venda['valor_a_pagar'], 2, ',', '.') ?></td><td><?= $venda['id_caixa'] ?></td></tr>
+                                <?php endforeach; else : ?><tr><td colspan="5">Nenhuma venda de produto encontrada.</td></tr><?php endif; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
+                    <?php if (in_array($tipo_negocio, ['Todos', 'Servicos'], true)) : ?>
+                        <h6 style="margin-top: 35px"><b>Vendas de Serviços</b></h6>
+                        <table class="table table-bordered table-striped">
+                            <thead><tr><th>OS</th><th>Saída</th><th>Cliente</th><th>Valor</th><th>Situação</th></tr></thead>
+                            <tbody>
+                                <?php if (!empty($ordens_servicos)) : foreach ($ordens_servicos as $ordem) : ?>
+                                    <tr><td><?= $ordem['id_ordem'] ?></td><td><?= date('d/m/Y', strtotime($ordem['data_de_saida'])) ?></td><td><?= $ordem['nome_cliente'] ?? $ordem['id_cliente'] ?></td><td>R$ <?= number_format($ordem['valor_total'], 2, ',', '.') ?></td><td><?= $ordem['situacao'] ?></td></tr>
+                                <?php endforeach; else : ?><tr><td colspan="5">Nenhuma venda de serviço encontrada.</td></tr><?php endif; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
+                    <h6 style="margin-top: 35px"><b>Outros Lançamentos da Área</b></h6>
+                    <table class="table table-bordered table-striped">
+                        <thead><tr><th>Cód.</th><th>Área</th><th>Descrição</th><th>Data</th><th>Valor</th></tr></thead>
+                        <tbody>
+                            <?php if (!empty($lancamentos)) : foreach ($lancamentos as $lancamento) : ?>
+                                <tr><td><?= $lancamento['id_lancamento'] ?></td><td><?= \App\Libraries\TipoNegocio::rotulo($lancamento['tipo_negocio'] ?? 'Geral') ?></td><td><?= $lancamento['descricao'] ?></td><td><?= date('d/m/Y', strtotime($lancamento['data'])) ?></td><td>R$ <?= number_format($lancamento['valor'], 2, ',', '.') ?></td></tr>
+                            <?php endforeach; else : ?><tr><td colspan="5">Nenhum lançamento encontrado.</td></tr><?php endif; ?>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div><!-- /.container-fluid -->
+        </div>
     </div>
-    <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
-
-<script>
-    $(function() {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 5000
-        });
-
-        <?php
-        $session = session();
-        $alert = $session->getFlashdata('alert');
-
-        if (isset($alert)) :
-        ?>
-            <?php if ($alert == "success_gerar_relatorio") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Relatório gerado com sucesso!'
-                })
-            <?php endif; ?>
-        <?php endif; ?>
-    });
-</script>

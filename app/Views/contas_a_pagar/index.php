@@ -17,6 +17,17 @@
                                 <input type="text" class="form-control" name="id_conta" value="<?= (isset($id_conta)) ? $id_conta : "" ?>">
                             </div>
                         </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Área do negócio</label>
+                                <select class="form-control select2" name="tipo_negocio" style="width: 100%;">
+                                    <option value="">-- Selecione --</option>
+                                    <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                        <option value="<?= $valor ?>" <?= (($tipo_negocio ?? '') === $valor) ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
                         <?php if (isset($status)) : ?>
                             <div class="col-lg-3">
                                 <div class="form-group">
@@ -144,6 +155,7 @@
                             <tr>
                                 <th style="width: 35px">Cód.</th>
                                 <th>Status</th>
+                                <th>Área</th>
                                 <th>Nome</th>
                                 <th>Data de Venc.</th>
                                 <th>Valor</th>
@@ -157,6 +169,7 @@
                                     <tr>
                                         <td><?= $conta['id_conta'] ?></td>
                                         <td><?= $conta['status'] ?></td>
+                                        <td><?= \App\Libraries\TipoNegocio::rotulo($conta['tipo_negocio'] ?? 'Geral') ?></td>
                                         <td><?= $conta['nome'] ?></td>
                                         <td><?= date('d/m/Y', strtotime($conta['data_de_vencimento'])) ?></td>
                                         <td><?= number_format($conta['valor'], 2, ',', '.') ?></td>
@@ -169,7 +182,7 @@
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="7">Nenhum registro!</td>
+                                    <td colspan="8">Nenhum registro!</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -193,7 +206,7 @@
                         <div class="col-lg-12">
                             <h6><b>Data:</b> <?= date('d/m/Y') ?></h6>
                             <h6><b>Hora:</b> <?= date('H:i:s') ?></h6>
-                            <h6><b>Critérios:</b> <?= (isset($id_caixa)) ? "Por cód." : "" ?><?= (isset($status)) ? " | Status=$status" : "" ?><?= (isset($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
+                            <h6><b>Critérios:</b> <?= (!empty($id_conta)) ? "Por cód." : "" ?><?= (!empty($status)) ? " | Status=$status" : "" ?><?= (!empty($tipo_negocio)) ? " | Área=" . \App\Libraries\TipoNegocio::rotulo($tipo_negocio) : "" ?><?= (!empty($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
                         </div>
                     </div>
                 </div>

@@ -17,6 +17,17 @@
                                 <input type="text" class="form-control" name="id_despesa" value="<?= (isset($id_despesa)) ? $id_despesa : "" ?>">
                             </div>
                         </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <label>Área do negócio</label>
+                                <select class="form-control select2" name="tipo_negocio" style="width: 100%;">
+                                    <option value="">-- Selecione --</option>
+                                    <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                        <option value="<?= $valor ?>" <?= (($tipo_negocio ?? '') === $valor) ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
                         <?php if (isset($tipo)) : ?>
                             <div class="col-lg-3">
                                 <div class="form-group">
@@ -170,6 +181,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th>Área</th>
                                 <th>Tipo</th>
                                 <th>Descrição</th>
                                 <th>Valor</th>
@@ -184,6 +196,7 @@
                                 <?php foreach ($despesas as $despesa) : ?>
                                     <tr>
                                         <td><?= $despesa['id_despesa'] ?></td>
+                                        <td><?= \App\Libraries\TipoNegocio::rotulo($despesa['tipo_negocio'] ?? 'Geral') ?></td>
                                         <td><?= $despesa['tipo'] ?></td>
                                         <td><?= $despesa['descricao'] ?></td>
                                         <td><?= number_format($despesa['valor'], 2, ',', '.') ?></td>
@@ -198,7 +211,7 @@
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="8">Nenhum registro!</td>
+                                    <td colspan="9">Nenhum registro!</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -222,7 +235,7 @@
                         <div class="col-lg-12">
                             <h6><b>Data:</b> <?= date('d/m/Y') ?></h6>
                             <h6><b>Hora:</b> <?= date('H:i:s') ?></h6>
-                            <h6><b>Critérios:</b> <?= (isset($id_despesa)) ? "Por cód." : "" ?><?= (isset($tipo)) ? " | Tipo=$tipo" : "" ?><?= (isset($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
+                            <h6><b>Critérios:</b> <?= (!empty($id_despesa)) ? "Por cód." : "" ?><?= (!empty($tipo)) ? " | Tipo=$tipo" : "" ?><?= (!empty($tipo_negocio)) ? " | Área=" . \App\Libraries\TipoNegocio::rotulo($tipo_negocio) : "" ?><?= (!empty($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
                         </div>
                     </div>
                 </div>

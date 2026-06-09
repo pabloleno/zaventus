@@ -9,6 +9,7 @@ class ContaReceberModel extends PadraoModel
     protected $allowedFields = [
         'id_conta',
         'status',
+        'tipo_negocio',
         'nome',
         'data_de_vencimento',
         'valor',

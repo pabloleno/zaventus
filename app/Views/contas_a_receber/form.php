@@ -60,6 +60,16 @@
                                     </div>
                                 </div>
                             <?php endif; ?>
+                            <div class="col-lg-4">
+                                <div class="form-group">
+                                    <label>Area do negocio</label>
+                                    <select class="form-control select2" name="tipo_negocio" style="width: 100%;" required>
+                                        <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                            <option value="<?= $valor ?>" <?= (($conta['tipo_negocio'] ?? 'Geral') === $valor) ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                             <div class="col-lg-8">
                                 <div class="form-group">
                                     <label for="">Nome</label>

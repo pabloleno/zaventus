@@ -2,11 +2,12 @@
 
 namespace App\Controllers;
 
+use App\Libraries\FaturamentoNegocio;
+use App\Libraries\TipoNegocio;
 use App\Models\ConfigEmpresaModel;
 use App\Models\ClienteModel;
 use App\Models\FornecedorModel;
 use App\Models\FuncionarioModel;
-use App\Models\VendaModel;
 use App\Models\LancamentoModel;
 use App\Models\ProdutoModel;
 use App\Models\RetiradaModel;
@@ -23,7 +24,6 @@ class Relatorios extends Controller
     private $cliente_model;
     private $fornecedor_model;
     private $funcionario_model;
-    private $venda_model;
     private $lancamento_model;
     private $produto_model;
     private $retirada_model;
@@ -31,6 +31,7 @@ class Relatorios extends Controller
     private $conta_pagar_model;
     private $conta_receber_model;
     private $vendedor_model;
+    private $faturamento_negocio;
 
     function __construct()
     {
@@ -44,7 +45,6 @@ class Relatorios extends Controller
         $this->cliente_model        = new ClienteModel();
         $this->fornecedor_model     = new FornecedorModel();
         $this->funcionario_model    = new FuncionarioModel();
-        $this->venda_model          = new VendaModel();
         $this->lancamento_model     = new LancamentoModel();
         $this->produto_model        = new ProdutoModel();
         $this->retirada_model       = new RetiradaModel();
@@ -52,6 +52,7 @@ class Relatorios extends Controller
         $this->conta_pagar_model    = new ContaPagarModel;
         $this->conta_receber_model  = new ContaReceberModel();
         $this->vendedor_model       = new VendedorModel();
+        $this->faturamento_negocio  = new FaturamentoNegocio();
     }
 
     public function clientes()
@@ -160,9 +161,16 @@ class Relatorios extends Controller
 
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
+        $data['tipo_negocio'] = TipoNegocio::normalizarVenda($dados['tipo_negocio'] ?? null);
+        $data['tipos_negocio'] = TipoNegocio::opcoesVendas();
 
         $data['empresa']  = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['vendas'] = $this->venda_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final'])->find();
+        $data['vendas'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)
+            ? $this->faturamento_negocio->vendasProdutos($dados['data_inicio'], $dados['data_final'])
+            : [];
+        $data['ordens_servicos'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::SERVICOS], true)
+            ? $this->faturamento_negocio->ordensServicos($dados['data_inicio'], $dados['data_final'])
+            : [];
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -198,10 +206,17 @@ class Relatorios extends Controller
         }
 
         $data['id_cliente'] = $dados['id_cliente'];
+        $data['tipo_negocio'] = TipoNegocio::normalizarVenda($dados['tipo_negocio'] ?? null);
+        $data['tipos_negocio'] = TipoNegocio::opcoesVendas();
 
         $data['empresa']  = $this->config_empresa_model->where('id_config', 1)->first();
         $data['clientes'] = $this->cliente_model->findAll();
-        $data['vendas']   = $this->venda_model->where('id_cliente', $dados['id_cliente'])->find();
+        $data['vendas'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)
+            ? $this->faturamento_negocio->vendasProdutos('1900-01-01', '2999-12-31', ['id_cliente' => $dados['id_cliente']])
+            : [];
+        $data['ordens_servicos'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::SERVICOS], true)
+            ? $this->faturamento_negocio->ordensServicos('1900-01-01', '2999-12-31', ['id_cliente' => $dados['id_cliente']])
+            : [];
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -237,10 +252,17 @@ class Relatorios extends Controller
         }
 
         $data['id_vendedor'] = $dados['id_vendedor'];
+        $data['tipo_negocio'] = TipoNegocio::normalizarVenda($dados['tipo_negocio'] ?? null);
+        $data['tipos_negocio'] = TipoNegocio::opcoesVendas();
 
         $data['empresa']  = $this->config_empresa_model->where('id_config', 1)->first();
         $data['vendedores'] = $this->vendedor_model->visiveis();
-        $data['vendas']   = $this->venda_model->where('id_vendedor', $dados['id_vendedor'])->find();
+        $data['vendas'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)
+            ? $this->faturamento_negocio->vendasProdutos('1900-01-01', '2999-12-31', ['id_vendedor' => $dados['id_vendedor']])
+            : [];
+        $data['ordens_servicos'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::SERVICOS], true)
+            ? $this->faturamento_negocio->ordensServicos('1900-01-01', '2999-12-31', ['id_vendedor' => $dados['id_vendedor']])
+            : [];
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -412,23 +434,11 @@ class Relatorios extends Controller
 
         $data['mes'] = $mes;
         $data['ano'] = $ano;
+        $data['tipo_negocio'] = TipoNegocio::normalizarVenda($dados['tipo_negocio'] ?? null);
+        $data['tipos_negocio'] = TipoNegocio::opcoesVendas();
 
-        for($i=1; $i<=31; $i++)
-        {
-            $fat_vendas = $this->venda_model->where('data', "$ano-$mes-$i")->selectSum('valor_a_pagar')->first()['valor_a_pagar'];
-            $fat_lancamentos = $this->lancamento_model->where('data', "$ano-$mes-$i")->selectSum('valor')->first()['valor'];
-
-            $faturamentos[] = $fat_vendas + $fat_lancamentos;
-
-            $dados_fat[] = [
-                'dia'         => $i,
-                'vendas'      => $fat_vendas,
-                'lancamentos' => $fat_lancamentos
-            ];
-        }
-
-        $data['faturamentos'] = $faturamentos;
-        $data['dados_fat']    = $dados_fat;
+        $data['dados_fat'] = $this->faturamento_negocio->resumoDiarioMes((int) $ano, (int) $mes, $data['tipo_negocio']);
+        $data['faturamentos'] = array_column($data['dados_fat'], 'total');
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -466,10 +476,28 @@ class Relatorios extends Controller
 
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
+        $data['tipo_negocio'] = TipoNegocio::normalizarVenda($dados['tipo_negocio'] ?? null);
+        $data['tipos_negocio'] = TipoNegocio::opcoesVendas();
 
         $data['empresa']     = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['vendas']      = $this->venda_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final'])->find();
-        $data['lancamentos'] = $this->lancamento_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final'])->find();
+        $data['vendas'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)
+            ? $this->faturamento_negocio->vendasProdutos($dados['data_inicio'], $dados['data_final'])
+            : [];
+        $data['ordens_servicos'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::SERVICOS], true)
+            ? $this->faturamento_negocio->ordensServicos($dados['data_inicio'], $dados['data_final'])
+            : [];
+        $lancamentos = $this->lancamento_model
+            ->where('data >=', $dados['data_inicio'])
+            ->where('data <=', $dados['data_final']);
+        if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $lancamentos->where('tipo_negocio', $data['tipo_negocio']);
+        }
+        $data['lancamentos'] = $lancamentos->find();
+        $data['resumo_faturamento'] = $this->faturamento_negocio->resumo(
+            $dados['data_inicio'],
+            $dados['data_final'],
+            $data['tipo_negocio']
+        );
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -507,9 +535,15 @@ class Relatorios extends Controller
 
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
+        $data['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? TipoNegocio::TODOS, TipoNegocio::TODOS, true);
+        $data['tipos_negocio'] = TipoNegocio::opcoes(true);
 
         $data['empresa']     = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['lancamentos'] = $this->lancamento_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final'])->find();
+        $lancamentos = $this->lancamento_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final']);
+        if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $lancamentos->where('tipo_negocio', $data['tipo_negocio']);
+        }
+        $data['lancamentos'] = $lancamentos->find();
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -587,9 +621,15 @@ class Relatorios extends Controller
 
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
+        $data['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? TipoNegocio::TODOS, TipoNegocio::TODOS, true);
+        $data['tipos_negocio'] = TipoNegocio::opcoes(true);
 
         $data['empresa']     = $this->config_empresa_model->where('id_config', 1)->first();
-        $data['despesas'] = $this->despesa_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final'])->find();
+        $despesas = $this->despesa_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final']);
+        if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $despesas->where('tipo_negocio', $data['tipo_negocio']);
+        }
+        $data['despesas'] = $despesas->find();
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -618,28 +658,34 @@ class Relatorios extends Controller
         ];
 
         $dados = $this->request->getvar();
+        $dados['status'] = $dados['status'] ?? TipoNegocio::TODOS;
+        $dados['tipo_negocio'] = $dados['tipo_negocio'] ?? TipoNegocio::TODOS;
 
         if(!isset($dados['data_inicio']))
         {
             $dados['status']      = "Todos";
+            $dados['tipo_negocio'] = TipoNegocio::TODOS;
             $dados['data_inicio'] = date('Y-m-01');
             $dados['data_final']  = date('Y-m-31');
         }
 
         $data['status']      = $dados['status'];
+        $data['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? TipoNegocio::TODOS, TipoNegocio::TODOS, true);
+        $data['tipos_negocio'] = TipoNegocio::opcoes(true);
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
 
         $data['empresa'] = $this->config_empresa_model->where('id_config', 1)->first();
-        
-        if($dados['status'] == "Todos")
-        {
-            $data['contas']  = $this->conta_pagar_model->where('data_de_vencimento >=', $dados['data_inicio'])->where('data_de_vencimento <=', $dados['data_final'])->find();
+        $contas = $this->conta_pagar_model
+            ->where('data_de_vencimento >=', $dados['data_inicio'])
+            ->where('data_de_vencimento <=', $dados['data_final']);
+        if ($dados['status'] !== TipoNegocio::TODOS) {
+            $contas->where('status', $dados['status']);
         }
-        else
-        {
-            $data['contas']  = $this->conta_pagar_model->where('status', $dados['status'])->where('data_de_vencimento >=', $dados['data_inicio'])->where('data_de_vencimento <=', $dados['data_final'])->find();
+        if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $contas->where('tipo_negocio', $data['tipo_negocio']);
         }
+        $data['contas'] = $contas->find();
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');
@@ -668,28 +714,34 @@ class Relatorios extends Controller
         ];
 
         $dados = $this->request->getvar();
+        $dados['status'] = $dados['status'] ?? TipoNegocio::TODOS;
+        $dados['tipo_negocio'] = $dados['tipo_negocio'] ?? TipoNegocio::TODOS;
 
         if(!isset($dados['data_inicio']))
         {
             $dados['status']      = "Todos";
+            $dados['tipo_negocio'] = TipoNegocio::TODOS;
             $dados['data_inicio'] = date('Y-m-01');
             $dados['data_final']  = date('Y-m-31');
         }
 
         $data['status']      = $dados['status'];
+        $data['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? TipoNegocio::TODOS, TipoNegocio::TODOS, true);
+        $data['tipos_negocio'] = TipoNegocio::opcoes(true);
         $data['data_inicio'] = $dados['data_inicio'];
         $data['data_final']  = $dados['data_final'];
 
         $data['empresa'] = $this->config_empresa_model->where('id_config', 1)->first();
-        
-        if($dados['status'] == "Todos")
-        {
-            $data['contas']  = $this->conta_receber_model->where('data_de_vencimento >=', $dados['data_inicio'])->where('data_de_vencimento <=', $dados['data_final'])->find();
+        $contas = $this->conta_receber_model
+            ->where('data_de_vencimento >=', $dados['data_inicio'])
+            ->where('data_de_vencimento <=', $dados['data_final']);
+        if ($dados['status'] !== TipoNegocio::TODOS) {
+            $contas->where('status', $dados['status']);
         }
-        else
-        {
-            $data['contas']  = $this->conta_receber_model->where('status', $dados['status'])->where('data_de_vencimento >=', $dados['data_inicio'])->where('data_de_vencimento <=', $dados['data_final'])->find();
+        if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $contas->where('tipo_negocio', $data['tipo_negocio']);
         }
+        $data['contas'] = $contas->find();
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');

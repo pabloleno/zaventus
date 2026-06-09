@@ -27,6 +27,16 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Area do negocio</label>
+                                    <select class="form-control select2" name="tipo_negocio" style="width: 100%;" required>
+                                        <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                            <option value="<?= $valor ?>" <?= (($despesa['tipo_negocio'] ?? 'Geral') === $valor) ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
                             <?php if (isset($despesa)) : ?>
                                 <div class="col-lg-3">
                                     <div class="form-group">

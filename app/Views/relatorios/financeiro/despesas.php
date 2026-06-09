@@ -9,6 +9,16 @@
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label>Área do negócio</label>
+                                    <select class="form-control select2" name="tipo_negocio">
+                                        <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                            <option value="<?= $valor ?>" <?= $tipo_negocio === $valor ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
                                     <label for="">Data Inicio</label>
                                     <input type="date" class="form-control" name="data_inicio" value="<?= (isset($data_inicio)) ? $data_inicio : "" ?>">
                                 </div>
@@ -51,6 +61,7 @@
                                 </div>
                                 <div class="col-lg-4 col-md-4 col-sm-4 col-xs-4">
                                     <p><b>DATA: </b>de <?= $data_inicio?> até <?= $data_final ?></p>
+                                    <p><b>ÁREA: </b><?= \App\Libraries\TipoNegocio::rotulo($tipo_negocio) ?></p>
                                 </div>
                             </div>
                             <div class="row" style="margin-top: 50px">
@@ -58,10 +69,11 @@
                                     <table id="" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th colspan="6" style="text-align: center">DESPESAS</th>
+                                                <th colspan="7" style="text-align: center">DESPESAS</th>
                                             </tr>
                                             <tr>
                                                 <th>Cód.</th>
+                                                <th>Área</th>
                                                 <th>Tipo</th>
                                                 <th>Descrição</th>
                                                 <th>Data</th>
@@ -74,6 +86,7 @@
                                                 <?php foreach($despesas as $despesa): ?>
                                                     <tr>
                                                         <td><?= $despesa['id_despesa'] ?></td>
+                                                        <td><?= \App\Libraries\TipoNegocio::rotulo($despesa['tipo_negocio'] ?? 'Geral') ?></td>
                                                         <td><?= $despesa['tipo'] ?></td>
                                                         <td><?= $despesa['descricao'] ?></td>
                                                         <td><?= $despesa['data'] ?></td>
@@ -83,7 +96,7 @@
                                                 <?php endforeach; ?>
                                             <?php else: ?>
                                                 <tr>
-                                                    <td colspan="6">Nenhum registro!</td>
+                                                    <td colspan="7">Nenhum registro!</td>
                                                 </tr>
                                             <?php endif; ?>
                                         </tbody>

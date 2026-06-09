@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\FaturamentoNegocio;
 use App\Models\CaixaModel;
 use App\Models\ConfigEmpresaModel;
 use App\Models\ContaPagarModel;
@@ -11,7 +12,6 @@ use App\Models\LancamentoModel;
 use App\Models\OrdemDeServicoModel;
 use App\Models\PedidoModel;
 use App\Models\ProdutoModel;
-use App\Models\ServicoMaoDeObraOsModel;
 use App\Models\VendaModel;
 use CodeIgniter\Controller;
 
@@ -28,7 +28,7 @@ class Inicio extends Controller
     private $venda_model;
     private $pedido_model;
     private $ordem_de_servico_model;
-    private $servico_mao_de_obra_os_model;
+    private $faturamento_negocio;
 
     public function __construct()
     {
@@ -48,7 +48,7 @@ class Inicio extends Controller
         $this->venda_model = new VendaModel();
         $this->pedido_model = new PedidoModel();
         $this->ordem_de_servico_model = new OrdemDeServicoModel();
-        $this->servico_mao_de_obra_os_model = new ServicoMaoDeObraOsModel();
+        $this->faturamento_negocio = new FaturamentoNegocio();
     }
 
     public function index()
@@ -68,12 +68,8 @@ class Inicio extends Controller
             ->selectCount('id_ordem')
             ->first()['id_ordem'];
 
-        $data['faturamento_produtos'] = (float) ($this->venda_model
-            ->selectSum('valor_a_pagar')
-            ->where('data >=', $data_inicio_mes_atual)
-            ->where('data <=', $data_fim_mes_atual)
-            ->first()['valor_a_pagar'] ?? 0);
-        $data['faturamento_servicos'] = $this->calculaFaturamentoServicosConcretizados($data_inicio_mes_atual, $data_fim_mes_atual);
+        $data['faturamento_produtos'] = $this->faturamento_negocio->totalProdutos($data_inicio_mes_atual, $data_fim_mes_atual);
+        $data['faturamento_servicos'] = $this->faturamento_negocio->totalServicos($data_inicio_mes_atual, $data_fim_mes_atual);
         $data['faturamento_total'] = $data['faturamento_produtos'] + $data['faturamento_servicos'];
 
         $data['empresa'] = $this->empresa_model->where('id_config', 1)->first();
@@ -102,14 +98,8 @@ class Inicio extends Controller
             $data_inicio_mes = "$ano_atual-$mes-01";
             $data_fim_mes = date('Y-m-t', strtotime($data_inicio_mes));
 
-            $faturamento_produtos = $this->venda_model
-                ->selectSum('valor_a_pagar')
-                ->where('data >=', $data_inicio_mes)
-                ->where('data <=', $data_fim_mes)
-                ->first()['valor_a_pagar'];
-
-            $faturamentos_produtos[] = empty($faturamento_produtos) ? 0 : (float) $faturamento_produtos;
-            $faturamentos_servicos[] = $this->calculaFaturamentoServicosConcretizados($data_inicio_mes, $data_fim_mes);
+            $faturamentos_produtos[] = $this->faturamento_negocio->totalProdutos($data_inicio_mes, $data_fim_mes);
+            $faturamentos_servicos[] = $this->faturamento_negocio->totalServicos($data_inicio_mes, $data_fim_mes);
         }
 
         $data['faturamentos_produtos'] = $faturamentos_produtos;
@@ -141,32 +131,4 @@ class Inicio extends Controller
         echo view('templates/footer');
     }
 
-    private function calculaFaturamentoServicosConcretizados(string $data_inicio, string $data_fim): float
-    {
-        $ordens = $this->ordem_de_servico_model
-            ->where('situacao', 'Concretizada')
-            ->where('data_de_saida >=', $data_inicio)
-            ->where('data_de_saida <=', $data_fim)
-            ->findAll();
-
-        $faturamento = 0.0;
-
-        foreach ($ordens as $ordem) {
-            $servicos = $this->servico_mao_de_obra_os_model
-                ->where('id_ordem', $ordem['id_ordem'])
-                ->findAll();
-
-            foreach ($servicos as $servico) {
-                $quantidade = (float) ($servico['quantidade'] ?? 0);
-                $valor = (float) ($servico['valor'] ?? 0);
-                $faturamento += $quantidade * $valor;
-            }
-
-            $faturamento += (float) ($ordem['frete'] ?? 0);
-            $faturamento += (float) ($ordem['outros'] ?? 0);
-            $faturamento -= (float) ($ordem['desconto'] ?? 0);
-        }
-
-        return $faturamento;
-    }
 }

@@ -19,6 +19,17 @@
                         </div>
                         <div class="col-lg-3">
                             <div class="form-group">
+                                <label>Área do negócio</label>
+                                <select class="form-control select2" name="tipo_negocio" style="width: 100%;">
+                                    <option value="">-- Selecione --</option>
+                                    <?php foreach ($tipos_negocio as $valor => $rotulo) : ?>
+                                        <option value="<?= $valor ?>" <?= (($tipo_negocio ?? '') === $valor) ? 'selected' : '' ?>><?= $rotulo ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
                                 <label for="">Data Abert. Inicio</label>
                                 <input type="date" class="form-control" name="data_inicio" value="<?= isset($data_inicio) ? $data_inicio : "" ?>">
                             </div>
@@ -96,6 +107,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th>Área</th>
                                 <th>Descrição</th>
                                 <th>Valor</th>
                                 <th>Data</th>
@@ -109,6 +121,7 @@
                                 <?php foreach ($lancamentos as $lancamento) : ?>
                                     <tr>
                                         <td><?= $lancamento['id_lancamento'] ?></td>
+                                        <td><?= \App\Libraries\TipoNegocio::rotulo($lancamento['tipo_negocio'] ?? 'Geral') ?></td>
                                         <td><?= $lancamento['descricao'] ?></td>
                                         <td><?= number_format($lancamento['valor'], 2, ',', '.') ?></td>
                                         <td><?= date('d/m/Y', strtotime($lancamento['data'])) ?></td>
@@ -122,7 +135,7 @@
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="7">Nenhum registro!</td>
+                                    <td colspan="8">Nenhum registro!</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>
@@ -146,7 +159,7 @@
                         <div class="col-lg-12">
                             <h6><b>Data:</b> <?= date('d/m/Y') ?></h6>
                             <h6><b>Hora:</b> <?= date('H:i:s') ?></h6>
-                            <h6><b>Critérios:</b> <?= (isset($id_lancamento)) ? "Por cód." : "" ?><?= (isset($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
+                            <h6><b>Critérios:</b> <?= (!empty($id_lancamento)) ? "Por cód." : "" ?><?= (!empty($tipo_negocio)) ? " | Área=" . \App\Libraries\TipoNegocio::rotulo($tipo_negocio) : "" ?><?= (!empty($data_inicio)) ? " | Data Inicio=$data_inicio e Data Final=$data_final" : "" ?></h6>
                         </div>
                     </div>
                 </div>

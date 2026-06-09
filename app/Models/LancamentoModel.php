@@ -8,6 +8,7 @@ class LancamentoModel extends PadraoModel
     protected $primaryKey = 'id_lancamento';
     protected $allowedFields = [
         'id_lancamento',
+        'tipo_negocio',
         'descricao',
         'valor',
         'data',

@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\TipoNegocio;
 use App\Models\CaixaModel;
 use App\Models\LancamentoModel;
 use CodeIgniter\Controller;
@@ -12,73 +13,56 @@ class Lancamentos extends Controller
     private $lancamento_model;
     private $caixa_model;
 
-    function __construct()
+    public function __construct()
     {
-        $this->links = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.2'
-        ];
-
+        $this->links = ['menu' => '5.m', 'item' => '5.0', 'subItem' => '5.2'];
         $this->lancamento_model = new LancamentoModel();
         $this->caixa_model = new CaixaModel();
     }
 
     public function index()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Lançamentos',
-            'icone'  => 'fa fa-database'
+        $data = [
+            'links' => $this->links,
+            'titulo' => ['modulo' => 'Lancamentos', 'icone' => 'fa fa-database'],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Lancamentos', 'rota' => '', 'active' => true],
+            ],
+            'tipos_negocio' => TipoNegocio::opcoes(true),
         ];
 
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Lançamentos", 'rota'   => "", 'active' => true]
+        $dados = $this->request->getGet();
+        $filtros = [
+            'id_lancamento' => trim((string) ($dados['id_lancamento'] ?? '')),
+            'tipo_negocio' => trim((string) ($dados['tipo_negocio'] ?? '')),
+            'data_inicio' => trim((string) ($dados['data_inicio'] ?? '')),
+            'data_final' => trim((string) ($dados['data_final'] ?? '')),
         ];
+        $temFiltro = count(array_filter($filtros, static fn ($valor) => $valor !== '')) > 0;
+        $query = $this->lancamento_model->orderBy('id_lancamento', 'DESC');
 
-        // ---------------------------------------- FILTRAR ----------------------------------------- //
-        $dados = $this->request->getvar();
-
-        $session = session();
-
-        if(!empty($dados))
-        {
-            $id_lancamento = $dados['id_lancamento'];
-
-            $data_inicio = $dados['data_inicio'];
-            $data_final = $dados['data_final'];
-
-            if($dados['id_lancamento'] != "") // Filtra somente pelo Cód do caixa
-            {
-                $lancamentos = $this->lancamento_model->where('id_lancamento', $id_lancamento)->findAll();
-
-                $data['id_lancamento'] = $id_lancamento;
-            }
-            else if($data_inicio != "" && $data_final != "") // Filtra em conjunto, status e data inicio e final
-            {
-                $lancamentos = $this->lancamento_model->where('data >=', $data_inicio)->where('data <=', $data_final)->find();
-
-                $data['data_inicio'] = $data_inicio;
-                $data['data_final'] = $data_final;
-            }
-            else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimos caixas cadastrados
-            {
-                $lancamentos = $this->lancamento_model->orderBy('id_lancamento', 'DESC')->limit(5)->find();
-                $data['ultimos_cinco'] = TRUE;
-            }
-
-            $session->setFlashdata('alert', 'success_filter');
+        if ($filtros['id_lancamento'] !== '') {
+            $query->where('id_lancamento', $filtros['id_lancamento']);
         }
-        else
-        {
-            $lancamentos = $this->lancamento_model->orderBy('id_lancamento', 'DESC')->limit(5)->find();
-            $data['ultimos_cinco'] = TRUE;
+        if ($filtros['tipo_negocio'] !== '' && $filtros['tipo_negocio'] !== TipoNegocio::TODOS) {
+            $query->where('tipo_negocio', TipoNegocio::normalizar($filtros['tipo_negocio']));
         }
-        // ------------------------------------------------------------------------------------------ //
+        if ($filtros['data_inicio'] !== '') {
+            $query->where('data >=', $filtros['data_inicio']);
+        }
+        if ($filtros['data_final'] !== '') {
+            $query->where('data <=', $filtros['data_final']);
+        }
 
-        $data['lancamentos'] = $lancamentos;
+        $data['lancamentos'] = $temFiltro ? $query->findAll() : $query->limit(5)->find();
+
+        if ($temFiltro) {
+            $data += array_filter($filtros, static fn ($valor) => $valor !== '');
+            session()->setFlashdata('alert', 'success_filter');
+        } else {
+            $data['ultimos_cinco'] = true;
+        }
 
         echo view('templates/header');
         echo view('lancamentos/index', $data);
@@ -87,19 +71,7 @@ class Lancamentos extends Controller
 
     public function create()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Novo Lançamento',
-            'icone'  => 'fa fa-plus-circle'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Lançamentos", 'rota' => "/lancamentos", 'active' => false],
-            ['titulo' => "Nova", 'rota'   => "", 'active' => true]
-        ];
-
+        $data = $this->dadosFormulario('Novo Lancamento', 'fa fa-plus-circle');
         $data['caixas'] = $this->caixa_model->where('status', 'Aberto')->findAll();
 
         echo view('templates/header');
@@ -109,19 +81,7 @@ class Lancamentos extends Controller
 
     public function edit($id_lancamento)
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Editar Lançamento',
-            'icone'  => 'fa fa-edit'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Lançamentos", 'rota' => "/lancamentos", 'active' => false],
-            ['titulo' => "Editar", 'rota'   => "", 'active' => true]
-        ];
-
+        $data = $this->dadosFormulario('Editar Lancamento', 'fa fa-edit');
         $data['lancamento'] = $this->lancamento_model->where('id_lancamento', $id_lancamento)->first();
 
         echo view('templates/header');
@@ -131,20 +91,11 @@ class Lancamentos extends Controller
 
     public function store()
     {
-        $dados = $this->request->getvar();
+        $dados = $this->request->getVar();
+        $dados['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? null);
         $this->lancamento_model->save($dados);
 
-        // Se o usuário estiver editando
-        if(isset($dados['id_lancamento']))
-        {
-            $session = session();
-            $session->setFlashdata('alert', 'success_edit');
-
-            return redirect()->to('/lancamentos');
-        }
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_create');
+        session()->setFlashdata('alert', isset($dados['id_lancamento']) ? 'success_edit' : 'success_create');
 
         return redirect()->to('/lancamentos');
     }
@@ -152,10 +103,22 @@ class Lancamentos extends Controller
     public function delete($id_lancamento)
     {
         $this->lancamento_model->where('id_lancamento', $id_lancamento)->delete();
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_delete');
+        session()->setFlashdata('alert', 'success_delete');
 
         return redirect()->to('/lancamentos');
+    }
+
+    private function dadosFormulario(string $modulo, string $icone): array
+    {
+        return [
+            'links' => $this->links,
+            'titulo' => ['modulo' => $modulo, 'icone' => $icone],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Lancamentos', 'rota' => '/lancamentos', 'active' => false],
+                ['titulo' => 'Dados', 'rota' => '', 'active' => true],
+            ],
+            'tipos_negocio' => TipoNegocio::opcoes(),
+        ];
     }
 }

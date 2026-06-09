@@ -8,6 +8,7 @@ class DespesaModel extends PadraoModel
     protected $primaryKey = 'id_despesa';
     protected $allowedFields = [
         'id_despesa',
+        'tipo_negocio',
         'tipo',
         'descricao',
         'valor',
