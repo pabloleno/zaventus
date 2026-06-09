@@ -1,4 +1,5 @@
 <?php use App\Libraries\ImagemCadastro; ?>
+<?php use App\Models\FuncionarioModel; ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -37,7 +38,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
-                                <th style="width: 60px">Foto</th>
+                                <th style="width: 130px">Foto</th>
                                 <th>Nome</th>
                                 <th>Tipo</th>
                                 <th>CPF</th>
@@ -51,7 +52,7 @@
                                         <td><?= $funcionario['id_funcionario'] ?></td>
                                         <td class="text-center"><img src="<?= esc(ImagemCadastro::url($funcionario['foto'] ?? '')) ?>" alt="Foto" class="foto-cadastro-miniatura"></td>
                                         <td><?= $funcionario['nome'] ?></td>
-                                        <td><?= esc($funcionario['tipo_funcionario'] ?? 'Outros') ?></td>
+                                        <td><?= esc(FuncionarioModel::descricaoTipo($funcionario['tipo_funcionario'] ?? 'Outros')) ?></td>
                                         <td><?= $funcionario['cpf'] ?></td>
                                         <td>
                                             <a href="/funcionarios/show/<?= $funcionario['id_funcionario'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
@@ -102,6 +103,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Funcionário excluido com sucesso!'
+                })
+            <?php elseif ($alert == "error_delete_geral") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'O funcionário GERAL não pode ser excluído.'
                 })
             <?php endif; ?>
         <?php endif; ?>

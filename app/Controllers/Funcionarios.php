@@ -8,6 +8,7 @@ use App\Libraries\ImagemCadastro;
 use CodeIgniter\Controller;
 use App\Models\FuncionarioModel;
 use App\Models\TabelaMunicipiosIBGEModel;
+use App\Models\TecnicoModel;
 use App\Models\VendedorModel;
 use InvalidArgumentException;
 
@@ -16,6 +17,7 @@ class Funcionarios extends Controller
     private $links;
     private $funcionario_model;
     private $tabela_municipios_ibge_model;
+    private $tecnico_model;
     private $vendedor_model;
 
     function __construct()
@@ -28,6 +30,7 @@ class Funcionarios extends Controller
 
         $this->funcionario_model = new FuncionarioModel();
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
+        $this->tecnico_model = new TecnicoModel();
         $this->vendedor_model = new VendedorModel();
     }
 
@@ -90,7 +93,9 @@ class Funcionarios extends Controller
         ];
 
         $data['ufs'] = EnderecoPadrao::ufs();
-        $data['tipo_funcionario_padrao'] = $this->tipoFuncionario($this->request->getGet('tipo') ?? 'Outros');
+        $data['tipo_funcionario_padrao'] = $this->tipoFuncionario(
+            $this->request->getGet('tipo') ?? $this->request->getGet('atuacao') ?? 'Outros'
+        );
 
         echo view('templates/header');
         echo view('funcionarios/form', $data);
@@ -137,6 +142,12 @@ class Funcionarios extends Controller
             ? $this->funcionario_model->where('id_funcionario', $dados['id_funcionario'])->first()
             : [];
 
+        if (strtoupper(trim((string) ($funcionarioAnterior['nome'] ?? ''))) === 'GERAL') {
+            $dados['nome'] = 'GERAL';
+            $dados['status'] = 'Ativo';
+            $dados['tipo_funcionario'] = FuncionarioModel::TIPO_VENDEDOR_TECNICO;
+        }
+
         try {
             $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'funcionarios');
         } catch (InvalidArgumentException $e) {
@@ -145,6 +156,8 @@ class Funcionarios extends Controller
 
         if ($fotoNova !== null) {
             $dados['foto'] = $fotoNova;
+        } elseif (! empty($funcionarioAnterior['foto'])) {
+            $dados['foto'] = $funcionarioAnterior['foto'];
         }
 
         $this->funcionario_model->save($dados);
@@ -152,6 +165,7 @@ class Funcionarios extends Controller
 
         if ($idFuncionario > 0) {
             $this->vendedor_model->sincronizarFuncionario($dados, $idFuncionario);
+            $this->tecnico_model->sincronizarFuncionario($dados, $idFuncionario);
         }
 
         if ($fotoNova !== null) {
@@ -183,7 +197,15 @@ class Funcionarios extends Controller
     public function delete($id_funcionario)
     {
         $funcionario = $this->funcionario_model->where('id_funcionario', $id_funcionario)->first();
+
+        if (strtoupper(trim((string) ($funcionario['nome'] ?? ''))) === 'GERAL') {
+            session()->setFlashdata('alert', 'error_delete_geral');
+
+            return redirect()->to('/funcionarios');
+        }
+
         $this->vendedor_model->ocultarPorFuncionario((int) $id_funcionario);
+        $this->tecnico_model->ocultarPorFuncionario((int) $id_funcionario);
         $this->funcionario_model->where('id_funcionario', $id_funcionario)->delete();
         ImagemCadastro::remover($funcionario['foto'] ?? '');
         
@@ -195,6 +217,6 @@ class Funcionarios extends Controller
 
     private function tipoFuncionario(string $tipo): string
     {
-        return $tipo === 'Vendedor' ? 'Vendedor' : 'Outros';
+        return FuncionarioModel::normalizarTipo($tipo);
     }
 }

@@ -264,6 +264,13 @@ class Clientes extends Controller
     public function delete($id_cliente)
     {
         $cliente = $this->cliente_model->where('id_cliente', $id_cliente)->first();
+
+        if ((int) $id_cliente === 1) {
+            session()->setFlashdata('alert', 'error_delete_padrao');
+
+            return redirect()->to('/clientes');
+        }
+
         $this->cliente_model->where('id_cliente', $id_cliente)->delete();
         ImagemCadastro::remover($cliente['foto'] ?? '');
         

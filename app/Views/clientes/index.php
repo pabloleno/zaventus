@@ -37,7 +37,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
-                                <th style="width: 60px">Foto</th>
+                                <th style="width: 130px">Foto</th>
                                 <th>Nome/Razão social</th>
                                 <th>CPF/CNPJ</th>
                                 <th style="width: 110px">Ações</th>
@@ -103,6 +103,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Cliente excluido com sucesso!'
+                })
+            <?php elseif ($alert == "error_delete_padrao") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'O cliente padrão não pode ser excluído.'
                 })
             <?php endif; ?>
         <?php endif; ?>

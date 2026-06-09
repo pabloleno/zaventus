@@ -86,13 +86,12 @@ class VendedorModel extends PadraoModel
 
     public function sincronizarFuncionario(array $funcionario, int $idFuncionario): void
     {
-        $tipo = $this->tipoFuncionario($funcionario['tipo_funcionario'] ?? 'Outros');
         $vendedor = $this->db->table($this->table)
             ->where('id_funcionario', $idFuncionario)
             ->get()
             ->getRowArray();
 
-        if ($tipo !== 'Vendedor') {
+        if (! FuncionarioModel::atuaComo($funcionario, 'Vendedor')) {
             if (! empty($vendedor)) {
                 $this->update($vendedor['id_vendedor'], ['status' => self::STATUS_REMOVIDO]);
             }
@@ -136,11 +135,6 @@ class VendedorModel extends PadraoModel
     public function ehGeral(array $vendedor): bool
     {
         return strtoupper(trim((string) ($vendedor['nome'] ?? ''))) === 'GERAL';
-    }
-
-    private function tipoFuncionario(string $tipo): string
-    {
-        return $tipo === 'Vendedor' ? 'Vendedor' : 'Outros';
     }
 
     private function dataInicio(array $funcionario): string

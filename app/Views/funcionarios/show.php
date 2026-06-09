@@ -1,5 +1,6 @@
 <?php
     use App\Libraries\ContatoPadrao;
+    use App\Models\FuncionarioModel;
 
     $funcionarioContato = $funcionario ?? [];
     $funcionarioCelular = ContatoPadrao::primeiroValor($funcionarioContato, ['celular']);
@@ -52,7 +53,7 @@
                         <div class="col-lg-3">
                             <div class="form-group">
                                 <label for="">Tipo</label>
-                                <input type="text" class="form-control" value="<?= esc($funcionario['tipo_funcionario'] ?? 'Outros') ?>" disabled>
+                                <input type="text" class="form-control" value="<?= esc(FuncionarioModel::descricaoTipo($funcionario['tipo_funcionario'] ?? 'Outros')) ?>" disabled>
                             </div>
                         </div>
                         <div class="col-lg-3">

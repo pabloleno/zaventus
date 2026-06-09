@@ -24,7 +24,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/tecnicos/create" class="btn btn-primary"><i class="fa fa-user-plus"></i> Novo Técnico</a>
+                            <a href="/funcionarios/create?tipo=Tecnico" class="btn btn-primary"><i class="fa fa-user-plus"></i> Novo Técnico</a>
                         </div>
                     </div>
                 </div>
@@ -37,7 +37,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
-                                <th style="width: 60px">Foto</th>
+                                <th style="width: 130px">Foto</th>
                                 <th>Nome</th>
                                 <th>CPF</th>
                                 <th>Celular</th>
@@ -100,6 +100,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Técnico excluido com sucesso!'
+                })
+            <?php elseif ($alert == "error_delete_geral") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'O técnico GERAL não pode ser excluído.'
                 })
             <?php endif; ?>
         <?php endif; ?>

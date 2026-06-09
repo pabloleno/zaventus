@@ -142,7 +142,10 @@ class Vendedores extends Controller
         }
 
         if (! empty($vendedor['id_funcionario'])) {
-            $this->funcionario_model->update($vendedor['id_funcionario'], ['tipo_funcionario' => 'Outros']);
+            $funcionario = $this->funcionario_model->find($vendedor['id_funcionario']);
+            $this->funcionario_model->update($vendedor['id_funcionario'], [
+                'tipo_funcionario' => FuncionarioModel::removerAtuacao($funcionario ?? [], 'Vendedor'),
+            ]);
         } else {
             ImagemCadastro::remover($vendedor['foto'] ?? '');
         }

@@ -37,7 +37,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
-                                <th style="width: 60px">Foto</th>
+                                <th style="width: 130px">Foto</th>
                                 <th>Empresa</th>
                                 <th>Representante</th>
                                 <th>CNPJ</th>
@@ -102,6 +102,11 @@
                 Toast.fire({
                     type: 'success',
                     title: 'Fornecedor excluido com sucesso!'
+                })
+            <?php elseif ($alert == "error_delete_padrao") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'O fornecedor padrão não pode ser excluído.'
                 })
             <?php endif; ?>
         <?php endif; ?>

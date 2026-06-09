@@ -1,5 +1,6 @@
 <?php
     use App\Libraries\ContatoPadrao;
+    use App\Models\FuncionarioModel;
 
     $funcionarioContato = $funcionario ?? [];
     $funcionarioCelular = ContatoPadrao::primeiroValor($funcionarioContato, ['celular']);
@@ -9,8 +10,9 @@
     $funcionarioUfSelecionada = strtoupper(trim((string) ($funcionarioContato['UF'] ?? '')));
     $funcionarioCodigoMunicipioSelecionado = preg_replace('/\D/', '', (string) ($funcionarioContato['codigo_do_municipio'] ?? ''));
     $funcionarioMunicipioSelecionado = trim((string) ($funcionarioContato['municipio'] ?? ''));
-    $funcionarioTipoSelecionado = (string) ($funcionarioContato['tipo_funcionario'] ?? ($tipo_funcionario_padrao ?? 'Outros'));
-    $funcionarioTipoSelecionado = ($funcionarioTipoSelecionado === 'Vendedor') ? 'Vendedor' : 'Outros';
+    $funcionarioTipoSelecionado = FuncionarioModel::normalizarTipo(
+        (string) ($funcionarioContato['tipo_funcionario'] ?? ($tipo_funcionario_padrao ?? 'Outros'))
+    );
 ?>
 
 <!-- Content Wrapper. Contains page content -->
@@ -74,6 +76,8 @@
                                     <select class="form-control select2" id="tipo_funcionario" name="tipo_funcionario" style="width: 100%;">
                                         <option value="Outros" <?= ($funcionarioTipoSelecionado === 'Outros') ? 'selected' : '' ?>>Outros</option>
                                         <option value="Vendedor" <?= ($funcionarioTipoSelecionado === 'Vendedor') ? 'selected' : '' ?>>Vendedor</option>
+                                        <option value="Tecnico" <?= ($funcionarioTipoSelecionado === 'Tecnico') ? 'selected' : '' ?>>Técnico</option>
+                                        <option value="Vendedor e Tecnico" <?= ($funcionarioTipoSelecionado === 'Vendedor e Tecnico') ? 'selected' : '' ?>>Vendedor e Técnico</option>
                                     </select>
                                 </div>
                             </div>

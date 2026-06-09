@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\ContatoPadrao;
 use App\Libraries\EnderecoPadrao;
 use App\Libraries\ImagemCadastro;
+use App\Models\FuncionarioModel;
 use App\Models\TecnicoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use CodeIgniter\Controller;
@@ -13,6 +14,7 @@ use InvalidArgumentException;
 class Tecnicos extends Controller
 {
     private $links;
+    private $funcionario_model;
     private $tecnico_model;
     private $tabela_municipios_ibge_model;
 
@@ -24,6 +26,7 @@ class Tecnicos extends Controller
             'subItem' => '3.5'
         ];
 
+        $this->funcionario_model = new FuncionarioModel();
         $this->tecnico_model = new TecnicoModel();
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
@@ -42,7 +45,7 @@ class Tecnicos extends Controller
             ['titulo' => "Técnicos", 'rota'   => "", 'active' => true]
         ];
 
-        $data['tecnicos'] = $this->tecnico_model->findAll();
+        $data['tecnicos'] = $this->tecnico_model->visiveis();
 
         echo view('templates/header');
         echo view('tecnicos/index', $data);
@@ -73,24 +76,7 @@ class Tecnicos extends Controller
 
     public function create()
     {
-        $data['links'] = $this->links;
-
-        $data['titulo'] = [
-            'modulo' => 'Novo Técnico',
-            'icone'  => 'fa fa-user-plus'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "Técnicos", 'rota'   => "/tecnicos", 'active' => false],
-            ['titulo' => "Novo", 'rota'   => "", 'active' => true]
-        ];
-
-        $data['ufs'] = EnderecoPadrao::ufs();
-
-        echo view('templates/header');
-        echo view('tecnicos/form', $data);
-        echo view('templates/footer');
+        return redirect()->to('/funcionarios/create?tipo=Tecnico');
     }
 
     public function edit($id_tecnico)
@@ -109,6 +95,15 @@ class Tecnicos extends Controller
         ];
 
         $data['tecnico'] = $this->tecnico_model->where('id_tecnico', $id_tecnico)->first();
+
+        if (empty($data['tecnico'])) {
+            return redirect()->to('/tecnicos');
+        }
+
+        if (! empty($data['tecnico']['id_funcionario'])) {
+            return redirect()->to('/funcionarios/edit/' . $data['tecnico']['id_funcionario']);
+        }
+
         $data['ufs']     = EnderecoPadrao::ufs();
 
         echo view('templates/header');
@@ -172,8 +167,27 @@ class Tecnicos extends Controller
     public function delete($id_tecnico)
     {
         $tecnico = $this->tecnico_model->where('id_tecnico', $id_tecnico)->first();
-        $this->tecnico_model->where('id_tecnico', $id_tecnico)->delete();
-        ImagemCadastro::remover($tecnico['foto'] ?? '');
+
+        if (empty($tecnico)) {
+            return redirect()->to('/tecnicos');
+        }
+
+        if ($this->tecnico_model->ehGeral($tecnico)) {
+            session()->setFlashdata('alert', 'error_delete_geral');
+
+            return redirect()->to('/tecnicos');
+        }
+
+        if (! empty($tecnico['id_funcionario'])) {
+            $funcionario = $this->funcionario_model->find($tecnico['id_funcionario']);
+            $this->funcionario_model->update($tecnico['id_funcionario'], [
+                'tipo_funcionario' => FuncionarioModel::removerAtuacao($funcionario ?? [], 'Tecnico'),
+            ]);
+        } else {
+            ImagemCadastro::remover($tecnico['foto'] ?? '');
+        }
+
+        $this->tecnico_model->ocultar((int) $id_tecnico);
         
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

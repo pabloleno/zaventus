@@ -349,7 +349,7 @@ class OrdensDeServicos extends Controller
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->paraVenda();
-        $data['tecnicos']            = $this->tecnico_model->findAll();
+        $data['tecnicos']            = $this->tecnico_model->paraOrdem();
 
         echo view('templates/header');
         echo view('ordem_de_servico/form', $data);
@@ -388,7 +388,7 @@ class OrdensDeServicos extends Controller
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->visiveis();
-        $data['tecnicos']            = $this->tecnico_model->findAll();
+        $data['tecnicos']            = $this->tecnico_model->paraOrdem();
 
         echo view('templates/header');
         echo view('ordem_de_servico/show', $data);
@@ -429,7 +429,7 @@ class OrdensDeServicos extends Controller
         $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->visiveis();
-        $data['tecnicos']            = $this->tecnico_model->findAll();
+        $data['tecnicos']            = $this->tecnico_model->paraOrdem();
 
         echo view('templates/header');
         echo view('ordem_de_servico/form', $data);

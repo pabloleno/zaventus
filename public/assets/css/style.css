@@ -35,9 +35,13 @@
     background: #f8f9fa;
     border: 1px solid #ced4da;
     border-radius: 50%;
-    height: 44px;
+    height: 112px;
     object-fit: cover;
-    width: 44px;
+    width: 112px;
+}
+
+td:has(> .foto-cadastro-miniatura){
+    vertical-align: middle;
 }
 
 .zaventus-brand-link{

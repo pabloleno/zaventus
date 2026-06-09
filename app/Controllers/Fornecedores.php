@@ -172,6 +172,13 @@ class Fornecedores extends Controller
     public function delete($id_fornecedor)
     {
         $fornecedor = $this->fornecedor_model->where('id_fornecedor', $id_fornecedor)->first();
+
+        if ((int) $id_fornecedor === 1) {
+            session()->setFlashdata('alert', 'error_delete_padrao');
+
+            return redirect()->to('/fornecedores');
+        }
+
         $this->fornecedor_model->where('id_fornecedor', $id_fornecedor)->delete();
         ImagemCadastro::remover($fornecedor['foto'] ?? '');
         
