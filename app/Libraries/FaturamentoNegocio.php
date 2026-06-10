@@ -16,6 +16,7 @@ class FaturamentoNegocio
         $builder = $this->db->table('vendas')
             ->select("vendas.*, COALESCE(NULLIF(clientes.nome, ''), clientes.razao_social) AS nome_cliente", false)
             ->join('clientes', 'clientes.id_cliente = vendas.id_cliente', 'left')
+            ->where('vendas.deleted_at', null)
             ->where('vendas.data >=', $dataInicio)
             ->where('vendas.data <=', $dataFinal);
 
@@ -68,6 +69,7 @@ class FaturamentoNegocio
     {
         $resultado = $this->db->table('vendas')
             ->selectSum('valor_a_pagar')
+            ->where('deleted_at', null)
             ->where('data >=', $dataInicio)
             ->where('data <=', $dataFinal)
             ->get()
@@ -140,6 +142,7 @@ class FaturamentoNegocio
         if (in_array($tipoNegocio, [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)) {
             $vendas = $this->db->table('vendas')
                 ->select('data, SUM(valor_a_pagar) AS total', false)
+                ->where('deleted_at', null)
                 ->where('data >=', $inicio)
                 ->where('data <=', $final)
                 ->groupBy('data')

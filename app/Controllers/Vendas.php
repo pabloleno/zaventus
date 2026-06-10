@@ -21,6 +21,7 @@ class Vendas extends Controller
     private $venda_model;
     private $produtos_da_venda;
     private $nfe_model;
+    private $nfce_model;
     private $config_nfe_nfce_model;
     private $cliente_model;
 
@@ -170,10 +171,27 @@ class Vendas extends Controller
 
     public function delete($id_venda)
     {
-        $this->venda_model->where('id_venda', $id_venda)->delete();
-
         $session = session();
-        $session->setFlashdata('alert', 'success_delete');
+
+        try
+        {
+            if(empty($this->venda_model->find($id_venda)))
+            {
+                throw new \RuntimeException('Venda nao encontrada.');
+            }
+
+            if(!$this->venda_model->delete($id_venda))
+            {
+                throw new \RuntimeException('Falha ao excluir a venda.');
+            }
+
+            $session->setFlashdata('alert', 'success_delete');
+        }
+        catch(\Throwable $exception)
+        {
+            log_message('error', "Erro ao excluir venda {$id_venda}: " . $exception->getMessage());
+            $session->setFlashdata('alert', 'error_delete');
+        }
 
         return redirect()->to('/vendas');
     }

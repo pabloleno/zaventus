@@ -233,6 +233,11 @@
                     type: 'success',
                     title: 'Venda excluida com sucesso!'
                 })
+            <?php elseif ($alert == "error_delete") : ?>
+                Toast.fire({
+                    type: 'error',
+                    title: 'Nao foi possivel excluir a venda.'
+                })
             <?php elseif ($alert == "success_filter") : ?>
                 Toast.fire({
                     type: 'success',

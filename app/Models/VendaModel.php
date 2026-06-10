@@ -19,6 +19,7 @@ class VendaModel extends PadraoModel
         'id_vendedor',
         'id_caixa'
     ];
+    protected $useSoftDeletes = true;
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
