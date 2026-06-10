@@ -6,6 +6,7 @@
     $financeiro = $dashboard['financeiro'];
     $movimentacao = $dashboard['movimentacao'];
     $agenda = $dashboard['agenda'];
+    $cobrancasAlerta = $dashboard['cobrancas_alerta'] ?? [];
     $periodoAutomatico = $periodo_automatico ?? true;
     $meses = [
         1 => 'Janeiro',
@@ -105,9 +106,7 @@
                             max="2100"
                             step="1"
                             value="<?= esc($periodo['ano']) ?>"
-                            aria-describedby="dashboard-ano-ajuda"
                         >
-                        <small id="dashboard-ano-ajuda">2000 a 2100</small>
                     </div>
                     <div class="dashboard-periodo-acoes">
                         <button class="btn btn-light" type="submit"><i class="fas fa-search"></i> Consultar</button>
@@ -322,6 +321,10 @@
                                 <i class="fas fa-cash-register"></i>
                                 <span><strong><?= count($caixas_abertos) ?></strong> caixas abertos</span>
                             </a>
+                            <a href="/cobrancas">
+                                <i class="fas fa-bell"></i>
+                                <span><strong><?= count($cobrancasAlerta) ?></strong> cobrancas monitoradas</span>
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -385,12 +388,88 @@
                     </div>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-12">
+                    <div class="card dashboard-card dashboard-cobrancas-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="dashboard-card-kicker">Agenda independente</span>
+                                <h3 class="card-title">Alertas de cobranca</h3>
+                            </div>
+                            <a href="/cobrancas" class="dashboard-card-note"><i class="fas fa-external-link-alt"></i> Gerenciar cobrancas</a>
+                        </div>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table dashboard-agenda-table">
+                                <thead>
+                                    <tr>
+                                        <th>Prazo</th>
+                                        <th>Cliente</th>
+                                        <th>Cobranca</th>
+                                        <th>Parcela</th>
+                                        <th>Status</th>
+                                        <th>Contato</th>
+                                        <th class="text-right">Valor do alerta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (! empty($cobrancasAlerta)) : ?>
+                                        <?php foreach ($cobrancasAlerta as $alertaCobranca) : ?>
+                                            <?php $whatsappLink = \App\Libraries\ContatoPadrao::whatsappLink($alertaCobranca['whatsapp'] ?: $alertaCobranca['celular']); ?>
+                                            <tr>
+                                                <td><?= date('d/m/Y H:i', strtotime($alertaCobranca['vencimento'])) ?></td>
+                                                <td><?= esc($alertaCobranca['cliente']) ?></td>
+                                                <td><?= esc($alertaCobranca['titulo']) ?></td>
+                                                <td><?= (int) $alertaCobranca['numero_parcela'] ?></td>
+                                                <td><span class="dashboard-status dashboard-status-<?= strtolower(esc($alertaCobranca['status_alerta'])) ?>"><?= esc($alertaCobranca['status_alerta']) ?></span></td>
+                                                <td>
+                                                    <?php if ($whatsappLink !== '') : ?>
+                                                        <a href="<?= esc($whatsappLink) ?>" target="_blank" rel="noopener"><i class="fab fa-whatsapp"></i> WhatsApp</a>
+                                                    <?php elseif (! empty($alertaCobranca['email'])) : ?>
+                                                        <a href="mailto:<?= esc($alertaCobranca['email']) ?>"><i class="far fa-envelope"></i> E-mail</a>
+                                                    <?php else : ?>
+                                                        Nao informado
+                                                    <?php endif; ?>
+                                                </td>
+                                                <td class="text-right font-weight-bold">
+                                                    <?= $moeda($alertaCobranca['valor_com_juros']) ?>
+                                                    <?php if ((float) $alertaCobranca['valor_com_juros'] > (float) $alertaCobranca['valor']) : ?>
+                                                        <small class="d-block text-danger">inclui juros estimados</small>
+                                                    <?php endif; ?>
+                                                </td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td class="dashboard-empty" colspan="7">
+                                                <i class="far fa-bell-slash"></i>
+                                                Nenhuma cobranca ativa para monitorar.
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
 
 <script>
     $(function() {
+        /**
+         * Atualiza os alertas para acompanhar o horario configurado.
+         */
+        function agendaAtualizacaoAlertasCobranca() {
+            window.setTimeout(function() {
+                window.location.reload();
+            }, 60000);
+        }
+
+        agendaAtualizacaoAlertasCobranca();
+
         <?php if ($periodoAutomatico) : ?>
         /**
          * Agenda a recarga da dashboard quando o período automático virar.

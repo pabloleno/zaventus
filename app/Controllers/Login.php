@@ -136,6 +136,7 @@ class Login extends Controller
             'controle_geral' => [
                 'modulo'       => isset($dados['modulo_controle_geral']) ? 1 : 0,
                 'clientes'     => $permitir($dados, 'modulo_controle_geral', 'clientes'),
+                'cobrancas'    => $permitir($dados, 'modulo_controle_geral', 'cobrancas'),
                 'fornecedores' => $permitir($dados, 'modulo_controle_geral', 'fornecedores'),
                 'funcionarios' => $permitir($dados, 'modulo_controle_geral', 'funcionarios'),
                 'vendedores'   => $permitir($dados, 'modulo_controle_geral', 'vendedores'),

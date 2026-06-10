@@ -166,6 +166,16 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
+                                            <label for="">Cobrancas</label>
+                                            <?php $permissaoCobrancas = $controle_de_acesso->controle_geral->cobrancas ?? $controle_de_acesso->controle_geral->clientes ?? 0; ?>
+                                            <select class="form-control" id="cobrancas" name="cobrancas" <?= (!$controle_de_acesso->controle_geral->modulo == 1) ? "disabled" : "" ?>>
+                                                <option value="1" <?= (int) $permissaoCobrancas === 1 ? 'selected' : '' ?>>Sim</option>
+                                                <option value="0" <?= (int) $permissaoCobrancas !== 1 ? 'selected' : '' ?>>Nao</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
                                             <label for="">Fornecedores</label>
                                             <select class="form-control" id="fornecedores" name="fornecedores" <?= (!$controle_de_acesso->controle_geral->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->controle_geral->fornecedores == 1): ?>
@@ -642,6 +652,15 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
+                                            <label for="">Cobrancas</label>
+                                            <select class="form-control" id="cobrancas" name="cobrancas">
+                                                <option value="1">Sim</option>
+                                                <option value="0">Nao</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
                                             <label for="">Fornecedores</label>
                                             <select class="form-control" id="fornecedores" name="fornecedores">
                                                 <option value="1">Sim</option>
@@ -968,6 +987,7 @@
         if(document.getElementById('modulo_controle_geral').checked)
         {
             document.getElementById('clientes').disabled = false;
+            document.getElementById('cobrancas').disabled = false;
             document.getElementById('fornecedores').disabled = false;
             document.getElementById('funcionarios').disabled = false;
             document.getElementById('vendedores').disabled = false;
@@ -975,6 +995,7 @@
         else
         {
             document.getElementById('clientes').disabled = true;
+            document.getElementById('cobrancas').disabled = true;
             document.getElementById('fornecedores').disabled = true;
             document.getElementById('funcionarios').disabled = true;
             document.getElementById('vendedores').disabled = true;

@@ -187,50 +187,6 @@ td:has(> .foto-cadastro-miniatura){
     font-weight: 900;
 }
 
-.filtro-periodo-listagem{
-    margin-bottom: 12px;
-}
-
-.filtro-periodo-campos{
-    align-items: flex-end;
-    background: #f8fafc;
-    border: 1px solid #d6dce2;
-    border-radius: 4px;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 8px;
-    padding: 12px;
-}
-
-.filtro-periodo-item{
-    flex: 1 1 210px;
-}
-
-.filtro-periodo-item label{
-    display: block;
-    font-size: 12px;
-    margin-bottom: 4px;
-}
-
-.filtro-periodo-campo{
-    flex-basis: 240px;
-}
-
-.filtro-periodo-acoes{
-    display: flex;
-    gap: 6px;
-    padding-bottom: 1px;
-}
-
-@media (max-width: 767px){
-    .filtro-periodo-item,
-    .filtro-periodo-campo,
-    .filtro-periodo-acoes{
-        flex-basis: 100%;
-    }
-}
-
 .dashboard-profissional{
     background: #f1f5f9;
 }
@@ -345,15 +301,6 @@ td:has(> .foto-cadastro-miniatura){
 
 .dashboard-periodo-campo{
     position: relative;
-}
-
-.dashboard-periodo small{
-    bottom: -14px;
-    color: #99f6e4;
-    font-size: 9px;
-    left: 0;
-    line-height: 11px;
-    position: absolute;
 }
 
 .dashboard-periodo .dashboard-ano{
@@ -747,6 +694,75 @@ td:has(> .foto-cadastro-miniatura){
 .dashboard-badge-geral{ background: #e2e8f0; color: #475569; }
 .dashboard-status-aberta{ background: #dbeafe; color: #1d4ed8; }
 .dashboard-status-vencida{ background: #fef3c7; color: #b45309; }
+.dashboard-status-atrasada{ background: #fee2e2; color: #b91c1c; }
+.dashboard-status-hoje{ background: #fef3c7; color: #b45309; }
+.dashboard-status-proxima{ background: #dbeafe; color: #1d4ed8; }
+.dashboard-status-agendada{ background: #e2e8f0; color: #475569; }
+
+.dashboard-cobrancas-card{
+    border-top: 3px solid #f59e0b;
+}
+
+.cobranca-form-secao{
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+    margin: 18px 0 16px;
+    padding-bottom: 8px;
+}
+
+.cobranca-form-secao i{
+    color: #0f766e;
+    margin-right: 5px;
+}
+
+.cobrancas-navbar-alertas .nav-link{
+    position: relative;
+}
+
+.cobrancas-navbar-dropdown{
+    max-height: min(70vh, 520px);
+    overflow-y: auto;
+    width: 360px;
+}
+
+.cobrancas-navbar-item{
+    white-space: normal;
+}
+
+.cobrancas-navbar-item-titulo{
+    align-items: center;
+    color: #1f2937;
+    display: flex;
+    gap: 8px;
+    justify-content: space-between;
+}
+
+.cobrancas-navbar-item-cliente,
+.cobrancas-navbar-item-detalhe{
+    color: #64748b;
+    display: block;
+    font-size: 12px;
+    margin-top: 2px;
+}
+
+.cobrancas-navbar-status{
+    border-radius: 999px;
+    flex: 0 0 auto;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 7px;
+    text-transform: uppercase;
+}
+
+.cobrancas-navbar-status-atrasada{
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.cobrancas-navbar-status-hoje{
+    background: #fef3c7;
+    color: #b45309;
+}
 
 .dashboard-empty{
     color: #64748b !important;

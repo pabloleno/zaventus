@@ -29,6 +29,7 @@
             {
               $controle_de_acesso = $session->get('controle_de_acesso');
               $array_c_a = json_decode($controle_de_acesso);
+              $pode_cobrancas = (int) ($array_c_a->controle_geral->cobrancas ?? $array_c_a->controle_geral->clientes ?? 0) === 1;
 
               $menu_visivel = static function ($modulo, array $permissoes): bool {
                 if (!isset($modulo->modulo) || (int) $modulo->modulo !== 1) {
@@ -54,7 +55,7 @@
               $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
               $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
               $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
+              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']) || $pode_cobrancas;
               $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
               $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
             ?>
@@ -182,6 +183,10 @@
                       <li><a id="5.7" href="/contasReceber" class="dropdown-item"><?= esc(lang('App.menu.receivable')) ?></a></li>
                     <?php endif; ?>
 
+                    <?php if($pode_cobrancas): ?>
+                      <li><a id="5.8" href="/cobrancas" class="dropdown-item"><?= esc(lang('App.menu.collections')) ?></a></li>
+                    <?php endif; ?>
+
                     <?php if($array_c_a->financeiro->relatorio_dre == 1): ?>
                       <li><a id="5.10" href="/relatorioDRE" class="dropdown-item"><?= esc(lang('App.menu.dreReport')) ?></a></li>
                     <?php endif; ?>
@@ -287,6 +292,9 @@
 
           <!-- Right navbar links -->
           <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
+            <?php if ($pode_alertas_cobrancas) : ?>
+              <?= view('templates/alertas_cobrancas_navbar') ?>
+            <?php endif; ?>
             <?php if($exibe_menu_configs): ?>
               <li id="11.m" class="nav-item dropdown">
                 <a id="11.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><?= esc(lang('App.menu.settings')) ?></a>

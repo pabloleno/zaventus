@@ -477,7 +477,6 @@ function summaryFor(string $name, string $path, string $language): string
         'finalizarOuEditarOdemDeServicos' => 'Normaliza os totais e envia o formulario de finalizacao ou edicao da ordem.',
         'opcoesPadrao' => 'Monta as opcoes compartilhadas das tabelas de listagem.',
         'quantidadeOsAbertas' => 'Calcula a quantidade de ordens de servico em aberto.',
-        'registrarFiltroDataTables' => 'Registra o filtro global de periodo utilizado pelo DataTables.',
     ];
 
     if (isset($exact[$name])) {

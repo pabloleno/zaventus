@@ -31,6 +31,7 @@ return array_replace_recursive(require __DIR__ . '/../en/App.php', [
         'orders' => 'Ordini',
         'generalControl' => 'Controllo Generale',
         'clients' => 'Clienti',
+        'collections' => 'Riscossioni',
         'suppliers' => 'Fornitori',
         'employees' => 'Dipendenti',
         'sellers' => 'Venditori',

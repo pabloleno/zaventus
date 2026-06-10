@@ -6,6 +6,7 @@ class DashboardNegocio
 {
     private $db;
     private $faturamento;
+    private $cobrancas;
 
     /**
      * Inicializa as dependencias usadas por este componente.
@@ -14,6 +15,7 @@ class DashboardNegocio
     {
         $this->db = db_connect();
         $this->faturamento = new FaturamentoNegocio();
+        $this->cobrancas = new CobrancaRecorrente();
     }
 
     /**
@@ -56,6 +58,7 @@ class DashboardNegocio
             'financeiro' => $this->financeiroPorTipo($contasPendentes),
             'movimentacao' => $this->movimentacaoPorTipo($inicio, $final),
             'agenda' => array_slice($contasPendentes, 0, 10),
+            'cobrancas_alerta' => $this->cobrancas->alertas(10),
         ];
     }
 

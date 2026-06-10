@@ -68,7 +68,7 @@
             <!-- /.card -->
             <div class="card">
                 <div class="card-body">
-                    <table id="example1" class="table table-bordered table-striped tabela-periodo">
+                    <table id="example1" class="table table-bordered table-striped">
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>

@@ -33,6 +33,7 @@ return [
         'orders' => 'Orders',
         'generalControl' => 'General Control',
         'clients' => 'Clients',
+        'collections' => 'Collections',
         'suppliers' => 'Suppliers',
         'employees' => 'Employees',
         'sellers' => 'Sellers',

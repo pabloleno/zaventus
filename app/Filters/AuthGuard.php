@@ -17,6 +17,7 @@ class AuthGuard implements FilterInterface
         'caixas'                 => ['financeiro', 'caixas'],
         'categoriasdosprodutos'  => ['estoque', 'categorias_do_produto'],
         'clientes'               => ['controle_geral', 'clientes'],
+        'cobrancas'              => ['controle_geral', 'cobrancas'],
         'contaspagar'            => ['financeiro', 'contas_a_pagar'],
         'contasreceber'          => ['financeiro', 'contas_a_receber'],
         'controlefiscal'         => ['financeiro', 'controle_fiscal'],
@@ -239,6 +240,10 @@ class AuthGuard implements FilterInterface
 
         if (! is_array($permissions)) {
             return false;
+        }
+
+        if ($permission === 'cobrancas' && ! isset($permissions[$module][$permission])) {
+            $permissions[$module][$permission] = $permissions[$module]['clientes'] ?? 0;
         }
 
         return (int) ($permissions[$module]['modulo'] ?? 0) === 1

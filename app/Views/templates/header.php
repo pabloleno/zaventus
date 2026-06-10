@@ -2,6 +2,10 @@
     $session = session();
     $usuario = $session->get('usuario');
     $favicon = trim((string) $session->get('favicon')) ?: 'favicon.ico';
+    $controle_alertas = json_decode((string) $session->get('controle_de_acesso'), true);
+    $pode_alertas_cobrancas = is_array($controle_alertas)
+        && (int) ($controle_alertas['controle_geral']['modulo'] ?? 0) === 1
+        && (int) ($controle_alertas['controle_geral']['cobrancas'] ?? $controle_alertas['controle_geral']['clientes'] ?? 0) === 1;
 
     if (!isset($usuario)) {
         echo "<script>window.location.href = '/login'; </script>";

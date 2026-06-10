@@ -1,6 +1,7 @@
 <?php
     $controle_de_acesso = $session->get('controle_de_acesso');
     $array_c_a = json_decode($controle_de_acesso);
+    $pode_cobrancas = (int) ($array_c_a->controle_geral->cobrancas ?? $array_c_a->controle_geral->clientes ?? 0) === 1;
 
     $menu_visivel = static function ($modulo, array $permissoes): bool {
         if (!isset($modulo->modulo) || (int) $modulo->modulo !== 1) {
@@ -26,7 +27,7 @@
     $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
     $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
     $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']);
+    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']) || $pode_cobrancas;
     $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
     $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
 ?>
@@ -245,6 +246,9 @@
                             <?php endif; ?>
                             <?php if($array_c_a->financeiro->contas_a_receber == 1): ?>
                                 <li class="nav-item"><a id="5.7" href="/contasReceber" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.receivable')) ?></p></a></li>
+                            <?php endif; ?>
+                            <?php if($pode_cobrancas): ?>
+                                <li class="nav-item"><a id="5.8" href="/cobrancas" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.collections')) ?></p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->financeiro->relatorio_dre == 1): ?>
                                 <li class="nav-item"><a id="5.10" href="/relatorioDRE" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.dreReport')) ?></p></a></li>
