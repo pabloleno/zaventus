@@ -55,6 +55,7 @@ return array_replace_recursive(require __DIR__ . '/../en/App.php', [
         'settings' => 'Configuracion',
         'company' => 'Empresa',
         'system' => 'Sistema',
+        'developer' => 'Desarrollador',
         'users' => 'Usuarios',
         'dataBackup' => 'Copia de Datos',
         'logout' => 'Salir',

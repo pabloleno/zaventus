@@ -175,6 +175,7 @@ class Login extends Controller
                 'nfce'            => $permitir($dados, 'modulo_configs', 'nfce'),
                 'empresa'         => $permitir($dados, 'modulo_configs', 'empresa'),
                 'sistema'         => $permitir($dados, 'modulo_configs', 'sistema'),
+                'desenvolvedor'   => $permitir($dados, 'modulo_configs', 'desenvolvedor'),
                 'usuarios'        => $permitir($dados, 'modulo_configs', 'usuarios'),
                 'backup_de_dados' => $permitir($dados, 'modulo_configs', 'backup_de_dados'),
             ],

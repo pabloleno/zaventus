@@ -4,6 +4,7 @@
     <div class="content">
         <div class="container-fluid">
             <form action="/configs/store_forma_de_pagamento" method="post">
+                <?= csrf_field() ?>
                 <div class="card">
                     <div class="card-header">
                         <div class="row">
@@ -37,7 +38,50 @@
                                 <div class="form-group">
                                     <label for="">Codigo fiscal/NFCe (tPag)</label>
                                     <input type="text" class="form-control" name="codigo_nfce" maxlength="2" value="<?= (isset($forma_de_pagamento)) ? ($forma_de_pagamento['codigo_nfce'] ?? "99") : "99" ?>" required="">
-                                    <small class="form-text text-muted">Ex.: 01 dinheiro, 03 credito, 04 debito, 99 outros.</small>
+                                    <small class="form-text text-muted">Ex.: 01 dinheiro, 03 crédito, 04 débito, 17 PIX dinâmico, 20 PIX estático.</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-8">
+                                <div class="form-group">
+                                    <label>Provedor/API vinculado</label>
+                                    <select class="form-control select2" name="id_integracao" style="width: 100%;">
+                                        <option value="">Manual / sem API</option>
+                                        <?php foreach ($integracoes_pagamento as $integracao) : ?>
+                                            <option
+                                                value="<?= $integracao['id_integracao'] ?>"
+                                                <?= (string) old('id_integracao', $forma_de_pagamento['id_integracao'] ?? '') === (string) $integracao['id_integracao'] ? 'selected' : '' ?>
+                                            >
+                                                <?= esc($integracao['nome']) ?> - <?= esc($integracao['ambiente']) ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <small class="form-text text-muted">O vinculo identifica o provedor; cobrancas automaticas exigem homologacao adicional.</small>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input
+                                        class="custom-control-input"
+                                        id="disponivel-produtos"
+                                        type="checkbox"
+                                        name="disponivel_produtos"
+                                        value="1"
+                                        <?= (int) old('disponivel_produtos', $forma_de_pagamento['disponivel_produtos'] ?? 1) === 1 ? 'checked' : '' ?>
+                                    >
+                                    <label class="custom-control-label" for="disponivel-produtos">Disponivel em vendas de produtos e PDV</label>
+                                </div>
+                            </div>
+                            <div class="col-lg-6">
+                                <div class="custom-control custom-checkbox">
+                                    <input
+                                        class="custom-control-input"
+                                        id="disponivel-servicos"
+                                        type="checkbox"
+                                        name="disponivel_servicos"
+                                        value="1"
+                                        <?= (int) old('disponivel_servicos', $forma_de_pagamento['disponivel_servicos'] ?? 1) === 1 ? 'checked' : '' ?>
+                                    >
+                                    <label class="custom-control-label" for="disponivel-servicos">Disponivel em ordens de servicos</label>
                                 </div>
                             </div>
 

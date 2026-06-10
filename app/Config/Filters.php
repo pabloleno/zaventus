@@ -116,6 +116,8 @@ class Filters extends BaseFilters
                 'login/autenticar',
                 'login/store',
                 'configs/store_personalizacao',
+                'configs/store_forma_de_pagamento',
+                'desenvolvedor/store',
             ],
         ],
     ];

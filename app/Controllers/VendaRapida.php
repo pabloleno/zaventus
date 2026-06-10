@@ -74,7 +74,7 @@ class VendaRapida extends Controller
         $data['clientes']                 = $this->cliente_model->findAll();
         $data['produtos_da_venda_rapida'] = $this->produto_da_venda_rapida_model->findAll();
         $data['valor_da_venda']           = $this->produto_da_venda_rapida_model->selectSum('valor_final')->first();
-        $data['formas_de_pagamento']      = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento']      = $this->forma_de_pagamento_model->paraProdutos();
         $data['vendedores']               = $this->vendedor_model->paraVenda();
         $data['id_cliente_padrao']        = $this->cliente_model->idConsumidorFinal();
         $data['id_vendedor_padrao']       = $this->vendedor_model->idGeral();
@@ -179,6 +179,12 @@ class VendaRapida extends Controller
     public function store()
     {
         $dados = $this->normalizaDadosMonetarios($this->request->getvar());
+
+        if (! $this->forma_de_pagamento_model->disponivelPara((string) ($dados['forma_de_pagamento'] ?? ''), 'produtos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para vendas de produtos.']);
+
+            return redirect()->to('/vendaRapida')->withInput();
+        }
 
         // $dados['data'] = date('Y-m-d');
         // $dados['hora'] = date('H:i:s');

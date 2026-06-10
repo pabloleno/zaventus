@@ -76,6 +76,7 @@ return [
         'settings' => 'Settings',
         'company' => 'Company',
         'system' => 'System',
+        'developer' => 'Developer',
         'users' => 'Users',
         'dataBackup' => 'Data Backup',
         'logout' => 'Logout',

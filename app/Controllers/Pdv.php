@@ -104,7 +104,7 @@ class Pdv extends Controller
         $data['produtos']            = $this->produto_model->select('id_produto, nome')->findAll();
         $data['produtos_do_pdv']     = $this->produto_pdv_model->where('id_caixa', $id_caixa)->findAll();
         $data['valor_a_pagar']       = $this->produto_pdv_model->selectSum('valor_final')->where('id_caixa', $id_caixa)->first();
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->paraProdutos();
         $data['vendedores']          = $this->vendedor_model->paraVenda();
         $data['id_cliente_padrao']   = $this->cliente_model->idConsumidorFinal();
         $data['id_vendedor_padrao']  = $this->vendedor_model->idGeral();
@@ -599,6 +599,11 @@ class Pdv extends Controller
                 throw new \RuntimeException('Vendedor invalido para finalizar a venda.');
             }
 
+            $formaDePagamento = (string) ($dados['forma_de_pagamento'] ?? '');
+            if (! $this->forma_de_pagamento_model->disponivelPara($formaDePagamento, 'produtos')) {
+                throw new \RuntimeException('Forma de pagamento indisponivel para vendas de produtos.');
+            }
+
             $desconto = $this->normalizaValor($dados['desconto'] ?? 0);
             $total_dos_itens = 0;
 
@@ -619,7 +624,7 @@ class Pdv extends Controller
                 'desconto' => $desconto,
                 'valor_recebido' => $valor_recebido,
                 'troco' => $troco,
-                'forma_de_pagamento' => $dados['forma_de_pagamento'] ?? '',
+                'forma_de_pagamento' => $formaDePagamento,
                 'data' => date('Y-m-d'),
                 'hora' => date('H:i:s'),
                 'id_cliente' => $cliente['id_cliente'],

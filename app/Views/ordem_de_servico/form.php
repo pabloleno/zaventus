@@ -488,6 +488,145 @@
             </div>
             <!-- /.card -->
 
+            <?php
+                $parcela_pagamento_atual = $parcelas_pagamento_os[0] ?? [];
+                $forma_pagamento_atual = old('forma_de_pagamento') ?: ($parcela_pagamento_atual['forma_de_pagamento'] ?? 'Dinheiro');
+                $rota_pagamento_a_vista = isset($acao_user) ? 'calculaPagamentoAVistaEdit' : 'calculaPagamentoAVista';
+                $rota_pagamento_parcelado = isset($acao_user) ? 'calculaParcelasOsEdit' : 'calculaParcelasOs';
+            ?>
+            <div id="pagamento_os" class="card">
+                <div class="card-header">
+                    <div class="row align-items-center">
+                        <div class="col-sm-8">
+                            <h6 class="m-0 text-dark"><i class="fas fa-credit-card"></i> Pagamento dos serviços</h6>
+                        </div>
+                        <div class="col-sm-4 text-sm-right">
+                            <span class="badge badge-info"><?= esc($pagamento_os['tipo'] ?? 'Não definido') ?></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">
+                        Escolha uma forma habilitada para serviços em Configs &gt; Sistema. PIX e provedores vinculados também aparecem nesta lista.
+                    </p>
+
+                    <div class="row">
+                        <div class="col-lg-5">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <strong>Pagamento à vista</strong>
+                                </div>
+                                <form action="/ordensDeServicos/<?= $rota_pagamento_a_vista ?>" method="post">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label>Forma de pagamento</label>
+                                            <select class="form-control select2" name="forma_de_pagamento" style="width: 100%;" required>
+                                                <?php foreach ($formas_de_pagamento as $forma_de_pagamento): ?>
+                                                    <option value="<?= esc($forma_de_pagamento['nome']) ?>" <?= $forma_pagamento_atual === $forma_de_pagamento['nome'] ? 'selected' : '' ?>>
+                                                        <?= esc($forma_de_pagamento['nome']) ?>
+                                                    </option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                        <input type="hidden" class="pagamento-total-hidden" name="valor_total_do_pagamento" value="<?= $decimal_os($valor_total_do_pagamento) ?>">
+                                        <?php if (isset($acao_user)): ?>
+                                            <input type="hidden" name="id_ordem" value="<?= (int) $id_ordem ?>">
+                                        <?php endif; ?>
+                                        <button type="submit" class="btn btn-success btn-block">
+                                            <i class="fas fa-check"></i> Aplicar à vista
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-7">
+                            <div class="card border">
+                                <div class="card-header bg-light">
+                                    <strong>Pagamento parcelado</strong>
+                                </div>
+                                <form action="/ordensDeServicos/<?= $rota_pagamento_parcelado ?>" method="post">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Forma de pagamento</label>
+                                                    <select class="form-control select2" name="forma_de_pagamento" style="width: 100%;" required>
+                                                        <?php foreach ($formas_de_pagamento as $forma_de_pagamento): ?>
+                                                            <option value="<?= esc($forma_de_pagamento['nome']) ?>" <?= $forma_pagamento_atual === $forma_de_pagamento['nome'] ? 'selected' : '' ?>>
+                                                                <?= esc($forma_de_pagamento['nome']) ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Parcelas</label>
+                                                    <input type="number" min="2" max="120" class="form-control" name="quantidade_de_parcelas" value="<?= max(2, count($parcelas_pagamento_os)) ?>" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3">
+                                                <div class="form-group">
+                                                    <label>Intervalo (dias)</label>
+                                                    <input type="number" min="0" max="365" class="form-control" name="intervalo_parcelas" value="30" required>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Primeiro vencimento</label>
+                                                    <input type="date" class="form-control" name="data_primeira_parcela" value="<?= esc($parcela_pagamento_atual['data_de_vencimento'] ?? date('Y-m-d')) ?>">
+                                                </div>
+                                            </div>
+                                            <div class="col-md-6 d-flex align-items-end">
+                                                <div class="form-group w-100">
+                                                    <button type="submit" class="btn btn-primary btn-block">
+                                                        <i class="fas fa-calculator"></i> Calcular parcelas
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <input type="hidden" class="pagamento-total-hidden" name="valor_total_dos_servicos" value="<?= $decimal_os($valor_total_do_pagamento) ?>">
+                                        <?php if (isset($acao_user)): ?>
+                                            <input type="hidden" name="id_ordem" value="<?= (int) $id_ordem ?>">
+                                        <?php endif; ?>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Parcela</th>
+                                    <th>Vencimento</th>
+                                    <th>Valor</th>
+                                    <th>Forma de pagamento</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (! empty($parcelas_pagamento_os)): ?>
+                                    <?php foreach ($parcelas_pagamento_os as $indice => $parcela): ?>
+                                        <tr>
+                                            <td><?= $indice + 1 ?></td>
+                                            <td><?= esc(date('d/m/Y', strtotime($parcela['data_de_vencimento']))) ?></td>
+                                            <td>R$ <?= str_replace('.', ',', $decimal_os($parcela['valor_da_parcela'])) ?></td>
+                                            <td><?= esc($parcela['forma_de_pagamento']) ?></td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="4" class="text-center text-muted">Defina o pagamento desta ordem de serviço.</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
             <!-- <div class="card">
                 <div class="card-header">
                     <div class="row">
@@ -825,6 +964,10 @@
     {
         var total = valorDecimalDoCampo('total_servicos_mao_de_obra') + valorDecimalDoCampo('total_os_frete') + valorDecimalDoCampo('total_os_outros') - valorDecimalDoCampo('total_os_desconto');
         document.getElementById('valor_total_do_pagamento').value = formataDecimalOs(total);
+
+        document.querySelectorAll('.pagamento-total-hidden').forEach(function(campo) {
+            campo.value = total.toFixed(2);
+        });
     }
 
     ['total_os_frete', 'total_os_outros', 'total_os_desconto'].forEach(function(id) {

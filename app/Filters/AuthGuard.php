@@ -22,6 +22,7 @@ class AuthGuard implements FilterInterface
         'contasreceber'          => ['financeiro', 'contas_a_receber'],
         'controlefiscal'         => ['financeiro', 'controle_fiscal'],
         'despesas'               => ['financeiro', 'despesas'],
+        'desenvolvedor'          => ['configs', 'desenvolvedor'],
         'fornecedores'           => ['controle_geral', 'fornecedores'],
         'funcionarios'           => ['controle_geral', 'funcionarios'],
         'imprimedanfe'           => ['financeiro', 'controle_fiscal'],
@@ -244,6 +245,10 @@ class AuthGuard implements FilterInterface
 
         if ($permission === 'cobrancas' && ! isset($permissions[$module][$permission])) {
             $permissions[$module][$permission] = $permissions[$module]['clientes'] ?? 0;
+        }
+
+        if ($permission === 'desenvolvedor' && ! isset($permissions[$module][$permission])) {
+            $permissions[$module][$permission] = $permissions[$module]['sistema'] ?? 0;
         }
 
         return (int) ($permissions[$module]['modulo'] ?? 0) === 1

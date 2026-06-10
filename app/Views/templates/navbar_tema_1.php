@@ -57,7 +57,7 @@
               $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
               $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']) || $pode_cobrancas;
               $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
-              $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'usuarios', 'backup_de_dados']);
+              $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'desenvolvedor', 'usuarios', 'backup_de_dados']);
             ?>
 
               <?php if($exibe_menu_vendas): ?>
@@ -317,6 +317,10 @@
 
                   <?php if($array_c_a->configs->sistema == 1): ?>
                     <li><a id="11.4" href="/configs/sistema" class="dropdown-item"><?= esc(lang('App.menu.system')) ?></a></li>
+                  <?php endif; ?>
+
+                  <?php if((int) ($array_c_a->configs->desenvolvedor ?? $array_c_a->configs->sistema ?? 0) === 1): ?>
+                    <li><a id="11.7" href="/desenvolvedor" class="dropdown-item"><?= esc(lang('App.menu.developer')) ?></a></li>
                   <?php endif; ?>
 
                   <?php if($array_c_a->configs->usuarios == 1): ?>

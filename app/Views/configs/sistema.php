@@ -5,7 +5,7 @@
         <div class="container-fluid">
                         
             <div class="row">
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-header">
                             <div class="row">
@@ -20,13 +20,15 @@
                         <!-- /.card-header -->
                         <div class="card-body">
                             <div class="row">
-                                <div class="col-lg-12">
+                                <div class="col-lg-12 table-responsive">
                                     <table id="example1" class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
                                                 <th><?= esc(lang('App.common.code')) ?></th>
                                                 <th><?= esc(lang('App.system.paymentName')) ?></th>
                                                 <th><?= esc(lang('App.system.nfcePaymentCode')) ?></th>
+                                                <th>Uso</th>
+                                                <th>Provedor</th>
                                                 <th style="width: 110px"><?= esc(lang('App.common.action')) ?></th>
                                             </tr>
                                         </thead>
@@ -38,6 +40,15 @@
                                                         <td><?= $forma['nome'] ?></td>
                                                         <td><?= $forma['codigo_nfce'] ?? '99' ?></td>
                                                         <td>
+                                                            <?php if ((int) ($forma['disponivel_produtos'] ?? 1) === 1) : ?>
+                                                                <span class="badge badge-info">Produtos</span>
+                                                            <?php endif; ?>
+                                                            <?php if ((int) ($forma['disponivel_servicos'] ?? 1) === 1) : ?>
+                                                                <span class="badge badge-primary">Servicos</span>
+                                                            <?php endif; ?>
+                                                        </td>
+                                                        <td><?= esc($forma['integracao_nome'] ?? 'Manual / sem API') ?></td>
+                                                        <td>
                                                             <a href="/configs/editFormaDePagamento/<?= $forma['id_forma'] ?>" class="btn btn-warning style-action"><i class="fas fa-edit"></i></a>
                                                             <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir(<?= json_encode(lang('App.system.deletePaymentConfirm')) ?>, '/configs/delete_forma_de_pagamento/<?= $forma['id_forma'] ?>')"><i class="fas fa-trash"></i></button>
                                                         </td>
@@ -45,7 +56,7 @@
                                                 <?php endforeach; ?>
                                             <?php else : ?>
                                                 <tr>
-                                                    <td colspan="4"><?= esc(lang('App.common.none')) ?></td>
+                                                    <td colspan="6"><?= esc(lang('App.common.none')) ?></td>
                                                 </tr>
                                             <?php endif; ?>
                                         </tbody>
@@ -65,7 +76,7 @@
                     <!-- /.card -->
                 </div>
                 
-                <div class="col-lg-6">
+                <div class="col-lg-12">
                     <?php
                     $idioma_selecionado = old('idioma', $config_sistema['idioma'] ?? 'pt-BR');
                     $fuso_horario_selecionado = old('fuso_horario', $config_sistema['fuso_horario'] ?? 'America/Manaus');

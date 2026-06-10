@@ -76,6 +76,7 @@ return [
         'settings' => 'Configs',
         'company' => 'Empresa',
         'system' => 'Sistema',
+        'developer' => 'Desenvolvedor',
         'users' => 'Usuarios',
         'dataBackup' => 'Backup Dados',
         'logout' => 'Sair',

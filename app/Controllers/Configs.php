@@ -11,6 +11,7 @@ use App\Models\ConfigEmpresaModel;
 use App\Models\ConfigNFeNFCeModel;
 use App\Models\ConfigNFCeModel;
 use App\Models\FormaDePagamentoModel;
+use App\Models\IntegracaoPagamentoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Libraries\EnderecoPadrao;
 use CodeIgniter\Controller;
@@ -27,6 +28,7 @@ class Configs extends Controller
     private $config_nfce_model;
     private $config_empresa_model;
     private $forma_de_pagamento_model;
+    private $integracao_pagamento_model;
     private $login_model;
     private $tabela_municipios_ibge_model;
 
@@ -39,6 +41,7 @@ class Configs extends Controller
         $this->config_nfce_model = new ConfigNFCeModel();
         $this->config_empresa_model = new ConfigEmpresaModel();
         $this->forma_de_pagamento_model = new FormaDePagamentoModel();
+        $this->integracao_pagamento_model = new IntegracaoPagamentoModel();
         $this->login_model = new LoginModel();
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
@@ -220,7 +223,7 @@ class Configs extends Controller
         $id_login     = $session->get('id_login');
         $data['tema'] = $this->login_model->where('id_login', $id_login)->first()['tema'];
 
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->comIntegracao();
         $data['config_sistema'] = $this->configSistema();
         $data['idiomas'] = config(SystemOptions::class)->languages;
         $data['fusos_horarios'] = $this->fusosHorarios();
@@ -641,6 +644,7 @@ class Configs extends Controller
             ['titulo' => lang('App.menu.system'), 'rota' => "/configs/sistema", 'active' => false],
             ['titulo' => lang('App.system.newPayment'), 'rota'   => "", 'active' => true]
         ];
+        $data['integracoes_pagamento'] = $this->integracao_pagamento_model->orderBy('nome')->findAll();
 
         echo view('templates/header');
         echo view('configs/form_forma_de_pagamento', $data);
@@ -670,6 +674,7 @@ class Configs extends Controller
         ];
 
         $data['forma_de_pagamento'] = $this->forma_de_pagamento_model->where('id_forma', $id_forma)->first();
+        $data['integracoes_pagamento'] = $this->integracao_pagamento_model->orderBy('nome')->findAll();
 
         echo view('templates/header');
         echo view('configs/form_forma_de_pagamento', $data);
@@ -689,6 +694,36 @@ class Configs extends Controller
         }
 
         $dados = $preparo['dados'];
+        $dados['nome'] = trim((string) ($dados['nome'] ?? ''));
+        $dados['codigo_nfce'] = str_pad(trim((string) ($dados['codigo_nfce'] ?? '99')), 2, '0', STR_PAD_LEFT);
+        $dados['id_integracao'] = ! empty($dados['id_integracao']) ? (int) $dados['id_integracao'] : null;
+        $dados['disponivel_produtos'] = isset($dados['disponivel_produtos']) ? 1 : 0;
+        $dados['disponivel_servicos'] = isset($dados['disponivel_servicos']) ? 1 : 0;
+
+        if ($dados['nome'] === '' || ! preg_match('/^\d{2}$/', $dados['codigo_nfce'])) {
+            session()->setFlashdata('errors', ['Informe um nome e um codigo fiscal tPag com dois digitos.']);
+
+            return redirect()->back()->withInput();
+        }
+
+        if ($dados['disponivel_produtos'] !== 1 && $dados['disponivel_servicos'] !== 1) {
+            session()->setFlashdata('errors', ['A forma de pagamento deve atender produtos, servicos ou ambos.']);
+
+            return redirect()->back()->withInput();
+        }
+
+        if ($dados['id_integracao'] !== null && ! $this->integracao_pagamento_model->find($dados['id_integracao'])) {
+            session()->setFlashdata('errors', ['Selecione um provedor de pagamento valido.']);
+
+            return redirect()->back()->withInput();
+        }
+
+        $formaMesmoNome = $this->forma_de_pagamento_model->where('nome', $dados['nome'])->first();
+        if ($formaMesmoNome && (int) $formaMesmoNome['id_forma'] !== (int) ($dados['id_forma'] ?? 0)) {
+            session()->setFlashdata('errors', ['Ja existe uma forma de pagamento com este nome.']);
+
+            return redirect()->back()->withInput();
+        }
 
         $this->forma_de_pagamento_model->save($dados);
 

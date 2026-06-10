@@ -376,7 +376,7 @@ class OrdensDeServicos extends Controller
         $data['produtos']             = $this->produto_model->findAll();
         $data['servicos_mao_de_obra'] = $this->servico_mao_de_obra_model->findAll();
 
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->paraServicos();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->paraVenda();
         $data['tecnicos']            = $this->tecnico_model->paraOrdem();
@@ -418,7 +418,7 @@ class OrdensDeServicos extends Controller
         $data['produtos']             = $this->produto_model->findAll();
         $data['servicos_mao_de_obra'] = $this->servico_mao_de_obra_model->findAll();
 
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->paraServicos();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->visiveis();
         $data['tecnicos']            = $this->tecnico_model->paraOrdem();
@@ -462,7 +462,7 @@ class OrdensDeServicos extends Controller
         $data['produtos']             = $this->produto_model->findAll();
         $data['servicos_mao_de_obra'] = $this->servico_mao_de_obra_model->findAll();
 
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->findAll();
+        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->paraServicos();
         $data['clientes']            = $this->cliente_model->findAll();
         $data['vendedores']          = $this->vendedor_model->visiveis();
         $data['tecnicos']            = $this->tecnico_model->paraOrdem();
@@ -803,14 +803,20 @@ class OrdensDeServicos extends Controller
     public function calculaPagamentoAVista()
     {
         $valor_total_do_pagamento = $this->request->getvar('valor_total_do_pagamento');
+        $forma_de_pagamento = (string) $this->request->getvar('forma_de_pagamento');
 
-        // Remove todos os registros da tabela parcelas_do_pagamento_os_provisorio
-        $this->parcelas_do_pagamento_os_provisorio_model->emptyTable('parcelas_do_pagamento_os_provisorio');
+        if (! $this->forma_de_pagamento_model->disponivelPara($forma_de_pagamento, 'servicos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para servicos.']);
+
+            return redirect()->to('/ordensDeServicos/create/#pagamento_os')->withInput();
+        }
+
+        $this->parcelas_do_pagamento_os_provisorio_model->where('id_pagamento', 1)->delete();
 
         $this->parcelas_do_pagamento_os_provisorio_model->insert([
             'data_de_vencimento' => date('Y-m-d'),
             'valor_da_parcela'   => $valor_total_do_pagamento,
-            'forma_de_pagamento' => "Dinheiro",
+            'forma_de_pagamento' => $forma_de_pagamento,
             'observacoes'        => "",
             'id_pagamento'       => 1
         ]);
@@ -835,14 +841,25 @@ class OrdensDeServicos extends Controller
     {
         $dados = $this->request->getvar();
 
-        // Remove todos os registros da tabela parcelas_do_pagamento_os_provisorio
-        $this->parcelas_do_pagamento_os_provisorio_model->emptyTable('parcelas_do_pagamento_os_provisorio');
-
         $forma_de_pagamento       = $dados['forma_de_pagamento'];
         $intervalo_parcelas       = $dados['intervalo_parcelas'];
         $quantidade_de_parcelas   = $dados['quantidade_de_parcelas'];
         $data_primeira_parcela    = $dados['data_primeira_parcela'];
-        $valor_total_dos_servicos = $dados['valor_total_dos_servicos'];
+        $valor_total_dos_servicos = $this->valorNumerico($dados['valor_total_dos_servicos']);
+
+        if (! $this->forma_de_pagamento_model->disponivelPara((string) $forma_de_pagamento, 'servicos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para servicos.']);
+
+            return redirect()->to('/ordensDeServicos/create/#pagamento_os')->withInput();
+        }
+
+        if ((int) $quantidade_de_parcelas <= 0 || (int) $intervalo_parcelas < 0) {
+            session()->setFlashdata('errors', ['Informe uma quantidade de parcelas e um intervalo validos.']);
+
+            return redirect()->to('/ordensDeServicos/create/#pagamento_os')->withInput();
+        }
+
+        $this->parcelas_do_pagamento_os_provisorio_model->where('id_pagamento', 1)->delete();
 
         // Verifica se o usuário escolheu a data da primeira parcela. Se não, coloca a data atual
         if($data_primeira_parcela == "")
@@ -850,15 +867,19 @@ class OrdensDeServicos extends Controller
             $data_primeira_parcela = date('Y-m-d');
         }
 
-        $valor_da_parcela = ($valor_total_dos_servicos / $quantidade_de_parcelas);
+        $valor_da_parcela = round($valor_total_dos_servicos / $quantidade_de_parcelas, 2);
 
         $guarda_data = $data_primeira_parcela;
 
         for($i=0; $i<$quantidade_de_parcelas; $i++)
         {
+            $valor_parcela_atual = $i === ((int) $quantidade_de_parcelas - 1)
+                ? round($valor_total_dos_servicos - ($valor_da_parcela * ((int) $quantidade_de_parcelas - 1)), 2)
+                : $valor_da_parcela;
+
             $this->parcelas_do_pagamento_os_provisorio_model->insert([
                 'data_de_vencimento' => $data_primeira_parcela,
-                'valor_da_parcela'   => $valor_da_parcela,
+                'valor_da_parcela'   => $valor_parcela_atual,
                 'forma_de_pagamento' => $forma_de_pagamento,
                 'observacoes'        => "",
                 'id_pagamento'       => 1
@@ -888,6 +909,12 @@ class OrdensDeServicos extends Controller
     {
         $dados = $this->request->getvar();
 
+        if (! $this->forma_de_pagamento_model->disponivelPara((string) ($dados['forma_de_pagamento'] ?? ''), 'servicos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para servicos.']);
+
+            return redirect()->to('/ordensDeServicos/create/#pagamento_os')->withInput();
+        }
+
         $this->parcelas_do_pagamento_os_provisorio_model->save($dados);
 
         // Prepara retorno
@@ -905,17 +932,22 @@ class OrdensDeServicos extends Controller
     {
         $valor_total_do_pagamento = $this->request->getvar('valor_total_do_pagamento');
         $id_ordem = $this->request->getvar('id_ordem');
+        $forma_de_pagamento = (string) $this->request->getvar('forma_de_pagamento');
 
-        // Remove todos os registros da tabela parcelas_do_pagamento_os_provisorio
-        $this->parcelas_do_pagamento_os_model->emptyTable('parcelas_do_pagamento_os');
+        if (! $this->forma_de_pagamento_model->disponivelPara($forma_de_pagamento, 'servicos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para servicos.']);
+
+            return redirect()->to("/ordensDeServicos/edit/$id_ordem/#pagamento_os")->withInput();
+        }
 
         // Pega o pagamento da ordem de servico
         $pagamento = $this->pagamento_os_model->where('id_ordem', $id_ordem)->first();
+        $this->parcelas_do_pagamento_os_model->where('id_pagamento', $pagamento['id_pagamento'])->delete();
 
         $this->parcelas_do_pagamento_os_model->insert([
             'data_de_vencimento' => date('Y-m-d'),
             'valor_da_parcela'   => $valor_total_do_pagamento,
-            'forma_de_pagamento' => "Dinheiro",
+            'forma_de_pagamento' => $forma_de_pagamento,
             'observacoes'        => "",
             'id_pagamento'       => $pagamento['id_pagamento']
         ]);
@@ -940,14 +972,23 @@ class OrdensDeServicos extends Controller
     {
         $dados = $this->request->getvar();
 
-        // Remove todos os registros da tabela parcelas_do_pagamento_os_provisorio
-        $this->parcelas_do_pagamento_os_model->emptyTable('parcelas_do_pagamento_os_provisorio');
-
         $forma_de_pagamento       = $dados['forma_de_pagamento'];
         $intervalo_parcelas       = $dados['intervalo_parcelas'];
         $quantidade_de_parcelas   = $dados['quantidade_de_parcelas'];
         $data_primeira_parcela    = $dados['data_primeira_parcela'];
-        $valor_total_dos_servicos = $dados['valor_total_dos_servicos'];
+        $valor_total_dos_servicos = $this->valorNumerico($dados['valor_total_dos_servicos']);
+
+        if (! $this->forma_de_pagamento_model->disponivelPara((string) $forma_de_pagamento, 'servicos')) {
+            session()->setFlashdata('errors', ['Selecione uma forma de pagamento disponivel para servicos.']);
+
+            return redirect()->to("/ordensDeServicos/edit/{$dados['id_ordem']}/#pagamento_os")->withInput();
+        }
+
+        if ((int) $quantidade_de_parcelas <= 0 || (int) $intervalo_parcelas < 0) {
+            session()->setFlashdata('errors', ['Informe uma quantidade de parcelas e um intervalo validos.']);
+
+            return redirect()->to("/ordensDeServicos/edit/{$dados['id_ordem']}/#pagamento_os")->withInput();
+        }
 
         // Verifica se o usuário escolheu a data da primeira parcela. Se não, coloca a data atual
         if($data_primeira_parcela == "")
@@ -955,19 +996,24 @@ class OrdensDeServicos extends Controller
             $data_primeira_parcela = date('Y-m-d');
         }
 
-        $valor_da_parcela = ($valor_total_dos_servicos / $quantidade_de_parcelas);
+        $valor_da_parcela = round($valor_total_dos_servicos / $quantidade_de_parcelas, 2);
 
         // Guarda a data da primeira parcela para poder adicionar a quantidade de dias que o usuário escolher
         $guarda_data = $data_primeira_parcela;
 
         // Pega os dados do Pagamento
         $pagamento = $this->pagamento_os_model->where('id_ordem', $dados['id_ordem'])->first();
+        $this->parcelas_do_pagamento_os_model->where('id_pagamento', $pagamento['id_pagamento'])->delete();
 
         for($i=0; $i<$quantidade_de_parcelas; $i++)
         {
+            $valor_parcela_atual = $i === ((int) $quantidade_de_parcelas - 1)
+                ? round($valor_total_dos_servicos - ($valor_da_parcela * ((int) $quantidade_de_parcelas - 1)), 2)
+                : $valor_da_parcela;
+
             $this->parcelas_do_pagamento_os_model->insert([
                 'data_de_vencimento' => $data_primeira_parcela,
-                'valor_da_parcela'   => $valor_da_parcela,
+                'valor_da_parcela'   => $valor_parcela_atual,
                 'forma_de_pagamento' => $forma_de_pagamento,
                 'observacoes'        => "",
                 'id_pagamento'       => $pagamento['id_pagamento']
@@ -1013,20 +1059,46 @@ class OrdensDeServicos extends Controller
         // ------------------------------- PAGAMENTO -------------------------- //
         // Pega o pagamento provisório
         $pagamento = $this->pagamento_os_provisorio_model->where('id_pagamento', 1)->first();
+        $parcelas = $this->parcelas_do_pagamento_os_provisorio_model
+            ->where('id_pagamento', 1)
+            ->orderBy('id_parcela', 'ASC')
+            ->findAll();
+
+        if (empty($pagamento) || empty($parcelas)) {
+            throw new \RuntimeException('Defina o pagamento da ordem de servico antes de finalizar.');
+        }
+
+        foreach ($parcelas as $parcela) {
+            if (! $this->forma_de_pagamento_model->disponivelPara((string) ($parcela['forma_de_pagamento'] ?? ''), 'servicos')) {
+                throw new \RuntimeException('A forma de pagamento selecionada nao esta disponivel para servicos.');
+            }
+        }
+
+        $total_da_ordem = $this->valorTotalDaOrdem($dados_da_ordem_de_servicos);
+
+        if (($pagamento['tipo'] ?? '') === "À Vista") {
+            $parcelas[0]['valor_da_parcela'] = $total_da_ordem;
+        } else {
+            $total_parcelado = array_sum(array_map(static function (array $parcela): float {
+                return (float) ($parcela['valor_da_parcela'] ?? 0);
+            }, $parcelas));
+
+            if (abs($total_parcelado - $total_da_ordem) > 0.01) {
+                throw new \RuntimeException('O total da OS mudou. Recalcule as parcelas antes de finalizar.');
+            }
+        }
+
         unset($pagamento['id_pagamento']); // Remove o id_pagamento para inserir o definitivo
         $pagamento['id_ordem'] = $id_ordem;
-        $pagamento['tipo'] = "À Vista";
 
         // Insere o pagamento na tabela definitiva
         $id_pagamento = $this->pagamento_os_model->insert($pagamento);
 
-        $this->parcelas_do_pagamento_os_model->insert([
-            'data_de_vencimento' => date('Y-m-d'),
-            'valor_da_parcela'   => $this->valorTotalDaOrdem($dados_da_ordem_de_servicos),
-            'forma_de_pagamento' => "Dinheiro",
-            'observacoes'        => "",
-            'id_pagamento'       => $id_pagamento
-        ]);
+        foreach ($parcelas as $parcela) {
+            unset($parcela['id_parcela'], $parcela['created_at'], $parcela['updated_at'], $parcela['deleted_at']);
+            $parcela['id_pagamento'] = $id_pagamento;
+            $this->parcelas_do_pagamento_os_model->insert($parcela);
+        }
         // ------------------------------------------------------------------- //
 
 
@@ -1086,6 +1158,7 @@ class OrdensDeServicos extends Controller
 
             $session = session();
             $session->setFlashdata('alert', 'error_finaliza_os');
+            $session->setFlashdata('errors', [$exception->getMessage()]);
 
             return redirect()->to('/ordensDeServicos/create');
         }

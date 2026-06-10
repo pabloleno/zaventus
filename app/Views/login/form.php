@@ -565,6 +565,20 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
+                                            <label for="">Desenvolvedor / APIs</label>
+                                            <select class="form-control" id="desenvolvedor" name="desenvolvedor" <?= (!$controle_de_acesso->configs->modulo == 1) ? "disabled" : "" ?>>
+                                                <?php if(($controle_de_acesso->configs->desenvolvedor ?? $controle_de_acesso->configs->sistema ?? 0) == 1): ?>
+                                                    <option value="1" selected>Sim</option>
+                                                    <option value="0">Não</option>
+                                                <?php else: ?>
+                                                    <option value="1">Sim</option>
+                                                    <option value="0" selected>Não</option>
+                                                <?php endif; ?>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
                                             <label for="">Usuários</label>
                                             <select class="form-control" id="usuarios" name="usuarios" <?= (!$controle_de_acesso->configs->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->configs->usuarios == 1): ?>
@@ -920,6 +934,15 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
+                                            <label for="">Desenvolvedor / APIs</label>
+                                            <select class="form-control" id="desenvolvedor" name="desenvolvedor">
+                                                <option value="1">Sim</option>
+                                                <option value="0">Não</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-12">
+                                        <div class="form-group">
                                             <label for="">Usuários</label>
                                             <select class="form-control" id="usuarios" name="usuarios">
                                                 <option value="1">Sim</option>
@@ -1092,6 +1115,7 @@
             document.getElementById('nfce').disabled = false;
             document.getElementById('empresa').disabled = false;
             document.getElementById('sistema').disabled = false;
+            document.getElementById('desenvolvedor').disabled = false;
             document.getElementById('usuarios').disabled = false;
             document.getElementById('backup_de_dados').disabled = false;
         }
@@ -1101,6 +1125,7 @@
             document.getElementById('nfce').disabled = true;
             document.getElementById('empresa').disabled = true;
             document.getElementById('sistema').disabled = true;
+            document.getElementById('desenvolvedor').disabled = true;
             document.getElementById('usuarios').disabled = true;
             document.getElementById('backup_de_dados').disabled = true;
         }

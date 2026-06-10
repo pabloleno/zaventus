@@ -24,7 +24,7 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
             'senha'              => password_hash('123', PASSWORD_BCRYPT),
             'primeiro_nome'      => 'Administrador',
             'tema'               => 0,
-            'controle_de_acesso' => '{"vendas":{"modulo":1,"venda_rapida":1,"pdv":1,"pesq_produto":1,"hist_de_vendas":1},"controle_geral":{"modulo":1,"clientes":1,"cobrancas":1,"fornecedores":1,"funcionarios":1,"vendedores":1},"estoque":{"modulo":1,"produtos":1,"reposicoes":1,"saida_de_mercadorias":1,"categorias_do_produto":1},"financeiro":{"modulo":1,"caixas":1,"lancamentos":1,"retiradas_do_caixa":1,"despesas":1, "contas_a_pagar":1,"contas_a_receber":1,"orcamentos":1,"pedidos":1,"relatorio_dre":1,"inventario_do_estoque":1,"controle_fiscal":1},"relatorios":{"modulo":1,"vendas":1,"estoque":1,"financeiro":1,"geral":1},"configs":{"modulo":1,"nfe":1,"nfce":1,"empresa":1,"sistema":1,"usuarios":1,"backup_de_dados":1}}'
+            'controle_de_acesso' => '{"vendas":{"modulo":1,"venda_rapida":1,"pdv":1,"pesq_produto":1,"hist_de_vendas":1},"controle_geral":{"modulo":1,"clientes":1,"cobrancas":1,"fornecedores":1,"funcionarios":1,"vendedores":1},"estoque":{"modulo":1,"produtos":1,"reposicoes":1,"saida_de_mercadorias":1,"categorias_do_produto":1},"financeiro":{"modulo":1,"caixas":1,"lancamentos":1,"retiradas_do_caixa":1,"despesas":1, "contas_a_pagar":1,"contas_a_receber":1,"orcamentos":1,"pedidos":1,"relatorio_dre":1,"inventario_do_estoque":1,"controle_fiscal":1},"relatorios":{"modulo":1,"vendas":1,"estoque":1,"financeiro":1,"geral":1},"configs":{"modulo":1,"nfe":1,"nfce":1,"empresa":1,"sistema":1,"desenvolvedor":1,"usuarios":1,"backup_de_dados":1}}'
         ]);
 
         // Cliente Consumidor para NFCe
@@ -130,14 +130,30 @@ class AutoInsert extends \CodeIgniter\Database\Seeder
             ['nome' => 'Transferência'],
             ['nome' => 'Depósito'],
             ['nome' => 'Nota Promissória'],
-            ['nome' => 'PayPal', 'codigo_nfce' => '99']
+            ['nome' => 'PayPal', 'codigo_nfce' => '18'],
+            ['nome' => 'PIX (QR Code Dinâmico)', 'codigo_nfce' => '17'],
+            ['nome' => 'PIX (QR Code Estático)', 'codigo_nfce' => '20']
         ];
-        $codigos_nfce = ['01', '03', '04', '02', '05', '10', '11', '12', '13', '16', '15', '18', '16', '99', '99'];
+        $codigos_nfce = ['01', '03', '04', '02', '05', '10', '11', '12', '13', '16', '15', '18', '16', '99', '18', '17', '20'];
         foreach ($formas_de_pagamento as $indice => $forma) {
             $formas_de_pagamento[$indice]['codigo_nfce'] = $codigos_nfce[$indice] ?? '99';
+            $formas_de_pagamento[$indice]['disponivel_produtos'] = 1;
+            $formas_de_pagamento[$indice]['disponivel_servicos'] = in_array($indice + 1, [6, 7, 8, 9], true) ? 0 : 1;
         }
 
-        $this->db->table('formas_de_pagamento')->insertBatch($formas_de_pagamento);
+        $paypal = $this->db->table('integracoes_pagamento')->where('provedor', 'paypal')->get()->getRowArray();
+
+        foreach ($formas_de_pagamento as $forma) {
+            if ($forma['nome'] === 'PayPal' && $paypal) {
+                $forma['id_integracao'] = $paypal['id_integracao'];
+            }
+
+            $existente = $this->db->table('formas_de_pagamento')->where('nome', $forma['nome'])->get()->getRowArray();
+
+            if (! $existente) {
+                $this->db->table('formas_de_pagamento')->insert($forma);
+            }
+        }
 
         // Vendedor
         $vendedorGeral = $this->db->table('vendedores')->where('nome', 'GERAL')->get()->getRowArray();
