@@ -16,6 +16,9 @@ class Inicio extends Controller
     private $caixa_model;
     private $dashboard_negocio;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->empresa_model = new ConfigEmpresaModel();
@@ -30,6 +33,9 @@ class Inicio extends Controller
         $this->dashboard_negocio = new DashboardNegocio();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $mes = (int) ($this->request->getGet('mes') ?: date('n'));

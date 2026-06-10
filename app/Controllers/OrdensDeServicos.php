@@ -54,6 +54,9 @@ class OrdensDeServicos extends Controller
     private $venda_model;
     private $produto_da_venda_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -86,6 +89,9 @@ class OrdensDeServicos extends Controller
         $this->produto_da_venda_model                    = new ProdutoDaVendaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $this->links['subItem'] = "2.6";
@@ -116,6 +122,9 @@ class OrdensDeServicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os orcamentos de ordens de servico.
+     */
     public function orcamentos()
     {
         $this->links['subItem'] = "2.7";
@@ -146,6 +155,9 @@ class OrdensDeServicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Atualiza situacao da ordem de servicos.
+     */
     public function alteraSituacaoDaOrdemDeServicos()
     {
         $dados = $this->request->getvar();
@@ -173,6 +185,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to($this->rotaListagemDaSituacao($situacao));
     }
 
+    /**
+     * Define a listagem adequada para a situacao atual da ordem de servico.
+     */
     private function rotaListagemDaSituacao($situacao)
     {
         if(in_array($situacao, ['Concretizada', 'Cancelada']))
@@ -183,6 +198,9 @@ class OrdensDeServicos extends Controller
         return '/ordensDeServicos/orcamentos';
     }
 
+    /**
+     * Monta os dados de listagem ordens de servicos.
+     */
     private function dadosListagemOrdensDeServicos(array $situacoes, string $titulo_padrao, string $rota_listagem): array
     {
         $dados = $this->request->getvar();
@@ -220,6 +238,9 @@ class OrdensDeServicos extends Controller
         return $data;
     }
 
+    /**
+     * Consulta as ordens de servico exibidas na listagem.
+     */
     private function ordensDeServicosDaListagem(array $situacoes, array $filtros, ?int $limite = null): array
     {
         $ordens = $this->ordem_de_servico_model
@@ -239,6 +260,9 @@ class OrdensDeServicos extends Controller
         return $ordens->findAll();
     }
 
+    /**
+     * Aplica filtros listagem ordens.
+     */
     private function aplicaFiltrosListagemOrdens($ordens, array $filtros): void
     {
         if($filtros['id_ordem'] !== '')
@@ -262,6 +286,9 @@ class OrdensDeServicos extends Controller
         }
     }
 
+    /**
+     * Informa se existe filtro listagem ordens.
+     */
     private function temFiltroListagemOrdens(array $filtros): bool
     {
         foreach($filtros as $valor)
@@ -275,6 +302,9 @@ class OrdensDeServicos extends Controller
         return false;
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $this->links['subItem'] = "2.7";
@@ -356,6 +386,9 @@ class OrdensDeServicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_ordem)
     {
         $data['links'] = $this->links;
@@ -395,6 +428,9 @@ class OrdensDeServicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_ordem)
     {
         $data['links'] = $this->links;
@@ -438,6 +474,9 @@ class OrdensDeServicos extends Controller
 
     // ------------------------------------------------- EQUIPAMENTOS ----------------------------------------------------- //
     // ------ AÇÃO CREATE ------ //
+    /**
+     * Adiciona equipamento.
+     */
     public function addEquipamento()
     {
         $dados = $this->request->getvar();
@@ -451,6 +490,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#table-equipamentos'); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Remove equipamento.
+     */
     public function deleteEquipamento($id_equipamento)
     {
         $this->equipamento_os_provisorio_model->where('id_equipamento', $id_equipamento)->delete();
@@ -462,6 +504,9 @@ class OrdensDeServicos extends Controller
     }
 
     // ------ AÇÃO EDIT ------ //
+    /**
+     * Adiciona equipamento durante a edicao.
+     */
     public function addEquipamentoEdit()
     {
         $dados = $this->request->getvar();
@@ -474,6 +519,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/{$dados['id_ordem']}/#table-equipamentos"); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Remove equipamento durante a edicao.
+     */
     public function deleteEquipamentoEdit($id_equipamento, $id_ordem)
     {
         $this->equipamento_os_model->where('id_equipamento', $id_equipamento)->delete();
@@ -486,6 +534,9 @@ class OrdensDeServicos extends Controller
 
     // ------------------------------------------------- PRODUTO/PEÇAS ----------------------------------------------------- //
     // ------ CREATE ------- //
+    /**
+     * Adiciona produto.
+     */
     public function addProduto()
     {
         $id_produto = $this->request->getvar('id_produto');
@@ -509,6 +560,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#table-produto-peca'); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Remove produto.
+     */
     public function deleteProduto($id_produto)
     {
         $this->produto_peca_os_provisorio_model->where('id_produto', $id_produto)->delete();
@@ -519,6 +573,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#table-produto-peca'); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Atualiza dados produto peca.
+     */
     public function alteraDadosProdutoPeca()
     {
         $dados = $this->request->getvar();
@@ -532,6 +589,9 @@ class OrdensDeServicos extends Controller
     }
 
     // ------ EDIT ------ //
+    /**
+     * Adiciona produto durante a edicao.
+     */
     public function addProdutoEdit()
     {
         $id_produto = $this->request->getvar('id_produto');
@@ -556,6 +616,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/$id_ordem/#table-produto-peca"); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Remove produto durante a edicao.
+     */
     public function deleteProdutoEdit($id_produto, $id_ordem)
     {
         $this->produto_peca_os_model->where('id_produto', $id_produto)->delete();
@@ -566,6 +629,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/$id_ordem/#table-produto-peca"); // Redireciona e foca na div 'table-equipamentos'
     }
 
+    /**
+     * Atualiza dados produto peca durante a edicao.
+     */
     public function alteraDadosProdutoPecaEdit()
     {
         $dados = $this->request->getvar();
@@ -580,6 +646,9 @@ class OrdensDeServicos extends Controller
 
     // ------------------------------------------------- SERVIÇO MÃO DE OBRA ----------------------------------------------------- //
     // ----- CREATE ----- //
+    /**
+     * Adiciona servico mao de obra.
+     */
     public function addServicoMaoDeObra()
     {
         $id_servico = $this->request->getvar('id_servico');
@@ -603,6 +672,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#table-servico-mao-de-obra'); // Redireciona e foca na div 'table-servico-mao-de-bra'
     }
 
+    /**
+     * Remove servico mao de obra.
+     */
     public function deleteServicoMaoDeObra($id_servico)
     {
         $this->servico_mao_de_obra_provisorio_model->where('id_servico', $id_servico)->delete();
@@ -613,6 +685,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#table-servico-mao-de-obra'); // Redireciona e foca na div 'table-servico-mao-de-bra'
     }
 
+    /**
+     * Atualiza dados servico mao de obra.
+     */
     public function alteraDadosServicoMaoDeObra()
     {
         $dados = $this->request->getvar();
@@ -628,6 +703,9 @@ class OrdensDeServicos extends Controller
     }
 
     // ----- EDIT ----- //
+    /**
+     * Adiciona servico mao de obra durante a edicao.
+     */
     public function addServicoMaoDeObraEdit()
     {
         $id_servico = $this->request->getvar('id_servico');
@@ -652,6 +730,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/$id_ordem/#table-servico-mao-de-obra"); // Redireciona e foca na div 'table-servico-mao-de-bra'
     }
 
+    /**
+     * Remove servico mao de obra durante a edicao.
+     */
     public function deleteServicoMaoDeObraEdit($id_servico, $id_ordem)
     {
         $this->servico_mao_de_obra_os_model->where('id_servico', $id_servico)->delete();
@@ -662,6 +743,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/$id_ordem/#table-servico-mao-de-obra"); // Redireciona e foca na div 'table-servico-mao-de-bra'
     }
 
+    /**
+     * Atualiza dados servico mao de obra durante a edicao.
+     */
     public function alteraDadosServicoMaoDeObraEdit()
     {
         $dados = $this->request->getvar();
@@ -678,6 +762,9 @@ class OrdensDeServicos extends Controller
 
     // ------------------------------------------------- TOTAL ----------------------------------------------------- //
     // ----- CREATE ----- //
+    /**
+     * Atualiza total.
+     */
     public function alteraTotal()
     {
         $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
@@ -692,6 +779,9 @@ class OrdensDeServicos extends Controller
     }
 
     // ----- EDIT ----- //
+    /**
+     * Atualiza total durante a edicao.
+     */
     public function alteraTotalEdit()
     {
         $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
@@ -707,6 +797,9 @@ class OrdensDeServicos extends Controller
 
     // ------------------------------------------------- PAGAMENTO ----------------------------------------------------- //
     // ----- CREATE ----- //
+    /**
+     * Registra o pagamento integral a vista da ordem de servico.
+     */
     public function calculaPagamentoAVista()
     {
         $valor_total_do_pagamento = $this->request->getvar('valor_total_do_pagamento');
@@ -735,6 +828,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#pagamento_os');
     }
 
+    /**
+     * Calcula e registra as parcelas da ordem de servico.
+     */
     public function calculaParcelasOs()
     {
         $dados = $this->request->getvar();
@@ -785,6 +881,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to('/ordensDeServicos/create/#pagamento_os');
     }
 
+    /**
+     * Atualiza dados da parcela.
+     */
     public function alteraDadosDaParcela()
     {
         $dados = $this->request->getvar();
@@ -799,6 +898,9 @@ class OrdensDeServicos extends Controller
     }
 
     // ----- EDIT ----- //
+    /**
+     * Atualiza o pagamento integral a vista durante a edicao da ordem.
+     */
     public function calculaPagamentoAVistaEdit()
     {
         $valor_total_do_pagamento = $this->request->getvar('valor_total_do_pagamento');
@@ -831,6 +933,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/$id_ordem/#pagamento_os");
     }
 
+    /**
+     * Recalcula as parcelas durante a edicao da ordem de servico.
+     */
     public function calculaParcelasOsEdit()
     {
         $dados = $this->request->getvar();
@@ -887,6 +992,9 @@ class OrdensDeServicos extends Controller
 
 
     // ------------------------------------------------- FINALIZA VENDA ----------------------------------------------------- //
+    /**
+     * Finaliza ordem de servico.
+     */
     public function finalizaOrdemDeServico()
     {
         $dados_da_ordem_de_servicos = $this->normalizaTotaisDaOrdem($this->request->getvar());
@@ -983,6 +1091,9 @@ class OrdensDeServicos extends Controller
         }
     }
 
+    /**
+     * Calcula o total da ordem considerando servicos, frete, outros valores e desconto.
+     */
     private function valorTotalDaOrdem(array $ordem): float
     {
         $servicos = $this->servico_mao_de_obra_provisorio_model->findAll();
@@ -1003,6 +1114,9 @@ class OrdensDeServicos extends Controller
 
 
     // -------------------------------------------------------- EDITAR DADOS DOS RESPONSÁVEIS E DADOS FINAIS DA ORDEM DE SERVIÇO ---------------------------------------
+    /**
+     * Registra como venda os produtos e pecas usados na ordem de servico.
+     */
     private function registrarVendaDosProdutosDaOs(array $ordem, array $produtos_e_pecas, int $id_caixa): void
     {
         $produtos_da_venda = [];
@@ -1089,6 +1203,9 @@ class OrdensDeServicos extends Controller
         }
     }
 
+    /**
+     * Localiza o produto de estoque vinculado a peca da ordem de servico.
+     */
     private function produtoEstoqueDaPecaOs(array $produto_peca): array
     {
         $id_produto_estoque = (int) ($produto_peca['id_produto_estoque'] ?? 0);
@@ -1118,6 +1235,9 @@ class OrdensDeServicos extends Controller
         throw new \RuntimeException('Produto/peca da OS sem vinculo com estoque: ' . $nome);
     }
 
+    /**
+     * Identifica a forma de pagamento usada na venda das pecas da ordem.
+     */
     private function formaDePagamentoVendaOs(): string
     {
         $parcela = $this->parcelas_do_pagamento_os_provisorio_model->orderBy('id_parcela', 'ASC')->first();
@@ -1126,6 +1246,9 @@ class OrdensDeServicos extends Controller
         return $forma_de_pagamento !== '' ? $forma_de_pagamento : 'Dinheiro';
     }
 
+    /**
+     * Define a data usada para registrar a venda das pecas da ordem.
+     */
     private function dataVendaOs(array $ordem): string
     {
         foreach(['data_de_saida', 'data_de_entrada'] as $campo)
@@ -1141,6 +1264,9 @@ class OrdensDeServicos extends Controller
         return date('Y-m-d');
     }
 
+    /**
+     * Define a hora usada para registrar a venda das pecas da ordem.
+     */
     private function horaVendaOs(array $ordem): string
     {
         foreach(['hora_de_saida', 'hora_de_entrada'] as $campo)
@@ -1156,6 +1282,9 @@ class OrdensDeServicos extends Controller
         return date('H:i:s');
     }
 
+    /**
+     * Converte uma entrada monetaria em numero decimal.
+     */
     private function valorNumerico($valor): float
     {
         if(is_numeric($valor))
@@ -1179,6 +1308,9 @@ class OrdensDeServicos extends Controller
         return (float) $valor;
     }
 
+    /**
+     * Aplica datas automaticas da ordem.
+     */
     private function aplicaDatasAutomaticasDaOrdem(array $dados, array $ordem_atual = [], bool $nova_ordem = false): array
     {
         if($nova_ordem)
@@ -1220,6 +1352,9 @@ class OrdensDeServicos extends Controller
         return $dados;
     }
 
+    /**
+     * Informa se a data e a hora de saida da ordem ja foram registradas.
+     */
     private function saidaDaOrdemRegistrada(array $ordem): bool
     {
         $data_de_saida = $ordem['data_de_saida'] ?? '';
@@ -1231,6 +1366,9 @@ class OrdensDeServicos extends Controller
             && $hora_de_saida !== '00:00:00';
     }
 
+    /**
+     * Normaliza frete, outros valores e desconto da ordem de servico.
+     */
     private function normalizaTotaisDaOrdem(array $dados): array
     {
         foreach(['frete', 'outros', 'desconto'] as $campo)
@@ -1244,6 +1382,9 @@ class OrdensDeServicos extends Controller
         return $dados;
     }
 
+    /**
+     * Atualiza responsaveis e dados finais de uma ordem de servico.
+     */
     public function editDadosResponsaveis_e_DadosFinaisOrdemDeServico()
     {
         $dados = $this->normalizaTotaisDaOrdem($this->request->getvar());
@@ -1264,6 +1405,9 @@ class OrdensDeServicos extends Controller
         return redirect()->to("/ordensDeServicos/edit/{$dados['id_ordem']}");
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_ordem) // Deleta a ordem de serviço
     {
         $ordem = $this->ordem_de_servico_model->where('id_ordem', $id_ordem)->first();

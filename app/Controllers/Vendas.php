@@ -25,6 +25,9 @@ class Vendas extends Controller
     private $config_nfe_nfce_model;
     private $cliente_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -43,6 +46,9 @@ class Vendas extends Controller
         $this->cliente_model         = new ClienteModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -135,6 +141,9 @@ class Vendas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_venda)
     {
         $data['links'] = $this->links;
@@ -169,6 +178,9 @@ class Vendas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_venda)
     {
         $session = session();

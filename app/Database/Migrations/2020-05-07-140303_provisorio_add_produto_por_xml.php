@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ProvisorioAddProdutoPorXml extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -111,6 +114,9 @@ class ProvisorioAddProdutoPorXml extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('provisorio_add_produto_por_xml');

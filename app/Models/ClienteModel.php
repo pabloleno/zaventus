@@ -38,6 +38,9 @@ class ClienteModel extends PadraoModel
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
+    /**
+     * Executa a consulta ou persistencia de consumidor final.
+     */
     public function consumidorFinal(): array
     {
         $cliente = $this->db->table($this->table)
@@ -55,6 +58,9 @@ class ClienteModel extends PadraoModel
         return $cliente ?? [];
     }
 
+    /**
+     * Executa a consulta ou persistencia de id consumidor final.
+     */
     public function idConsumidorFinal(): int
     {
         $cliente = $this->consumidorFinal();

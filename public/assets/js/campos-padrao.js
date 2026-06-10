@@ -5,10 +5,16 @@
     var DATA_MAXIMA_PADRAO = '2100-12-31';
     var MENSAGEM_DATA_PADRAO = 'Informe uma data entre 01/01/1900 e 31/12/2100.';
 
+    /**
+     * Obtem o identificador normalizado de um campo da interface.
+     */
     function nomeCampo(elemento) {
         return String($(elemento).attr('name') || $(elemento).attr('id') || '').toLowerCase();
     }
 
+    /**
+     * Aplica mascara.
+     */
     function aplicarMascara($campo, mascara, opcoes) {
         if ($.fn.inputmask) {
             var configuracao = $.extend({
@@ -27,6 +33,9 @@
         }
     }
 
+    /**
+     * Configura digitos.
+     */
     function configurarDigitos($campo, tamanho) {
         if ($campo.data('campo-padrao-configurado')) {
             return;
@@ -45,6 +54,9 @@
         });
     }
 
+    /**
+     * Configura data.
+     */
     function configurarData($campo) {
         if ($campo.data('campo-padrao-configurado')) {
             return;
@@ -78,6 +90,9 @@
         });
     }
 
+    /**
+     * Marca o campo para impedir que o comportamento seja configurado novamente.
+     */
     function marcarConfigurado($campo) {
         if ($campo.data('campo-padrao-configurado')) {
             return false;
@@ -87,36 +102,60 @@
         return true;
     }
 
+    /**
+     * Informa se atende a regra de telefone.
+     */
     function ehTelefone(nome) {
         return /(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/.test(nome);
     }
 
+    /**
+     * Informa se atende a regra de telefone fixo.
+     */
     function ehTelefoneFixo(nome) {
         return nome === 'telefone_fixo';
     }
 
+    /**
+     * Informa se o nome identifica um campo de CNPJ.
+     */
     function ehCnpj(nome) {
         return nome.indexOf('cnpj') !== -1;
     }
 
+    /**
+     * Informa se o nome identifica um campo de CPF.
+     */
     function ehCpf(nome) {
         return nome === 'cpf' || /(^|_)cpf(_|$)/.test(nome);
     }
 
+    /**
+     * Informa se o nome identifica um campo de CEP.
+     */
     function ehCep(nome) {
         return nome === 'cep';
     }
 
+    /**
+     * Informa se atende a regra de email.
+     */
     function ehEmail(nome) {
         return nome.indexOf('email') !== -1;
     }
 
+    /**
+     * Informa se atende a regra de data.
+     */
     function ehData(nome) {
         return nome === 'data'
             || /^data(_|$)/.test(nome)
             || /(^|_)(validade|vencimento|nascimento|contratacao|admissao|demissao|emissao|expedicao)(_|$)/.test(nome);
     }
 
+    /**
+     * Configura campo.
+     */
     function configurarCampo(elemento) {
         var $campo = $(elemento);
         var tipo = String($campo.attr('type') || 'text').toLowerCase();
@@ -261,6 +300,9 @@
         }
     }
 
+    /**
+     * Configura campos.
+     */
     function configurarCampos(contexto) {
         var $contexto = contexto ? $(contexto) : $(document);
         var $campos = $contexto.is('input') ? $contexto : $contexto.find('input');
@@ -270,6 +312,9 @@
         });
     }
 
+    /**
+     * Observa campos inseridos dinamicamente e aplica a configuracao padrao.
+     */
     function observarCamposNovos() {
         if (!window.MutationObserver || !document.body) {
             return;

@@ -12,6 +12,9 @@ class Reposicoes extends Controller
     private $reposicao_model;
     private $produto_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -24,6 +27,9 @@ class Reposicoes extends Controller
         $this->produto_model = new ProdutoModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -45,6 +51,9 @@ class Reposicoes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -67,6 +76,9 @@ class Reposicoes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -92,6 +104,9 @@ class Reposicoes extends Controller
         return redirect()->to('/reposicoes');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_reposicao)
     {
         // ---------- RETIRA A QUANTIDADE DA REPOSIÇÃO DA QUANTIDADE DO PRODUTO ------------- // 

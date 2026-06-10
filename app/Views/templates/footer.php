@@ -76,12 +76,18 @@
 
     });
 
+    /**
+     * Controla a interacao de confirma acao excluir na interface.
+     */
     function confirmaAcaoExcluir(msg, rota) {
         if (confirm(msg)) {
             window.location.href = rota;
         }
     }
 
+    /**
+     * Controla a interacao de troca virgura por ponto na interface.
+     */
     function trocaVirguraPorPonto(id) {
         var elemento = document.getElementById(id);
 
@@ -90,6 +96,9 @@
         }
     }
 
+    /**
+     * Adiciona classe menu.
+     */
     function adicionaClasseMenu(id, classe) {
         var element = document.getElementById(id);
         if (element) {

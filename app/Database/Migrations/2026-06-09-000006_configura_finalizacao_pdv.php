@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ConfiguraFinalizacaoPdv extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         if (! $this->db->fieldExists('finalizacao_pdv', 'config_empresa')) {
@@ -18,6 +21,9 @@ class ConfiguraFinalizacaoPdv extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         if ($this->db->fieldExists('finalizacao_pdv', 'config_empresa')) {

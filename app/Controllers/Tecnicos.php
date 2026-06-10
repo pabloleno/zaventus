@@ -18,6 +18,9 @@ class Tecnicos extends Controller
     private $tecnico_model;
     private $tabela_municipios_ibge_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -31,6 +34,9 @@ class Tecnicos extends Controller
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -52,6 +58,9 @@ class Tecnicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_tecnico)
     {
         $data['links'] = $this->links;
@@ -74,11 +83,17 @@ class Tecnicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         return redirect()->to('/funcionarios/create?tipo=Tecnico');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_tecnico)
     {
         $data['links'] = $this->links;
@@ -111,6 +126,9 @@ class Tecnicos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -157,6 +175,9 @@ class Tecnicos extends Controller
         return redirect()->to('/tecnicos');
     }
 
+    /**
+     * Lista os municipios pertencentes a UF informada.
+     */
     public function municipiosPorUf($uf = null)
     {
         return $this->response->setJSON(
@@ -164,6 +185,9 @@ class Tecnicos extends Controller
         );
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_tecnico)
     {
         $tecnico = $this->tecnico_model->where('id_tecnico', $id_tecnico)->first();

@@ -22,6 +22,9 @@ class VendedorModel extends PadraoModel
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
+    /**
+     * Garante a existencia de geral.
+     */
     public function garantirGeral(): void
     {
         $geral = $this->db->table($this->table)
@@ -45,6 +48,9 @@ class VendedorModel extends PadraoModel
         ]);
     }
 
+    /**
+     * Executa a consulta ou persistencia de visiveis.
+     */
     public function visiveis(): array
     {
         $this->garantirGeral();
@@ -58,6 +64,9 @@ class VendedorModel extends PadraoModel
             ->getResultArray();
     }
 
+    /**
+     * Executa a consulta ou persistencia de geral.
+     */
     public function geral(): array
     {
         $this->garantirGeral();
@@ -68,6 +77,9 @@ class VendedorModel extends PadraoModel
             ->getRowArray() ?? [];
     }
 
+    /**
+     * Executa a consulta ou persistencia de id geral.
+     */
     public function idGeral(): int
     {
         $geral = $this->geral();
@@ -75,6 +87,9 @@ class VendedorModel extends PadraoModel
         return (int) ($geral['id_vendedor'] ?? 0);
     }
 
+    /**
+     * Executa a consulta ou persistencia de para venda.
+     */
     public function paraVenda(): array
     {
         $this->garantirGeral();
@@ -86,6 +101,9 @@ class VendedorModel extends PadraoModel
             ->getResultArray();
     }
 
+    /**
+     * Sincroniza funcionario.
+     */
     public function sincronizarFuncionario(array $funcionario, int $idFuncionario): void
     {
         $vendedor = $this->db->table($this->table)
@@ -117,6 +135,9 @@ class VendedorModel extends PadraoModel
         $this->save($dados);
     }
 
+    /**
+     * Oculta por funcionario.
+     */
     public function ocultarPorFuncionario(int $idFuncionario): void
     {
         $vendedor = $this->db->table($this->table)
@@ -129,16 +150,25 @@ class VendedorModel extends PadraoModel
         }
     }
 
+    /**
+     * Oculta ocultar.
+     */
     public function ocultar(int $idVendedor): void
     {
         $this->update($idVendedor, ['status' => self::STATUS_REMOVIDO]);
     }
 
+    /**
+     * Informa se atende a regra de geral.
+     */
     public function ehGeral(array $vendedor): bool
     {
         return strtoupper(trim((string) ($vendedor['nome'] ?? ''))) === 'GERAL';
     }
 
+    /**
+     * Define a data inicial usada na vinculacao do registro.
+     */
     private function dataInicio(array $funcionario): string
     {
         foreach (['data_inicio_das_atividades', 'data_de_contratacao'] as $campo) {

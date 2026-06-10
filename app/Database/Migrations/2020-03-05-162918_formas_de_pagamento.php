@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class FormasDePagamento extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -38,6 +41,9 @@ class FormasDePagamento extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('formas_de_pagamento');

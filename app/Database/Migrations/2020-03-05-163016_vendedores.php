@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class Vendedores extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -52,6 +55,9 @@ class Vendedores extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('vendedores');

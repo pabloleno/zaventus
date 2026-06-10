@@ -14,6 +14,9 @@ class Vendedores extends Controller
     private $vendedor_model;
     private $funcionario_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -26,6 +29,9 @@ class Vendedores extends Controller
         $this->funcionario_model = new FuncionarioModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -47,11 +53,17 @@ class Vendedores extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         return redirect()->to('/funcionarios/create?tipo=Vendedor');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_vendedor)
     {
         $data['links'] = $this->links;
@@ -82,6 +94,9 @@ class Vendedores extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -125,6 +140,9 @@ class Vendedores extends Controller
         return redirect()->to('/vendedores');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_vendedor)
     {
         $vendedor = $this->vendedor_model->where('id_vendedor', $id_vendedor)->first();

@@ -12,12 +12,18 @@ class ControleFiscal extends Controller
     private $nfce_model;
     private $nfe_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->nfce_model = new NFCeModel();
         $this->nfe_model = new NFeModel();
     }
 
+    /**
+     * Carrega os dados necessarios para a operacao com NFC-e.
+     */
     public function nfce()
     {
         $data['links'] = [
@@ -43,6 +49,9 @@ class ControleFiscal extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega os dados necessarios para a operacao com NFe.
+     */
     public function nfe()
     {
         $data['links'] = [
@@ -99,6 +108,9 @@ class ControleFiscal extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Exibe os detalhes do erro registrado na NFe.
+     */
     public function showErroNFe($id_nfe)
     {
         $data['links'] = [
@@ -125,6 +137,9 @@ class ControleFiscal extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Exibe os detalhes do erro registrado na NFC-e.
+     */
     public function showErroNFCe($id_nfce)
     {
         $data['links'] = [
@@ -151,6 +166,9 @@ class ControleFiscal extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara o download de xml.
+     */
     public function baixaXML($id_nfe)
     {
         $nfe = $this->nfe_model->where('id_nfe', $id_nfe)->first();
@@ -161,6 +179,9 @@ class ControleFiscal extends Controller
         return $this->response->download($name, $data);
     }
 
+    /**
+     * Prepara o download de xmls.
+     */
     public function baixaXMLS($data_inicio, $data_final)
     {
         $nfes = $this->nfe_model->where('status', "Emitida")->where('data >=', $data_inicio)->where('data <=', $data_final)->findAll();

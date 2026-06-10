@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class AddIdCaixaToProdutosDoPdv extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         if (!$this->db->fieldExists('id_caixa', 'produtos_do_pdv')) {
@@ -17,6 +20,9 @@ class AddIdCaixaToProdutosDoPdv extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         if ($this->db->fieldExists('id_caixa', 'produtos_do_pdv')) {

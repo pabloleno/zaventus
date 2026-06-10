@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ConfigNfce extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -182,6 +185,9 @@ class ConfigNfce extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('config_nfce');

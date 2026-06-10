@@ -21,6 +21,9 @@ class Produtos extends Controller
     private $categoria_model;
     private $fornecedor_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -37,6 +40,9 @@ class Produtos extends Controller
         $this->fornecedor_model                            = new FornecedorModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -58,6 +64,9 @@ class Produtos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Pesquisa produtos por nome ou codigo para uso no fluxo atual.
+     */
     public function pesquisar()
     {
         $data['links'] = $this->links = [
@@ -111,6 +120,9 @@ class Produtos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_produto)
     {
         $data['links'] = $this->links;
@@ -155,6 +167,9 @@ class Produtos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -178,6 +193,9 @@ class Produtos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_produto)
     {
         $data['links'] = $this->links;
@@ -202,6 +220,9 @@ class Produtos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $file = $this->request->getFile('arquivo');
@@ -252,6 +273,9 @@ class Produtos extends Controller
 
     // -------------------------- CADASTRO DE PRODUTOS POR XML ------------------------------------ //
 
+    /**
+     * Adiciona por xml.
+     */
     public function add_por_xml()
     {
         // Remove todos os registros da tabela provisorio_add_produto_por_xml_model só para ter certeza que ela estará vazia
@@ -331,6 +355,9 @@ class Produtos extends Controller
         }
     }
 
+    /**
+     * Remove fornecedor cadastrado por xml.
+     */
     public function remove_fornecedor_cadastrado_por_xml($id_fornecedor)
     {
         // Pega todos os produtos da xml que foram cadastrados na tabela provisoria
@@ -351,6 +378,9 @@ class Produtos extends Controller
         return redirect()->to('/produtos/provisorio_add_produtos_por_xml');
     }
 
+    /**
+     * Lista os produtos importados provisoriamente de um XML.
+     */
     public function provisorio_add_produtos_por_xml()
     {
         $data['links'] = $this->links;
@@ -373,6 +403,9 @@ class Produtos extends Controller
         echo View('templates/footer');
     }
 
+    /**
+     * Atualiza dados do produto provisorio cad por xml.
+     */
     public function altera_dados_do_produto_provisorio_cad_por_xml()
     {
         $dados = $this->request->getvar();
@@ -385,6 +418,9 @@ class Produtos extends Controller
         return redirect()->to("/produtos/provisorio_add_produtos_por_xml/#prod_{$dados['id_produto']}");
     }
 
+    /**
+     * Finaliza e cadastrar produtos por xml.
+     */
     public function finalizar_e_cadastrar_produtos_por_xml()
     {
         // Pega todos os produtos da tabela provisorio_add_produto_por_xml_model e insere na tabela de produtos
@@ -409,6 +445,9 @@ class Produtos extends Controller
 
     // -------------------------- REPOSIÇÃO DE PRODUTOS POR XML ------------------------------------ //
 
+    /**
+     * Prepara a reposicao de estoque a partir dos produtos encontrados no XML.
+     */
     public function reposicao_por_xml()
     {
         // Remove todos os registros da tabela provisorio_reposicao_produtos_por_xml_model só para ter certeza que ela estará vazia
@@ -442,6 +481,9 @@ class Produtos extends Controller
         return redirect()->to('provisorio_reposicao_produtos_por_xml');
     }
 
+    /**
+     * Lista os produtos preparados provisoriamente para reposicao via XML.
+     */
     public function provisorio_reposicao_produtos_por_xml()
     {
         $data['links'] = $this->links;
@@ -465,6 +507,9 @@ class Produtos extends Controller
         echo View('templates/footer');
     }
 
+    /**
+     * Atualiza dados do produto provisorio reposicao por xml.
+     */
     public function altera_dados_do_produto_provisorio_reposicao_por_xml()
     {
         $dados = $this->request->getvar();
@@ -477,6 +522,9 @@ class Produtos extends Controller
         return redirect()->to("/produtos/provisorio_reposicao_produtos_por_xml/#prod_{$dados['id_produto']}");
     }
 
+    /**
+     * Finaliza e repoe produtos por xml.
+     */
     public function finalizar_e_repoe_produtos_por_xml()
     {
         $produtos_provisorio = $this->provisorio_reposicao_produtos_por_xml_model->findAll();
@@ -511,6 +559,9 @@ class Produtos extends Controller
 
     // --------------------------------------------------------------------------------------------- //
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_produto)
     {
         $this->produto_model->where('id_produto', $id_produto)->delete();
@@ -521,6 +572,9 @@ class Produtos extends Controller
         return redirect()->to('/produtos');
     }
 
+    /**
+     * Remove imagem.
+     */
     public function removerImagem($id_produto)
     {
         $produto = $this->produto_model->where('id_produto', $id_produto)->first();

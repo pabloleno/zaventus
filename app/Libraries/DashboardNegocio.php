@@ -7,12 +7,18 @@ class DashboardNegocio
     private $db;
     private $faturamento;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->db = db_connect();
         $this->faturamento = new FaturamentoNegocio();
     }
 
+    /**
+     * Monta o conjunto completo de indicadores da dashboard.
+     */
     public function montar(int $ano, int $mes): array
     {
         $inicio = sprintf('%04d-%02d-01', $ano, $mes);
@@ -53,6 +59,9 @@ class DashboardNegocio
         ];
     }
 
+    /**
+     * Calcula a quantidade de vendas produtos.
+     */
     private function quantidadeVendasProdutos(string $inicio, string $final): int
     {
         return $this->db->table('vendas')
@@ -62,6 +71,9 @@ class DashboardNegocio
             ->countAllResults();
     }
 
+    /**
+     * Calcula a quantidade de servicos.
+     */
     private function quantidadeServicos(string $inicio, string $final): int
     {
         return $this->db->table('ordens_de_servicos')
@@ -71,6 +83,9 @@ class DashboardNegocio
             ->countAllResults();
     }
 
+    /**
+     * Calcula a quantidade de pedidos abertos.
+     */
     private function quantidadePedidosAbertos(): int
     {
         return $this->db->table('pedidos')
@@ -78,6 +93,9 @@ class DashboardNegocio
             ->countAllResults();
     }
 
+    /**
+     * Calcula a quantidade de ordens de servico em aberto.
+     */
     private function quantidadeOsAbertas(): int
     {
         return $this->db->table('ordens_de_servicos')
@@ -85,6 +103,9 @@ class DashboardNegocio
             ->countAllResults();
     }
 
+    /**
+     * Agrupa o faturamento de produtos e servicos por mes.
+     */
     private function faturamentoMensal(int $ano): array
     {
         $mensal = [];
@@ -118,6 +139,9 @@ class DashboardNegocio
         return array_values($mensal);
     }
 
+    /**
+     * Consulta contas a pagar e receber que ainda exigem liquidacao.
+     */
     private function contasPendentes(): array
     {
         $contas = [];
@@ -147,6 +171,9 @@ class DashboardNegocio
         return $contas;
     }
 
+    /**
+     * Agrupa contas abertas e vencidas por tipo de negocio.
+     */
     private function financeiroPorTipo(array $contas): array
     {
         $financeiro = [];
@@ -185,6 +212,9 @@ class DashboardNegocio
         return $financeiro;
     }
 
+    /**
+     * Agrupa lancamentos e despesas do periodo por tipo de negocio.
+     */
     private function movimentacaoPorTipo(string $inicio, string $final): array
     {
         $movimentacao = [];
@@ -217,6 +247,9 @@ class DashboardNegocio
         return $movimentacao;
     }
 
+    /**
+     * Normaliza o tipo de negocio usado nos indicadores financeiros.
+     */
     private function tipoNegocio($tipo): string
     {
         $tipo = trim((string) $tipo);
@@ -226,6 +259,9 @@ class DashboardNegocio
             : TipoNegocio::GERAL;
     }
 
+    /**
+     * Determina se uma conta deve ser exibida como aberta ou vencida.
+     */
     private function statusConta(array $conta): string
     {
         if (($conta['status'] ?? '') === 'Vencida' || ($conta['data_de_vencimento'] ?? '') < date('Y-m-d')) {
@@ -235,11 +271,17 @@ class DashboardNegocio
         return 'Aberta';
     }
 
+    /**
+     * Calcula um percentual protegendo a divisao por zero.
+     */
     private function percentual(float $valor, float $total): float
     {
         return $total > 0 ? round(($valor / $total) * 100, 1) : 0.0;
     }
 
+    /**
+     * Calcula uma media protegendo a divisao por zero.
+     */
     private function media(float $valor, int $quantidade): float
     {
         return $quantidade > 0 ? round($valor / $quantidade, 2) : 0.0;

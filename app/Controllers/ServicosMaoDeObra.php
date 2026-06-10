@@ -10,6 +10,9 @@ class ServicosMaoDeObra extends Controller
     private $links;
     private $servico_mao_de_obra_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -21,6 +24,9 @@ class ServicosMaoDeObra extends Controller
         $this->servico_mao_de_obra_model = new ServicoMaoDeObraModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -42,6 +48,9 @@ class ServicosMaoDeObra extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -62,6 +71,9 @@ class ServicosMaoDeObra extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_servico)
     {
         $data['links'] = $this->links;
@@ -84,6 +96,9 @@ class ServicosMaoDeObra extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -112,6 +127,9 @@ class ServicosMaoDeObra extends Controller
         return redirect()->to('/servicosMaoDeObra');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_servico)
     {
         $this->servico_mao_de_obra_model->where('id_servico', $id_servico)->delete();

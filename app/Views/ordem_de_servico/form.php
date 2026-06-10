@@ -756,6 +756,9 @@
         <?php endif; ?>
     });
 
+    /**
+     * Normaliza os totais e envia o formulario de finalizacao ou edicao da ordem.
+     */
     function finalizarOuEditarOdemDeServicos()
     {
         ['total_os_frete', 'total_os_outros', 'total_os_desconto'].forEach(formataCampoDecimalOs);
@@ -768,6 +771,9 @@
         document.getElementById('form-finaliza-ou-edita-ordem-de-servico').submit(); // Aciona o formulário
     }
 
+    /**
+     * Converte uma entrada monetaria da ordem de servico para decimal.
+     */
     function valorDecimalOs(valor)
     {
         valor = String(valor).trim();
@@ -785,11 +791,17 @@
         return parseFloat(valor.replace(',', '.')) || 0;
     }
 
+    /**
+     * Le um campo monetario da ordem e retorna seu valor decimal.
+     */
     function valorDecimalDoCampo(id)
     {
         return valorDecimalOs(document.getElementById(id).value);
     }
 
+    /**
+     * Formata um valor decimal da ordem de servico para exibicao.
+     */
     function formataDecimalOs(valor)
     {
         return valorDecimalOs(valor).toLocaleString('pt-BR', {
@@ -798,11 +810,17 @@
         });
     }
 
+    /**
+     * Formata um campo monetario da ordem de servico para exibicao.
+     */
     function formataCampoDecimalOs(id)
     {
         document.getElementById(id).value = formataDecimalOs(valorDecimalDoCampo(id));
     }
 
+    /**
+     * Recalcula o total da ordem de servico na interface.
+     */
     function atualizaTotalOs()
     {
         var total = valorDecimalDoCampo('total_servicos_mao_de_obra') + valorDecimalDoCampo('total_os_frete') + valorDecimalDoCampo('total_os_outros') - valorDecimalDoCampo('total_os_desconto');
@@ -831,6 +849,9 @@
         });
     }
 
+    /**
+     * Monta dados do equipamento.
+     */
     function montaDadosDoEquipamento(equipamento, marca, modelo, serie, condicoes, defeitos, acessorios, solucao, laudo_tecnico, termos_de_garantia)
     {
         document.getElementById('visualiza_eq_equipamento').value        = equipamento;
@@ -845,6 +866,9 @@
         document.getElementById('visualiza_eq_termos_de_garantia').value = termos_de_garantia;
     }
 
+    /**
+     * Atualiza dados servico mao de obra.
+     */
     function alteraDadosServicoMaoDeObra(quantidade, valor, id_servico)
     {
         document.getElementById('altera_dados_servico_mao_de_obra_quantidade').value = quantidade;

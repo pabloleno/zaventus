@@ -12,6 +12,9 @@ use Config\SystemOptions;
 
 class SystemSettings implements FilterInterface
 {
+    /**
+     * Valida e prepara a requisicao antes de ela chegar ao controller.
+     */
     public function before(RequestInterface $request, $arguments = null)
     {
         if ($request instanceof CLIRequest) {
@@ -41,11 +44,17 @@ class SystemSettings implements FilterInterface
         return null;
     }
 
+    /**
+     * Mantem o ponto de extensao executado depois da requisicao.
+     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
         return null;
     }
 
+    /**
+     * Carrega as configuracoes globais da empresa com valores padrao seguros.
+     */
     private function settings(): array
     {
         $options = config(SystemOptions::class);
@@ -99,11 +108,17 @@ class SystemSettings implements FilterInterface
         ];
     }
 
+    /**
+     * Informa se o idioma esta entre as opcoes suportadas.
+     */
     private function validLanguage(string $language, SystemOptions $options): bool
     {
         return array_key_exists($language, $options->languages);
     }
 
+    /**
+     * Informa se o fuso horario esta entre as opcoes suportadas.
+     */
     private function validTimezone(string $timezone, SystemOptions $options): bool
     {
         return array_key_exists($timezone, $options->timezones)

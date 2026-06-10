@@ -29,6 +29,9 @@ class VendaRapida extends Controller
     private $forma_de_pagamento_model;
     private $vendedor_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -49,6 +52,9 @@ class VendaRapida extends Controller
         $this->vendedor_model                = new VendedorModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -78,6 +84,9 @@ class VendaRapida extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Adiciona produto da venda.
+     */
     public function addProdutoDaVenda()
     {
         $dados = $this->request->getvar();
@@ -105,6 +114,9 @@ class VendaRapida extends Controller
         return redirect()->to('/vendaRapida');
     }
 
+    /**
+     * Prepara os dados necessarios para transformar o fluxo em venda.
+     */
     public function tipoVenda($dados)
     {
         // $dados['valor_a_pagar'] = $dados['valor_a_pagar'] - $dados['desconto'];
@@ -135,6 +147,9 @@ class VendaRapida extends Controller
         return TRUE;
     }
 
+    /**
+     * Prepara os dados necessarios para transformar o fluxo em pedido.
+     */
     public function tipoPedido($dados)
     {
         $dados['situacao']         = "Não Pago - Andamento"; // Situação do Pedido
@@ -158,6 +173,9 @@ class VendaRapida extends Controller
         return TRUE;
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->normalizaDadosMonetarios($this->request->getvar());
@@ -177,6 +195,9 @@ class VendaRapida extends Controller
         return redirect()->to('/vendaRapida');
     }
 
+    /**
+     * Remove produto.
+     */
     public function deleteProduto($id_produto_da_venda_rapida)
     {
         $this->produto_da_venda_rapida_model->where('id_produto_da_venda_rapida', $id_produto_da_venda_rapida)->delete();
@@ -187,6 +208,9 @@ class VendaRapida extends Controller
         return redirect()->to('/vendaRapida');
     }
 
+    /**
+     * Atualiza quantidade.
+     */
     public function alteraQuantidade()
     {
         $dados = $this->request->getvar();
@@ -211,6 +235,9 @@ class VendaRapida extends Controller
     }
 
 
+    /**
+     * Atualiza desconto.
+     */
     public function alteraDesconto()
     {
         $dados = $this->request->getvar();
@@ -235,6 +262,9 @@ class VendaRapida extends Controller
         return redirect()->to('/vendaRapida');
     }
 
+    /**
+     * Atualiza valor unitario.
+     */
     public function alteraValorUnitario()
     {
         $dados = $this->request->getvar();
@@ -260,6 +290,9 @@ class VendaRapida extends Controller
         return redirect()->to('/vendaRapida');
     }
 
+    /**
+     * Normaliza dados monetarios.
+     */
     private function normalizaDadosMonetarios(array $dados): array
     {
         foreach ($dados as $campo => $valor) {

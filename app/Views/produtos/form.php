@@ -294,6 +294,9 @@
         <?php endif; ?>
     });
 
+    /**
+     * Calcula margem de lucro.
+     */
     function calculaMargemDeLucro()
     {
         var margem_de_lucro = numeroMonetario(document.getElementById('margem_de_lucro').value);
@@ -307,6 +310,9 @@
         document.getElementById('lucro').value = decimalMonetario(valor_de_venda - numeroMonetario(valor_de_custo));
     }
 
+    /**
+     * Calcula margem de lucro inverso.
+     */
     function calculaMargemDeLucroInverso()
     {
         var valor_de_venda = numeroMonetario(document.getElementById('valor_de_venda').value);
@@ -318,6 +324,9 @@
         document.getElementById('lucro').value = decimalMonetario(lucro);
     }
 
+    /**
+     * Calcula margem de lucro inverso lucro.
+     */
     function calculaMargemDeLucroInversoLucro()
     {
         var valor_de_custo = document.getElementById('valor_de_custo').value;

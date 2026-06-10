@@ -15,6 +15,9 @@ class RelatorioDRE extends Controller
     private $despesa_model;
     private $faturamento_negocio;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->links = ['menu' => '5.m', 'item' => '5.0', 'subItem' => '5.10'];
@@ -23,6 +26,9 @@ class RelatorioDRE extends Controller
         $this->faturamento_negocio = new FaturamentoNegocio();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data = [
@@ -71,6 +77,9 @@ class RelatorioDRE extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Calcula o total de despesa.
+     */
     private function totalDespesa(string $tipo, array $periodo, string $tipoNegocio): float
     {
         $query = $this->despesa_model

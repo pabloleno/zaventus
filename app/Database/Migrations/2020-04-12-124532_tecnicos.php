@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class Tecnicos extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -127,6 +130,9 @@ class Tecnicos extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('tecnicos');

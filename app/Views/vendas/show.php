@@ -365,6 +365,9 @@
 <!-- /.content-wrapper -->
 
 <script>
+    /**
+     * Inicia a emissao da NFe para a venda selecionada.
+     */
     function emiteNFe() {
         document.getElementById('btnEmitirNFe').disabled = true;
         document.getElementById('btnEmitirNFe').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Aguarde..';
@@ -372,6 +375,9 @@
         window.location.href = "/NFe/emiteNFe/<?= $venda['id_cliente'] ?>/<?= $venda['id_venda'] ?>";
     }
 
+    /**
+     * Inicia a emissao da NFC-e para a venda selecionada.
+     */
     function emiteNFCe() {
         document.getElementById('btnEmitirNFCe').disabled = true;
         document.getElementById('btnEmitirNFCe').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Aguarde..';
@@ -422,6 +428,9 @@
         <?php endif; ?>
     });
 
+    /**
+     * Prepara impressao.
+     */
     function preparaImpressao()
     {
         document.getElementById('footer').className += " no-print";

@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class EquipamentosOs extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -88,6 +91,9 @@ class EquipamentosOs extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('equipamentos_os');

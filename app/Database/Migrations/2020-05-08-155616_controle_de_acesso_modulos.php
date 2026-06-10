@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ControleDeAcessoModulos extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -42,6 +45,9 @@ class ControleDeAcessoModulos extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('controle_de_acesso_modulos');

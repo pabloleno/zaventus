@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class FuncionariosVendedoresTecnicosPadrao extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         if ($this->db->fieldExists('tipo_funcionario', 'funcionarios')) {
@@ -39,6 +42,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         $this->vincularTecnicosExistentes();
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         if ($this->db->fieldExists('status', 'tecnicos')) {
@@ -61,6 +67,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         }
     }
 
+    /**
+     * Adiciona campo.
+     */
     private function adicionarCampo(string $tabela, string $campo, array $definicao): void
     {
         if (! $this->db->fieldExists($campo, $tabela)) {
@@ -68,6 +77,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         }
     }
 
+    /**
+     * Garante a existencia de cliente padrao.
+     */
     private function garantirClientePadrao(): void
     {
         if ($this->db->table('clientes')->where('id_cliente', 1)->countAllResults() > 0) {
@@ -107,6 +119,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         ]);
     }
 
+    /**
+     * Garante a existencia de fornecedor padrao.
+     */
     private function garantirFornecedorPadrao(): void
     {
         if ($this->db->table('fornecedores')->where('id_fornecedor', 1)->countAllResults() > 0) {
@@ -140,6 +155,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         ]);
     }
 
+    /**
+     * Garante a existencia de funcionario padrao.
+     */
     private function garantirFuncionarioPadrao(): int
     {
         $funcionario = $this->db->table('funcionarios')
@@ -194,6 +212,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         return (int) $funcionario['id_funcionario'];
     }
 
+    /**
+     * Garante a existencia de vendedor padrao.
+     */
     private function garantirVendedorPadrao(int $idFuncionario): void
     {
         $vendedor = $this->db->table('vendedores')->where('nome', 'GERAL')->get()->getRowArray();
@@ -222,6 +243,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
             ]);
     }
 
+    /**
+     * Garante a existencia de tecnico padrao.
+     */
     private function garantirTecnicoPadrao(int $idFuncionario): void
     {
         $tecnico = $this->db->table('tecnicos')->where('nome', 'GERAL')->get()->getRowArray();
@@ -269,6 +293,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
             ]);
     }
 
+    /**
+     * Vincula tecnicos existentes.
+     */
     private function vincularTecnicosExistentes(): void
     {
         $tecnicos = $this->db->table('tecnicos')
@@ -299,6 +326,9 @@ class FuncionariosVendedoresTecnicosPadrao extends Migration
         }
     }
 
+    /**
+     * Adiciona atuacao.
+     */
     private function adicionarAtuacao(string $tipo, string $atuacao): string
     {
         $vendedor = stripos($tipo, 'Vendedor') !== false || $atuacao === 'Vendedor';

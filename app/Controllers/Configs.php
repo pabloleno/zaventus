@@ -30,6 +30,9 @@ class Configs extends Controller
     private $login_model;
     private $tabela_municipios_ibge_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->config_nfe_nfce_model = new ConfigNFeNFCeModel();
@@ -40,6 +43,9 @@ class Configs extends Controller
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
+    /**
+     * Carrega os dados necessarios para a operacao com NFe.
+     */
     public function nfe()
     {
         $data['links'] = [
@@ -65,6 +71,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste nfe.
+     */
     public function store_nfe()
     {
         $dados = $this->request->getvar();
@@ -96,6 +105,9 @@ class Configs extends Controller
         return redirect()->to('/configs/nfe');
     }
 
+    /**
+     * Carrega os dados necessarios para a operacao com NFC-e.
+     */
     public function nfce()
     {
         $data['links'] = [
@@ -121,6 +133,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste nfce.
+     */
     public function store_nfce()
     {
         $file = $this->request->getFile('arquivo');
@@ -151,6 +166,9 @@ class Configs extends Controller
         return redirect()->to('/configs/nfce');
     }
 
+    /**
+     * Carrega e exibe os dados configurados da empresa.
+     */
     public function empresa()
     {
         $data['links'] = [
@@ -177,6 +195,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe as configuracoes globais do sistema.
+     */
     public function sistema()
     {
         $data['links'] = [
@@ -209,6 +230,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste sistema.
+     */
     public function store_sistema()
     {
         $idioma = trim((string) $this->request->getPost('idioma'));
@@ -251,6 +275,9 @@ class Configs extends Controller
         return redirect()->to('/configs/sistema');
     }
 
+    /**
+     * Valida e persiste personalizacao.
+     */
     public function store_personalizacao()
     {
         if (! $this->request->is('post')) {
@@ -321,6 +348,9 @@ class Configs extends Controller
         return redirect()->to('/configs/sistema');
     }
 
+    /**
+     * Atualiza tema.
+     */
     public function alteraTema()
     {
         $tema = $this->request->getvar('tema');
@@ -332,6 +362,9 @@ class Configs extends Controller
         return redirect()->to('/login/logout');
     }
 
+    /**
+     * Valida e persiste empresa.
+     */
     public function store_empresa()
     {
         $dados = $this->request->getvar();
@@ -355,6 +388,9 @@ class Configs extends Controller
         return redirect()->to('/configs/empresa');
     }
 
+    /**
+     * Lista os municipios pertencentes a UF informada.
+     */
     public function municipiosPorUf($uf = null)
     {
         return $this->response->setJSON(
@@ -362,6 +398,9 @@ class Configs extends Controller
         );
     }
 
+    /**
+     * Prepara empresa contatos.
+     */
     private function prepararEmpresaContatos(array $dados): array
     {
         $telefoneFixo = $dados['telefone_fixo'] ?? '';
@@ -373,6 +412,9 @@ class Configs extends Controller
         return $dados;
     }
 
+    /**
+     * Monta o endereco de completo.
+     */
     private function enderecoCompleto(array $dados): string
     {
         $partes = [
@@ -390,6 +432,9 @@ class Configs extends Controller
         return substr(implode(', ', $partes), 0, 128);
     }
 
+    /**
+     * Carrega as opcoes globais usadas pela configuracao do sistema.
+     */
     private function configSistema(): array
     {
         $options = config(SystemOptions::class);
@@ -409,6 +454,9 @@ class Configs extends Controller
         ];
     }
 
+    /**
+     * Retorna os fusos horarios disponiveis para configuracao.
+     */
     private function fusosHorarios(): array
     {
         $opcoes = [];
@@ -425,6 +473,9 @@ class Configs extends Controller
         return $opcoes;
     }
 
+    /**
+     * Monta o rotulo legivel de um fuso horario.
+     */
     private function rotuloFusoHorario(string $timezone, string $nome): string
     {
         $offset = (new \DateTimeImmutable('now', new \DateTimeZone($timezone)))->getOffset();
@@ -440,17 +491,26 @@ class Configs extends Controller
         );
     }
 
+    /**
+     * Informa se o idioma selecionado e suportado.
+     */
     private function idiomaValido(string $idioma): bool
     {
         return array_key_exists($idioma, config(SystemOptions::class)->languages);
     }
 
+    /**
+     * Informa se o fuso horario selecionado e suportado.
+     */
     private function fusoHorarioValido(string $fuso_horario): bool
     {
         return array_key_exists($fuso_horario, config(SystemOptions::class)->timezones)
             && in_array($fuso_horario, timezone_identifiers_list(), true);
     }
 
+    /**
+     * Aplica configuracao sistema.
+     */
     private function aplicarConfiguracaoSistema(string $idioma, string $fuso_horario): void
     {
         date_default_timezone_set($fuso_horario);
@@ -472,6 +532,9 @@ class Configs extends Controller
         ]);
     }
 
+    /**
+     * Valida imagem personalizacao.
+     */
     private function validarImagemPersonalizacao(UploadedFile $arquivo, string $campo): ?string
     {
         $rotulo = $campo === 'favicon' ? 'favicon' : 'logo do login';
@@ -514,6 +577,9 @@ class Configs extends Controller
         return null;
     }
 
+    /**
+     * Valida e armazena uma imagem de personalizacao da empresa.
+     */
     private function salvarImagemPersonalizacao(UploadedFile $arquivo, string $campo): string
     {
         $extensao = strtolower($arquivo->getClientExtension());
@@ -523,6 +589,9 @@ class Configs extends Controller
         return self::DIRETORIO_PERSONALIZACAO . '/' . $nome;
     }
 
+    /**
+     * Remove imagem personalizacao.
+     */
     private function removerImagemPersonalizacao(string $caminho): void
     {
         $caminho = str_replace('\\', '/', trim($caminho));
@@ -539,6 +608,9 @@ class Configs extends Controller
         }
     }
 
+    /**
+     * Retorna ao formulario exibindo o erro de personalizacao encontrado.
+     */
     private function redirecionarErroPersonalizacao(array $erros)
     {
         session()->setFlashdata('errors', $erros);
@@ -548,6 +620,9 @@ class Configs extends Controller
     }
 
     // ------------------------------ FORMA DE PAGAMENTO -------------------------------- //
+    /**
+     * Prepara e exibe o formulario de uma nova forma de pagamento.
+     */
     public function createFormaDePagamento()
     {
         $data['links'] = [
@@ -572,6 +647,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe a forma de pagamento solicitada para edicao.
+     */
     public function editFormaDePagamento($id_forma)
     {
         $data['links'] = [
@@ -598,6 +676,9 @@ class Configs extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste forma de pagamento.
+     */
     public function store_forma_de_pagamento()
     {
         $dados = $this->request->getvar();
@@ -623,6 +704,9 @@ class Configs extends Controller
         return redirect()->to('/configs/sistema');
     }
 
+    /**
+     * Remove forma de pagamento.
+     */
     public function delete_forma_de_pagamento($id_forma)
     {
         $this->forma_de_pagamento_model->where('id_forma', $id_forma)->delete();
@@ -633,6 +717,9 @@ class Configs extends Controller
         return redirect()->to('/configs/sistema');
     }
 
+    /**
+     * Gera o backup de data base.
+     */
     public function backupDataBase()
     {
         try {

@@ -16,6 +16,9 @@ class InventarioDoEstoque extends Controller
     private $produto_do_inventario_model;
     private $config_empresa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -30,6 +33,9 @@ class InventarioDoEstoque extends Controller
         $this->config_empresa_model        = new ConfigEmpresaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -89,6 +95,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara e exibe a etapa complementar de criacao do inventario.
+     */
     public function create_1()
     {
         $produtos = $this->produto_model->findAll();
@@ -118,6 +127,9 @@ class InventarioDoEstoque extends Controller
         return redirect()->to('/inventarioDoEstoque');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_inventario)
     {
         $data['links'] = $this->links;
@@ -144,6 +156,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_inventario) // Editar dados do Inventário do Estoque
     {
         $data['links'] = $this->links;
@@ -166,6 +181,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -178,6 +196,9 @@ class InventarioDoEstoque extends Controller
         return redirect()->to('/inventarioDoEstoque');
     }
 
+    /**
+     * Adiciona add.
+     */
     public function add($id_inventario) // Adiciona um novo produto ao inventário
     {
         $data['links'] = $this->links;
@@ -201,6 +222,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Lista os produtos vinculados ao inventario selecionado.
+     */
     public function listaProdutos($id_inventario) // Lista os produtos para poder excluir ou editar os registros.
     {
         $data['links'] = $this->links;
@@ -225,6 +249,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe o produto do inventario para edicao.
+     */
     public function editProduto($id_inventario, $id_produto_do_inventario) // Edita o produto do inventário
     {
         $data['links'] = $this->links;
@@ -250,6 +277,9 @@ class InventarioDoEstoque extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste o produto vinculado ao inventario.
+     */
     public function store_produto() // Store para create e edit do produto
     {
         $dados = $this->request->getvar();
@@ -268,6 +298,9 @@ class InventarioDoEstoque extends Controller
         return redirect()->to("/inventarioDoEstoque/show/{$dados['id_inventario']}");
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_inventario) // Deleta o inventário
     {
         $this->inventario_do_estoque_model->where('id_inventario', $id_inventario)->delete();
@@ -278,6 +311,9 @@ class InventarioDoEstoque extends Controller
         return redirect()->to('/inventarioDoEstoque');
     }
 
+    /**
+     * Remove produto.
+     */
     public function deleteProduto($id_inventario, $id_produto_do_inventario) // Deleta o produto do inventário
     {
         $this->produto_do_inventario_model->where('id_produto_do_inventario', $id_produto_do_inventario)->delete();

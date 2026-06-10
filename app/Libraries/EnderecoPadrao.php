@@ -36,6 +36,9 @@ class EnderecoPadrao
         'DF' => '53',
     ];
 
+    /**
+     * Retorna a lista de unidades federativas disponiveis.
+     */
     public static function ufs(): array
     {
         $ufs = [];
@@ -50,6 +53,9 @@ class EnderecoPadrao
         return $ufs;
     }
 
+    /**
+     * Lista os municipios pertencentes a UF informada.
+     */
     public static function municipiosPorUf(TabelaMunicipiosIBGEModel $model, $uf): array
     {
         $uf = preg_replace('/[^A-Z]/', '', strtoupper((string) $uf));
@@ -83,6 +89,9 @@ class EnderecoPadrao
         return $dados;
     }
 
+    /**
+     * Valida e normaliza os dados antes da persistencia.
+     */
     public static function preparar(array $dados, TabelaMunicipiosIBGEModel $model, string $ufCampo = 'UF', string $municipioCampo = 'municipio', string $codigoCampo = 'codigo_do_municipio'): array
     {
         $codigo = preg_replace('/\D/', '', (string) ($dados[$codigoCampo] ?? ''));
@@ -110,6 +119,9 @@ class EnderecoPadrao
         return $dados;
     }
 
+    /**
+     * Localiza um municipio pelo codigo IBGE informado.
+     */
     private static function municipioPorCodigo(TabelaMunicipiosIBGEModel $model, string $codigo): ?array
     {
         $municipio = $model
@@ -127,6 +139,9 @@ class EnderecoPadrao
         ];
     }
 
+    /**
+     * Extrai a UF correspondente a partir do codigo IBGE do municipio.
+     */
     private static function ufPorCodigoMunicipio(string $codigo): ?string
     {
         $prefixo = substr(preg_replace('/\D/', '', $codigo), 0, 2);
@@ -140,6 +155,9 @@ class EnderecoPadrao
         return null;
     }
 
+    /**
+     * Limpa e normaliza municipio.
+     */
     private static function limparMunicipio($municipio): string
     {
         return trim(str_replace(["\r", "\n"], '', (string) $municipio));

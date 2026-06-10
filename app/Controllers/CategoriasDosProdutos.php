@@ -10,6 +10,9 @@ class CategoriasDosProdutos extends Controller
     private $links;
     private $categoria_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -21,6 +24,9 @@ class CategoriasDosProdutos extends Controller
         $this->categoria_model = new CategoriasDosProdutosModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -42,6 +48,9 @@ class CategoriasDosProdutos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -62,6 +71,9 @@ class CategoriasDosProdutos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_categoria)
     {
         $data['links'] = $this->links;
@@ -84,6 +96,9 @@ class CategoriasDosProdutos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -110,6 +125,9 @@ class CategoriasDosProdutos extends Controller
         return redirect()->to('/categoriasDosProdutos');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_categoria)
     {
         $this->categoria_model->where('id_categoria', $id_categoria)->delete();

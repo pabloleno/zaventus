@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class RebrandToZaventusGestao extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         foreach (['config_nfe_nfce', 'config_nfce'] as $tabela) {
@@ -21,6 +24,9 @@ class RebrandToZaventusGestao extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         foreach (['config_nfe_nfce', 'config_nfce'] as $tabela) {

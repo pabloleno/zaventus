@@ -37,16 +37,25 @@ class PadronizaValoresMonetarios extends Migration
         'venda_rapida' => ['valor_a_pagar', 'desconto', 'valor_recebido', 'troco'],
     ];
 
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->alteraColunas('DECIMAL(15,2)');
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         $this->alteraColunas('DOUBLE');
     }
 
+    /**
+     * Atualiza colunas.
+     */
     private function alteraColunas(string $tipo): void
     {
         foreach (self::COLUNAS as $tabela => $colunas) {

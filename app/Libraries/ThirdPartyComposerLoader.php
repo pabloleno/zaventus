@@ -4,6 +4,9 @@ namespace App\Libraries;
 
 final class ThirdPartyComposerLoader
 {
+    /**
+     * Carrega uma dependencia de terceiros sem substituir a implementacao de log da aplicacao.
+     */
     public static function loadWithoutPsrLog(string $autoloadPath): void
     {
         $loader = require $autoloadPath;

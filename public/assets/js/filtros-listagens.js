@@ -4,6 +4,9 @@
     var estados = new Map();
     var filtroRegistrado = false;
 
+    /**
+     * Normaliza texto.
+     */
     function normalizarTexto(valor) {
         return String(valor || '')
             .normalize('NFD')
@@ -12,6 +15,9 @@
             .trim();
     }
 
+    /**
+     * Informa se atende a regra de coluna data.
+     */
     function ehColunaData(rotulo) {
         var texto = normalizarTexto(rotulo);
 
@@ -20,12 +26,18 @@
             || texto.indexOf('data/hora') !== -1;
     }
 
+    /**
+     * Informa se atende a regra de coluna hora.
+     */
     function ehColunaHora(rotulo) {
         var texto = normalizarTexto(rotulo);
 
         return texto.indexOf('hora') !== -1 || texto.indexOf('horario') !== -1;
     }
 
+    /**
+     * Identifica as colunas de data e hora usadas pelo filtro da tabela.
+     */
     function identificarCamposTemporais(tabela) {
         var cabecalhos = [];
 
@@ -52,6 +64,9 @@
             });
     }
 
+    /**
+     * Separa e normaliza as partes de um valor de data e hora.
+     */
     function partesDataHora(valor) {
         var texto = String(valor || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
         var data = null;
@@ -77,6 +92,9 @@
         return { data: data, hora: hora };
     }
 
+    /**
+     * Converte os valores de data e hora da linha em um instante comparavel.
+     */
     function dataHoraDaLinha(valorData, valorHora) {
         var principal = partesDataHora(valorData);
         var complementar = partesDataHora(valorHora);
@@ -92,6 +110,9 @@
         return Number.isNaN(resultado.getTime()) ? null : resultado;
     }
 
+    /**
+     * Registra o filtro global de periodo utilizado pelo DataTables.
+     */
     function registrarFiltroDataTables() {
         if (filtroRegistrado || !$.fn.dataTable) {
             return;
@@ -121,6 +142,9 @@
         filtroRegistrado = true;
     }
 
+    /**
+     * Exibe uma mensagem de erro de validacao na interface.
+     */
     function exibirErro(mensagem) {
         if (global.Swal && typeof global.Swal.fire === 'function') {
             global.Swal.fire({
@@ -134,6 +158,9 @@
         global.alert(mensagem);
     }
 
+    /**
+     * Cria filtro periodo.
+     */
     function criarFiltroPeriodo(api, campos) {
         if (!campos.length) {
             return;
@@ -213,6 +240,9 @@
         container.prepend(painel);
     }
 
+    /**
+     * Monta as opcoes compartilhadas das tabelas de listagem.
+     */
     function opcoesPadrao(idioma) {
         return {
             language: idioma,
@@ -231,6 +261,9 @@
         };
     }
 
+    /**
+     * Inicializa os comportamentos compartilhados da interface.
+     */
     function inicializar(idioma) {
         if (!$ || !$.fn.DataTable) {
             return;

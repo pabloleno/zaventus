@@ -12,6 +12,9 @@ class PagamentosDoCliente extends Controller
     private $pagamento_do_cliente_model;
     private $caixa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -24,6 +27,9 @@ class PagamentosDoCliente extends Controller
         $this->caixa_model = new CaixaModel();
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create($id_cliente)
     {
         $data['links'] = $this->links;
@@ -47,6 +53,9 @@ class PagamentosDoCliente extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_pagamento, $id_cliente)
     {
         $data['links'] = $this->links;
@@ -70,6 +79,9 @@ class PagamentosDoCliente extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -90,6 +102,9 @@ class PagamentosDoCliente extends Controller
         return redirect()->to("/clientes/show/{$dados['id_cliente']}");
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_pagamento, $id_cliente)
     {
         $this->pagamento_do_cliente_model->where('id_pagamento', $id_pagamento)->delete();

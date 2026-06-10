@@ -41,6 +41,9 @@ class TecnicoModel extends PadraoModel
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
+    /**
+     * Executa a consulta ou persistencia de visiveis.
+     */
     public function visiveis(): array
     {
         return $this->db->table($this->table)
@@ -50,6 +53,9 @@ class TecnicoModel extends PadraoModel
             ->getResultArray();
     }
 
+    /**
+     * Executa a consulta ou persistencia de para ordem.
+     */
     public function paraOrdem(): array
     {
         return $this->db->table($this->table)
@@ -59,6 +65,9 @@ class TecnicoModel extends PadraoModel
             ->getResultArray();
     }
 
+    /**
+     * Sincroniza funcionario.
+     */
     public function sincronizarFuncionario(array $funcionario, int $idFuncionario): void
     {
         $tecnico = $this->db->table($this->table)
@@ -109,6 +118,9 @@ class TecnicoModel extends PadraoModel
         $this->save($dados);
     }
 
+    /**
+     * Oculta por funcionario.
+     */
     public function ocultarPorFuncionario(int $idFuncionario): void
     {
         $tecnico = $this->db->table($this->table)
@@ -121,11 +133,17 @@ class TecnicoModel extends PadraoModel
         }
     }
 
+    /**
+     * Oculta ocultar.
+     */
     public function ocultar(int $idTecnico): void
     {
         $this->update($idTecnico, ['status' => self::STATUS_REMOVIDO]);
     }
 
+    /**
+     * Informa se atende a regra de geral.
+     */
     public function ehGeral(array $tecnico): bool
     {
         return strtoupper(trim((string) ($tecnico['nome'] ?? ''))) === 'GERAL';

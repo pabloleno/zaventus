@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class VinculaProdutosPecasOsEstoque extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->adicionarCampo('produtos_pecas_os_provisorio');
@@ -12,12 +15,18 @@ class VinculaProdutosPecasOsEstoque extends Migration
         $this->vincularProdutosPorNome('produtos_pecas_os');
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         $this->removerCampo('produtos_pecas_os_provisorio');
         $this->removerCampo('produtos_pecas_os');
     }
 
+    /**
+     * Adiciona campo.
+     */
     private function adicionarCampo(string $tabela): void
     {
         if (! $this->db->fieldExists('id_produto_estoque', $tabela)) {
@@ -32,6 +41,9 @@ class VinculaProdutosPecasOsEstoque extends Migration
         }
     }
 
+    /**
+     * Remove campo.
+     */
     private function removerCampo(string $tabela): void
     {
         if ($this->db->fieldExists('id_produto_estoque', $tabela)) {
@@ -39,6 +51,9 @@ class VinculaProdutosPecasOsEstoque extends Migration
         }
     }
 
+    /**
+     * Vincula produtos por nome.
+     */
     private function vincularProdutosPorNome(string $tabela): void
     {
         $pecas = $this->db->table($tabela)

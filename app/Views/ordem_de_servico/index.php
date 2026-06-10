@@ -271,6 +271,9 @@
         <?php endif; ?>
     });
 
+    /**
+     * Atualiza a situacao da ordem de servico selecionada.
+     */
     function alteraSituacaoDaOS(id_ordem)
     {
         document.getElementById('altera_situacao_id_ordem').value = id_ordem;

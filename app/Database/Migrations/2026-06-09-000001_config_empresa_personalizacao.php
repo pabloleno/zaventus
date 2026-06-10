@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ConfigEmpresaPersonalizacao extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $campos = [];
@@ -29,6 +32,9 @@ class ConfigEmpresaPersonalizacao extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         $campos = [];

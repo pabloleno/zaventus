@@ -20,6 +20,9 @@ class Funcionarios extends Controller
     private $tecnico_model;
     private $vendedor_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -34,6 +37,9 @@ class Funcionarios extends Controller
         $this->vendedor_model = new VendedorModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -55,6 +61,9 @@ class Funcionarios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_funcionario)
     {
         $data['links'] = $this->links;
@@ -77,6 +86,9 @@ class Funcionarios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -102,6 +114,9 @@ class Funcionarios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_funcionario)
     {
         $data['links'] = $this->links;
@@ -125,6 +140,9 @@ class Funcionarios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -187,6 +205,9 @@ class Funcionarios extends Controller
         return redirect()->to('/funcionarios');
     }
 
+    /**
+     * Lista os municipios pertencentes a UF informada.
+     */
     public function municipiosPorUf($uf = null)
     {
         return $this->response->setJSON(
@@ -194,6 +215,9 @@ class Funcionarios extends Controller
         );
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_funcionario)
     {
         $funcionario = $this->funcionario_model->where('id_funcionario', $id_funcionario)->first();
@@ -215,6 +239,9 @@ class Funcionarios extends Controller
         return redirect()->to('/funcionarios');
     }
 
+    /**
+     * Normaliza o tipo de atuacao selecionado para o funcionario.
+     */
     private function tipoFuncionario(string $tipo): string
     {
         return FuncionarioModel::normalizarTipo($tipo);

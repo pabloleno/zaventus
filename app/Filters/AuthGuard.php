@@ -40,6 +40,9 @@ class AuthGuard implements FilterInterface
         'vendedores'             => ['controle_geral', 'vendedores'],
     ];
 
+    /**
+     * Valida e prepara a requisicao antes de ela chegar ao controller.
+     */
     public function before(RequestInterface $request, $arguments = null)
     {
         if ($request instanceof CLIRequest || ! $request instanceof IncomingRequest) {
@@ -87,12 +90,16 @@ class AuthGuard implements FilterInterface
         return null;
     }
 
+    /**
+     * Mantem o ponto de extensao executado depois da requisicao.
+     */
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
         return null;
     }
 
     /**
+     * Extrai o controller e o metodo solicitados a partir da URL.
      * @return array{0:string, 1:string}
      */
     private function routeParts(IncomingRequest $request): array
@@ -110,6 +117,9 @@ class AuthGuard implements FilterInterface
         ];
     }
 
+    /**
+     * Informa se a rota pode ser acessada sem sessao autenticada.
+     */
     private function isPublicRoute(string $controller, string $method): bool
     {
         if ($controller === '' || $controller === 'home') {
@@ -119,6 +129,9 @@ class AuthGuard implements FilterInterface
         return $controller === 'login' && in_array($method, ['index', 'autenticar', 'logout'], true);
     }
 
+    /**
+     * Informa se o metodo nao pode ser acessado como endpoint.
+     */
     private function isBlockedMethod(string $method): bool
     {
         return str_starts_with($method, '__')
@@ -126,6 +139,7 @@ class AuthGuard implements FilterInterface
     }
 
     /**
+     * Determina a permissao exigida para a rota solicitada.
      * @return array{0:string, 1:string}|null
      */
     private function requiredPermission(string $controller, string $method): ?array
@@ -150,6 +164,7 @@ class AuthGuard implements FilterInterface
     }
 
     /**
+     * Define a permissao exigida para uma acao de configuracao.
      * @return array{0:string, 1:string}|null
      */
     private function configPermission(string $method): ?array
@@ -178,6 +193,7 @@ class AuthGuard implements FilterInterface
     }
 
     /**
+     * Define a permissao exigida para uma acao relacionada a produtos.
      * @return array{0:string, 1:string}
      */
     private function productPermission(string $method): array
@@ -194,6 +210,7 @@ class AuthGuard implements FilterInterface
     }
 
     /**
+     * Define a permissao exigida para acessar um relatorio.
      * @return array{0:string, 1:string}
      */
     private function reportPermission(string $method): array
@@ -213,6 +230,9 @@ class AuthGuard implements FilterInterface
         return ['relatorios', 'financeiro'];
     }
 
+    /**
+     * Informa se o usuario possui a permissao exigida para a rota.
+     */
     private function hasPermission($accessControl, string $module, string $permission): bool
     {
         $permissions = json_decode((string) $accessControl, true);

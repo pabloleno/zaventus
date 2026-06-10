@@ -4,6 +4,9 @@ namespace App\Database\Seeds;
 
 class AutoInsert extends \CodeIgniter\Database\Seeder
 {
+    /**
+     * Executa a carga de dados definida por este seeder.
+     */
     public function run()
     {
         // Dados da Empresa

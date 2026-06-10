@@ -12,6 +12,9 @@ abstract class PadraoModel extends Model
     protected $beforeInsertBatch = ['aplicaPadraoCamposBatch'];
     protected $beforeUpdateBatch = ['aplicaPadraoCamposBatch'];
 
+    /**
+     * Aplica padrao campos.
+     */
     protected function aplicaPadraoCampos(array $eventData): array
     {
         if (isset($eventData['data']) && is_array($eventData['data'])) {
@@ -21,6 +24,9 @@ abstract class PadraoModel extends Model
         return $eventData;
     }
 
+    /**
+     * Aplica padrao campos batch.
+     */
     protected function aplicaPadraoCamposBatch(array $eventData): array
     {
         if (isset($eventData['data']) && is_array($eventData['data'])) {

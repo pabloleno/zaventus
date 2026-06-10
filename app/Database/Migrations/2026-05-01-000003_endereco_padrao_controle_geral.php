@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class EnderecoPadraoControleGeral extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->adicionarCampo('fornecedores', 'UF', [
@@ -35,6 +38,9 @@ class EnderecoPadraoControleGeral extends Migration
         ]);
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         foreach ([
@@ -50,6 +56,9 @@ class EnderecoPadraoControleGeral extends Migration
         }
     }
 
+    /**
+     * Adiciona campo.
+     */
     private function adicionarCampo(string $tabela, string $campo, array $definicao): void
     {
         if (! $this->db->fieldExists($campo, $tabela)) {

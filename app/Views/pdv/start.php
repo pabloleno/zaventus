@@ -698,6 +698,9 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
             <?php endif; ?>
         });
 
+        /**
+         * Atualiza relogio pdv.
+         */
         function atualizaRelogioPdv() {
             var agora = new Date();
             var horario = agora.toLocaleTimeString('pt-BR', {
@@ -714,22 +717,34 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
             document.getElementById('pdv-data-atual').textContent = data;
         }
 
+        /**
+         * Controla a interacao de troca virgura por ponto na interface.
+         */
         function trocaVirguraPorPonto(id) {
             var valor = document.getElementById(id).value;
             document.getElementById(id).value = valor.replace(',', '.')
         }
 
+        /**
+         * Controla a interacao de confirma acao excluir na interface.
+         */
         function confirmaAcaoExcluir(msg, rota) {
             if (confirm(msg)) {
                 window.location.href = rota;
             }
         }
 
+        /**
+         * Adiciona produto por nome.
+         */
         function adicionaProdutoPorNome() {
             var id_produto = document.getElementById('pesq_de_produto_por_nome').value;
             window.location.href = "/pdv/adicionaProdutoPorNome/<?= $id_caixa ?>/" + id_produto;
         }
 
+        /**
+         * Calcula troco.
+         */
         function calculaTroco() {
             trocaVirguraPorPonto('valor_recebido'); // Troca a virgula pelo ponto se ouver
 
@@ -739,6 +754,9 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
             document.getElementById('troco').value = decimalMonetario(valor_recebido - valor_a_pagar);
         }
 
+        /**
+         * Calcula desconto geral.
+         */
         function calculaDescontoGeral() {
             var desconto, valor_a_pagar;
 
@@ -753,21 +771,33 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
             calculaTroco();
         }
 
+        /**
+         * Prepara para alterar qtd do produto.
+         */
         function preparaParaAlterarQtdDoProduto(id_produto_pdv, quantidade) {
             document.getElementById('altera_qtd_do_produto_quantidade').value = quantidade;
             document.getElementById('altera_qtd_do_produto_id_pdv_produto').value = id_produto_pdv;
         }
 
+        /**
+         * Prepara para alterar valo unitario do produto.
+         */
         function preparaParaAlterarValoUnitarioDoProduto(id_produto_pdv, valor_unitario) {
             document.getElementById('altera_valor_unitario_do_produto_valor_unitario').value = decimalMonetario(valor_unitario);
             document.getElementById('altera_valor_unitario_do_produto_id_pdv_produto').value = id_produto_pdv;
         }
 
+        /**
+         * Prepara para alterar desconto do produto.
+         */
         function preparaParaAlterarDescontoDoProduto(id_produto_pdv, desconto) {
             document.getElementById('altera_desconto_do_produto_valor_unitario').value = decimalMonetario(desconto);
             document.getElementById('altera_desconto_do_produto_id_pdv_produto').value = id_produto_pdv;
         }
 
+        /**
+         * Finaliza venda.
+         */
         function finalizaVenda() {
             var valor_a_pagar, desconto, valor_recebido, troco, forma_de_pagamento, id_cliente, id_vendedor, btn_finalizar;
 

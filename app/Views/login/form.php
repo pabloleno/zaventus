@@ -939,6 +939,9 @@
 <!-- /.content-wrapper -->
 
 <script>
+    /**
+     * Controla a interacao de desabilita modulo vendas na interface.
+     */
     function desabilitaModuloVendas()
     {
         if(document.getElementById('modulo_de_vendas').checked)
@@ -957,6 +960,9 @@
         }
     }
 
+    /**
+     * Controla a interacao de acoes modulo controle geral na interface.
+     */
     function AcoesModuloControleGeral()
     {
         if(document.getElementById('modulo_controle_geral').checked)
@@ -975,6 +981,9 @@
         }
     }
 
+    /**
+     * Controla a interacao de acoes modulo estoque na interface.
+     */
     function AcoesModuloEstoque()
     {
         if(document.getElementById('modulo_estoque').checked)
@@ -993,6 +1002,9 @@
         }
     }
 
+    /**
+     * Controla a interacao de acoes modulo financeiro na interface.
+     */
     function AcoesModuloFinanceiro()
     {
         if(document.getElementById('modulo_financeiro').checked)
@@ -1027,6 +1039,9 @@
         }
     }
 
+    /**
+     * Controla a interacao de acoes modulo relatorios na interface.
+     */
     function AcoesModuloRelatorios()
     {
         if(document.getElementById('modulo_relatorios').checked)
@@ -1045,6 +1060,9 @@
         }
     }
 
+    /**
+     * Controla a interacao de acoes modulo configs na interface.
+     */
     function AcoesModuloConfigs()
     {
         if(document.getElementById('modulo_configs').checked)

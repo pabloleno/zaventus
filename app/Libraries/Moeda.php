@@ -16,6 +16,9 @@ class Moeda
         'comissao',
     ];
 
+    /**
+     * Normaliza os dados recebidos para o formato esperado pela aplicacao.
+     */
     public static function normalizar($valor): float
     {
         if (is_int($valor) || is_float($valor)) {
@@ -42,11 +45,17 @@ class Moeda
         return round(is_numeric($valor) ? (float) $valor : 0.0, 2);
     }
 
+    /**
+     * Converte um valor monetario para a representacao decimal persistida.
+     */
     public static function decimal($valor): string
     {
         return number_format(self::normalizar($valor), 2, '.', '');
     }
 
+    /**
+     * Formata o valor para exibicao conforme o padrao monetario.
+     */
     public static function formatar($valor, bool $comSimbolo = false): string
     {
         $formatado = number_format(self::normalizar($valor), 2, ',', '.');
@@ -54,6 +63,9 @@ class Moeda
         return $comSimbolo ? 'R$ ' . $formatado : $formatado;
     }
 
+    /**
+     * Informa se o campo representa um valor monetario.
+     */
     public static function campoMonetario(string $campo): bool
     {
         $campo = strtolower(trim($campo));

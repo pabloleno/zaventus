@@ -46,6 +46,9 @@ class FuncionarioModel extends PadraoModel
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
+    /**
+     * Normaliza tipo.
+     */
     public static function normalizarTipo(string $tipo): string
     {
         $vendedor = stripos($tipo, 'Vendedor') !== false;
@@ -62,11 +65,17 @@ class FuncionarioModel extends PadraoModel
         return $tecnico ? self::TIPO_TECNICO : self::TIPO_OUTROS;
     }
 
+    /**
+     * Executa a consulta ou persistencia de atua como.
+     */
     public static function atuaComo(array $funcionario, string $atuacao): bool
     {
         return stripos(self::normalizarTipo((string) ($funcionario['tipo_funcionario'] ?? '')), $atuacao) !== false;
     }
 
+    /**
+     * Remove atuacao.
+     */
     public static function removerAtuacao(array $funcionario, string $atuacao): string
     {
         $vendedor = self::atuaComo($funcionario, 'Vendedor') && $atuacao !== 'Vendedor';
@@ -83,6 +92,9 @@ class FuncionarioModel extends PadraoModel
         return $tecnico ? self::TIPO_TECNICO : self::TIPO_OUTROS;
     }
 
+    /**
+     * Retorna a descricao de tipo.
+     */
     public static function descricaoTipo(string $tipo): string
     {
         return str_replace('Tecnico', 'Técnico', self::normalizarTipo($tipo));

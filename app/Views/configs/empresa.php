@@ -209,6 +209,9 @@
 <!-- /.content-wrapper -->
 
 <script>
+    /**
+     * Configura endereco empresa.
+     */
     function configuraEnderecoEmpresa() {
         var $cep = $('#cep');
         var $logradouro = $('#logradouro');
@@ -223,17 +226,26 @@
         var ultimoCepConsultado = '';
         var timerCep = null;
 
+        /**
+         * Remove complementos do texto de cidade retornado pelo servico de CEP.
+         */
         function limparCidade(texto) {
             $cidade.empty().append(new Option(texto || 'Selecione o estado', ''));
             $cidade.prop('disabled', true).trigger('change.select2');
             $municipio.val('');
         }
 
+        /**
+         * Atualiza r municipio.
+         */
         function atualizarMunicipio() {
             var nome = $cidade.find('option:selected').attr('data-municipio') || '';
             $municipio.val(nome);
         }
 
+        /**
+         * Seleciona a cidade correspondente ao codigo e nome informados.
+         */
         function selecionarCidade(codigo, nome) {
             var codigoLimpo = String(codigo || '').replace(/\D/g, '');
 
@@ -254,6 +266,9 @@
             }
         }
 
+        /**
+         * Carrega as cidades da UF selecionada e restaura a selecao anterior.
+         */
         function carregarCidades(uf, codigo, nome) {
             uf = String(uf || '').replace(/[^a-zA-Z]/g, '').toUpperCase().slice(0, 2);
 
@@ -285,6 +300,9 @@
                 });
         }
 
+        /**
+         * Consulta o CEP informado e preenche os campos de endereco disponiveis.
+         */
         function buscarCep() {
             var cep = String($cep.val() || '').replace(/\D/g, '');
 

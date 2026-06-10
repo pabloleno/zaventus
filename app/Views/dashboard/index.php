@@ -376,6 +376,9 @@
             pagarVencida: '#dc2626'
         };
 
+        /**
+         * Formata valores monetarios exibidos nas dicas dos graficos.
+         */
         function tooltipMoeda(tooltipItem, data) {
             var dataset = data.datasets[tooltipItem.datasetIndex];
             var valor = dataset.data[tooltipItem.index];
@@ -383,6 +386,9 @@
             return dataset.label + ': ' + moeda.format(valor || 0);
         }
 
+        /**
+         * Monta um grafico de composicao financeira para o conjunto informado.
+         */
         function doughnutFinanceiro(id, dados) {
             new Chart(document.getElementById(id), {
                 type: 'doughnut',

@@ -81,6 +81,9 @@ class Database extends \CodeIgniter\Database\Config
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Inicializa as dependencias usadas por este componente.
+	 */
 	public function __construct()
 	{
 		parent::__construct();

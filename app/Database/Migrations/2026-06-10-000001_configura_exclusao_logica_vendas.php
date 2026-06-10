@@ -6,6 +6,9 @@ use CodeIgniter\Database\Migration;
 
 class ConfiguraExclusaoLogicaVendas extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->db->query(
@@ -16,6 +19,9 @@ class ConfiguraExclusaoLogicaVendas extends Migration
         );
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         $this->db->query(

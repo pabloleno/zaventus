@@ -15,6 +15,9 @@ class ImprimeDanfe extends Controller
     private $nfe_model;
     private $nfce_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         ThirdPartyComposerLoader::loadWithoutPsrLog(APPPATH . "ThirdParty/sped-da/vendor/autoload.php");
@@ -23,6 +26,9 @@ class ImprimeDanfe extends Controller
         $this->nfce_model = new NFCeModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index($id_nfe, $tipo)
     {
         // $logo = 'data://text/plain;base64,'. base64_encode(file_get_contents(__DIR__ . '/../images/logo.jpg'));

@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ControleDeAcessoFuncionalidades extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -47,6 +50,9 @@ class ControleDeAcessoFuncionalidades extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('controle_de_acesso_funcionalidades');

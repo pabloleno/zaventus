@@ -26,6 +26,9 @@ class Clientes extends Controller
     private $ordem_de_servico_model;
     private $tabela_municipios_ibge_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -43,6 +46,9 @@ class Clientes extends Controller
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -64,6 +70,9 @@ class Clientes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_cliente)
     {
         $data['links'] = $this->links;
@@ -105,6 +114,9 @@ class Clientes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -127,6 +139,9 @@ class Clientes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_cliente)
     {
         $data['links'] = $this->links;
@@ -150,6 +165,9 @@ class Clientes extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -199,6 +217,9 @@ class Clientes extends Controller
         return redirect()->to('/clientes');
     }
 
+    /**
+     * Lista os municipios pertencentes a UF informada.
+     */
     public function municipiosPorUf($uf = null)
     {
         return $this->response->setJSON(
@@ -206,6 +227,9 @@ class Clientes extends Controller
         );
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_cliente)
     {
         $cliente = $this->cliente_model->where('id_cliente', $id_cliente)->first();

@@ -9,6 +9,9 @@ class TipoNegocio
     public const PRODUTOS = 'Produtos';
     public const SERVICOS = 'Servicos';
 
+    /**
+     * Retorna as opcoes de opcoes.
+     */
     public static function opcoes(bool $incluirTodos = false): array
     {
         $opcoes = [
@@ -24,6 +27,9 @@ class TipoNegocio
         return $opcoes;
     }
 
+    /**
+     * Retorna as opcoes de vendas.
+     */
     public static function opcoesVendas(bool $incluirTodos = true): array
     {
         $opcoes = [
@@ -38,6 +44,9 @@ class TipoNegocio
         return $opcoes;
     }
 
+    /**
+     * Normaliza os dados recebidos para o formato esperado pela aplicacao.
+     */
     public static function normalizar($tipo, string $padrao = self::GERAL, bool $aceitarTodos = false): string
     {
         $tipo = trim((string) $tipo);
@@ -46,6 +55,9 @@ class TipoNegocio
         return in_array($tipo, $validos, true) ? $tipo : $padrao;
     }
 
+    /**
+     * Normaliza venda.
+     */
     public static function normalizarVenda($tipo): string
     {
         $tipo = trim((string) $tipo);
@@ -53,6 +65,9 @@ class TipoNegocio
         return in_array($tipo, array_keys(self::opcoesVendas()), true) ? $tipo : self::TODOS;
     }
 
+    /**
+     * Retorna o rotulo legivel do tipo de negocio.
+     */
     public static function rotulo($tipo): string
     {
         $opcoes = self::opcoes(true);

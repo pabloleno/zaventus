@@ -13,10 +13,16 @@
         'comissao'
     ];
 
+    /**
+     * Obtem o identificador normalizado de um campo da interface.
+     */
     function nomeCampo(elemento) {
         return String(elemento.name || elemento.id || '').toLowerCase();
     }
 
+    /**
+     * Informa se o campo representa um valor monetario.
+     */
     function campoMonetario(elemento) {
         var nome = nomeCampo(elemento);
 
@@ -26,6 +32,9 @@
             || camposMonetarios.indexOf(nome) !== -1;
     }
 
+    /**
+     * Converte a entrada monetaria da interface em numero.
+     */
     function numeroMonetario(valor) {
         var texto = String(valor == null ? '' : valor).trim().replace(/[^\d,.\-]/g, '');
 
@@ -45,10 +54,16 @@
         return Number.isFinite(numero) ? Math.round((numero + Number.EPSILON) * 100) / 100 : 0;
     }
 
+    /**
+     * Converte um valor monetario da interface para decimal.
+     */
     function decimalMonetario(valor) {
         return numeroMonetario(valor).toFixed(2);
     }
 
+    /**
+     * Normaliza elemento.
+     */
     function normalizaElemento(elemento) {
         if (!campoMonetario(elemento) || elemento.value === '') {
             return;
@@ -57,10 +72,16 @@
         elemento.value = decimalMonetario(elemento.value);
     }
 
+    /**
+     * Normaliza formulario.
+     */
     function normalizaFormulario(formulario) {
         formulario.querySelectorAll('input').forEach(normalizaElemento);
     }
 
+    /**
+     * Inicializa os comportamentos compartilhados da interface.
+     */
     function inicializa() {
         document.querySelectorAll('input').forEach(normalizaElemento);
 

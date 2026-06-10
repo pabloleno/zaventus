@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ContatosPadraoControleGeral extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->adicionarCampo('clientes', 'whatsapp', [
@@ -70,6 +73,9 @@ class ContatosPadraoControleGeral extends Migration
         ]);
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         foreach ([
@@ -86,6 +92,9 @@ class ContatosPadraoControleGeral extends Migration
         }
     }
 
+    /**
+     * Adiciona campo.
+     */
     private function adicionarCampo(string $tabela, string $campo, array $definicao): void
     {
         if (! $this->db->fieldExists($campo, $tabela)) {

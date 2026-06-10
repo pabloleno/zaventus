@@ -38,6 +38,9 @@ class CampoPadrao
         'cpf' => 11,
     ];
 
+    /**
+     * Valida e normaliza os dados antes da persistencia.
+     */
     public static function preparar(array $dados): array
     {
         $erros = self::validar($dados);
@@ -48,6 +51,9 @@ class CampoPadrao
         ];
     }
 
+    /**
+     * Valida os dados recebidos e retorna os erros encontrados.
+     */
     public static function validar(array $dados): array
     {
         $erros = [];
@@ -110,6 +116,9 @@ class CampoPadrao
         return $erros;
     }
 
+    /**
+     * Normaliza os dados recebidos para o formato esperado pela aplicacao.
+     */
     public static function normalizar(array $dados): array
     {
         foreach ($dados as $campo => $valor) {
@@ -165,26 +174,41 @@ class CampoPadrao
         return $dados;
     }
 
+    /**
+     * Informa se o nome identifica um campo de telefone.
+     */
     private static function campoTelefone(string $campo): bool
     {
         return preg_match('/(^|_)(telefone|fone|fixo|celular|whatsapp|comercial|residencial)(_|$)/', $campo) === 1;
     }
 
+    /**
+     * Informa se o nome identifica especificamente um telefone fixo.
+     */
     private static function campoTelefoneFixo(string $campo): bool
     {
         return $campo === 'telefone_fixo';
     }
 
+    /**
+     * Informa se o nome identifica um campo de CNPJ.
+     */
     private static function campoCnpj(string $campo): bool
     {
         return strpos($campo, 'cnpj') !== false;
     }
 
+    /**
+     * Informa se o nome identifica um campo de e-mail.
+     */
     private static function campoEmail(string $campo): bool
     {
         return strpos($campo, 'email') !== false;
     }
 
+    /**
+     * Informa se o nome identifica um campo de data.
+     */
     private static function campoData(string $campo): bool
     {
         return $campo === 'data'
@@ -192,6 +216,9 @@ class CampoPadrao
             || preg_match('/(^|_)(validade|vencimento|nascimento|contratacao|admissao|demissao|emissao|expedicao)(_|$)/', $campo) === 1;
     }
 
+    /**
+     * Informa se o campo deve respeitar o limite de texto curto.
+     */
     private static function campoTextoCurto(string $campo): bool
     {
         if (in_array($campo, self::CAMPOS_IGNORADOS_TEXTO, true)) {
@@ -202,16 +229,25 @@ class CampoPadrao
             || in_array($campo, ['natop', 'verproc', 'xlgr', 'xnome', 'xfant', 'xcpl', 'xbairro', 'xmun', 'xpais', 'xcontato', 'usuario', 'primeiro_nome'], true);
     }
 
+    /**
+     * Normaliza nome campo.
+     */
     private static function normalizarNomeCampo(string $campo): string
     {
         return strtolower($campo);
     }
 
+    /**
+     * Remove todos os caracteres que nao sejam digitos.
+     */
     private static function somenteDigitos(string $valor): string
     {
         return preg_replace('/\D/', '', $valor);
     }
 
+    /**
+     * Limita um texto ao tamanho maximo informado.
+     */
     private static function limitar(string $valor, int $limite): string
     {
         return function_exists('mb_substr')
@@ -219,6 +255,9 @@ class CampoPadrao
             : substr($valor, 0, $limite);
     }
 
+    /**
+     * Normaliza data.
+     */
     private static function normalizarData(string $valor): string
     {
         $valor = trim($valor);
@@ -230,6 +269,9 @@ class CampoPadrao
         return $valor;
     }
 
+    /**
+     * Informa se o valor representa uma data de calendario valida.
+     */
     private static function dataValida(string $valor): bool
     {
         if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $valor, $partes) !== 1) {
@@ -239,6 +281,9 @@ class CampoPadrao
         return checkdate((int) $partes[2], (int) $partes[3], (int) $partes[1]);
     }
 
+    /**
+     * Calcula o tamanho do texto com suporte a caracteres multibyte.
+     */
     private static function tamanho(string $valor): int
     {
         return function_exists('mb_strlen')
@@ -246,6 +291,9 @@ class CampoPadrao
             : strlen($valor);
     }
 
+    /**
+     * Converte valores escalares ou convertiveis em texto para validacao.
+     */
     private static function valorString($valor): ?string
     {
         if (is_string($valor) || is_numeric($valor)) {
@@ -259,6 +307,9 @@ class CampoPadrao
         return null;
     }
 
+    /**
+     * Retorna o rotulo legivel usado nas mensagens de validacao.
+     */
     private static function label(string $campo): string
     {
         $labels = [

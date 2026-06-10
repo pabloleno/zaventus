@@ -42,6 +42,9 @@ class Pdv extends Controller
     private $forma_de_pagamento_model;
     private $vendedor_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         ThirdPartyComposerLoader::loadWithoutPsrLog(APPPATH . "ThirdParty/sped-nfe/vendor/autoload.php");
@@ -64,6 +67,9 @@ class Pdv extends Controller
         $this->vendedor_model           = new VendedorModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -85,6 +91,9 @@ class Pdv extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara e exibe a etapa inicial do fluxo.
+     */
     public function start($id_caixa)
     {
         $empresa = $this->config_empresa_model->where('id_config', 1)->first() ?? [];
@@ -103,6 +112,9 @@ class Pdv extends Controller
         echo view('pdv/start', $data);
     }
 
+    /**
+     * Adiciona produto por codigo de barras.
+     */
     public function adicionaProdutoPorCodigoDeBarras($id_caixa)
     {
         $codigo_de_barras = $this->request->getvar('codigo_de_barras');
@@ -139,6 +151,9 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Adiciona produto por nome.
+     */
     public function adicionaProdutoPorNome($id_caixa, $id_produto)
     {
         $produto = $this->produto_model->select('id_produto, nome, unidade, codigo_de_barras, valor_de_venda, NCM, CSOSN, CFOP')->where('id_produto', $id_produto)->first();
@@ -173,6 +188,9 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Remove produto do pdv.
+     */
     public function removeProdutoDoPdv($id_caixa, $id_produto_pdv)
     {
         $this->produto_pdv_model->where('id_caixa', $id_caixa)->where('id_produto_pdv', $id_produto_pdv)->delete();
@@ -183,6 +201,9 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Atualiza qtd do produto.
+     */
     public function alteraQtdDoProduto($id_caixa)
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
@@ -209,6 +230,9 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Atualiza valor unitario do produto.
+     */
     public function alteraValorUnitarioDoProduto($id_caixa)
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
@@ -235,6 +259,9 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Atualiza desconto do produto.
+     */
     public function alteraDescontoDoProduto($id_caixa)
     {
         $id_produto_pdv = $this->request->getvar('id_produto_pdv');
@@ -260,11 +287,17 @@ class Pdv extends Controller
         return redirect()->to("/pdv/start/$id_caixa");
     }
 
+    /**
+     * Formata o valor recebido conforme a configuracao da aplicacao.
+     */
     public function format($valor)
     {
         return Moeda::decimal($valor);
     }
 
+    /**
+     * Normaliza valor.
+     */
     private function normalizaValor($valor, $padrao = 0)
     {
         if ($valor === null || $valor === '') {
@@ -274,6 +307,9 @@ class Pdv extends Controller
         return Moeda::normalizar($valor);
     }
 
+    /**
+     * Converte a forma de pagamento no codigo exigido pelo documento fiscal.
+     */
     private function codigoFiscalFormaPagamento($nome)
     {
         $nome = trim((string) $nome);
@@ -338,6 +374,9 @@ class Pdv extends Controller
         return '99';
     }
 
+    /**
+     * Normaliza o CSOSN utilizado na emissao fiscal do produto.
+     */
     private function csosnProduto(array $produto)
     {
         $csosn = preg_replace('/\D/', '', (string) ($produto['CSOSN'] ?? ''));
@@ -345,16 +384,25 @@ class Pdv extends Controller
         return preg_match('/^\d{3}$/', $csosn) ? $csosn : '102';
     }
 
+    /**
+     * Formata um valor monetario para uso no documento fiscal ou cupom.
+     */
     private function formataMoeda($valor)
     {
         return Moeda::formatar($valor, true);
     }
 
+    /**
+     * Escapa o conteudo de cupom.
+     */
     private function escapaCupom($valor)
     {
         return htmlspecialchars((string) $valor, ENT_QUOTES, 'UTF-8');
     }
 
+    /**
+     * Define o nome do cliente exibido no cupom nao fiscal.
+     */
     private function nomeClienteParaCupom($cliente)
     {
         if (empty($cliente)) {
@@ -364,6 +412,9 @@ class Pdv extends Controller
         return !empty($cliente['nome']) ? $cliente['nome'] : ($cliente['razao_social'] ?? 'Consumidor');
     }
 
+    /**
+     * Monta o endereco de empresa para cupom.
+     */
     private function enderecoEmpresaParaCupom(array $empresa): string
     {
         $endereco = trim((string) ($empresa['endereco'] ?? ''));
@@ -387,6 +438,9 @@ class Pdv extends Controller
         ]));
     }
 
+    /**
+     * Define o telefone da empresa exibido no cupom nao fiscal.
+     */
     private function telefoneEmpresaParaCupom(array $empresa): string
     {
         foreach (['telefone', 'telefone_fixo', 'celular', 'whatsapp'] as $campo) {
@@ -400,6 +454,9 @@ class Pdv extends Controller
         return '';
     }
 
+    /**
+     * Monta cupom nao fiscal.
+     */
     private function montaCupomNaoFiscal($empresa, $cliente, $vendedor, $produtos, $venda, $id_venda)
     {
         $empresa = is_array($empresa) ? $empresa : [];
@@ -486,6 +543,9 @@ class Pdv extends Controller
         ";
     }
 
+    /**
+     * Finaliza venda.
+     */
     public function finalizaVenda($id_caixa)
     {
         if ($this->tipoFinalizacaoPdv() !== 'cupom_nao_fiscal') {
@@ -514,6 +574,9 @@ class Pdv extends Controller
         }
     }
 
+    /**
+     * Registra venda pdv.
+     */
     private function registraVendaPdv($id_caixa): array
     {
         $db = \Config\Database::connect();
@@ -641,6 +704,9 @@ class Pdv extends Controller
         }
     }
 
+    /**
+     * Define o fluxo de finalizacao configurado para o PDV.
+     */
     private function tipoFinalizacaoPdv(): string
     {
         $empresa = $this->config_empresa_model
@@ -652,6 +718,9 @@ class Pdv extends Controller
         return in_array($tipo, ['cupom_nao_fiscal', 'nfce'], true) ? $tipo : 'cupom_nao_fiscal';
     }
 
+    /**
+     * Finaliza venda legado.
+     */
     private function finalizaVendaLegado($id_caixa)
     {
         $dados = $this->request->getvar();
@@ -757,6 +826,9 @@ class Pdv extends Controller
         ";
     }
 
+    /**
+     * Inicia a emissao da NFC-e para a venda selecionada.
+     */
     public function emiteNFCe($id_venda, $tipo) // Tipo=1 então emitir pelo PDV, Tipo=2 então emitir pelo hist. de vendas 
     {
         $dados_da_venda = $this->venda_model->where('id_venda', $id_venda)->first(); // Dados da Venda
@@ -1139,6 +1211,9 @@ class Pdv extends Controller
         return redirect()->to("/vendas/show/$id_venda");
     }
 
+    /**
+     * Finaliza a venda do PDV e inicia a emissao da NFC-e.
+     */
     public function finalizaVendaEmiteNFCe($id_caixa)
     {
         if ($this->tipoFinalizacaoPdv() !== 'nfce') {

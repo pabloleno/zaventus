@@ -11,6 +11,9 @@ class SeparaFinanceiroProdutosServicos extends Migration
         'despesas',
     ];
 
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         foreach (self::TABELAS as $tabela) {
@@ -28,6 +31,9 @@ class SeparaFinanceiroProdutosServicos extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         foreach (self::TABELAS as $tabela) {
@@ -37,6 +43,9 @@ class SeparaFinanceiroProdutosServicos extends Migration
         }
     }
 
+    /**
+     * Consulta a definicao anterior de uma coluna antes de altera-la.
+     */
     private function campoAnterior(string $tabela): string
     {
         return in_array($tabela, ['contas_a_pagar', 'contas_a_receber'], true) ? 'status' : 'id_' . rtrim($tabela, 's');

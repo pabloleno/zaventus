@@ -33,6 +33,9 @@ class Relatorios extends Controller
     private $vendedor_model;
     private $faturamento_negocio;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -55,6 +58,9 @@ class Relatorios extends Controller
         $this->faturamento_negocio  = new FaturamentoNegocio();
     }
 
+    /**
+     * Monta e exibe o relatorio de clientes.
+     */
     public function clientes()
     {
         $data['links'] = [
@@ -81,6 +87,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de fornecedores.
+     */
     public function fornecedores()
     {
         $data['links'] = [
@@ -107,6 +116,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de funcionarios.
+     */
     public function funcionarios()
     {
         $data['links'] = [
@@ -133,6 +145,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de historico completo.
+     */
     public function historicoCompleto()
     {
         $data['links'] = [
@@ -180,6 +195,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de por cliente.
+     */
     public function porCliente()
     {
         $data['links'] = [
@@ -226,6 +244,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de por vendedor.
+     */
     public function porVendedor()
     {
         $data['links'] = [
@@ -272,6 +293,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de produtos.
+     */
     public function produtos()
     {
         $data['links'] = [
@@ -298,6 +322,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de estoque minimo.
+     */
     public function estoqueMinimo()
     {
         $data['links'] = [
@@ -324,6 +351,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de validade dos produtos.
+     */
     public function validadeDosProdutos()
     {
         $data['links'] = [
@@ -401,6 +431,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de faturamento diario.
+     */
     public function faturamentoDiario()
     {
         $data['links'] = [
@@ -448,6 +481,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de faturamento detalhado.
+     */
     public function faturamentoDetalhado()
     {
         $data['links'] = [
@@ -507,6 +543,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de lancamentos.
+     */
     public function lancamentos()
     {
         $data['links'] = [
@@ -553,6 +592,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de retiradas do caixa.
+     */
     public function retiradasDoCaixa()
     {
         $data['links'] = [
@@ -593,6 +635,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de despesas.
+     */
     public function despesas()
     {
         $data['links'] = [
@@ -639,6 +684,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de contas pagar.
+     */
     public function contasPagar()
     {
         $data['links'] = [
@@ -695,6 +743,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de contas receber.
+     */
     public function contasReceber()
     {
         $data['links'] = [
@@ -751,6 +802,9 @@ class Relatorios extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Monta e exibe o relatorio de vendedores.
+     */
     public function vendedores()
     {
         $data['links'] = [

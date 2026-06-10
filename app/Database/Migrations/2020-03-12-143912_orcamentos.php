@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class Orcamentos extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -82,6 +85,9 @@ class Orcamentos extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('orcamentos');

@@ -10,6 +10,9 @@ class FormasDePagamento extends Controller
     private $links;
     private $forma_de_pagamento_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -21,6 +24,9 @@ class FormasDePagamento extends Controller
         $this->forma_de_pagamento_model = new FormaDePagamentoModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;

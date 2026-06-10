@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class InventarioDoEstoque extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -47,6 +50,9 @@ class InventarioDoEstoque extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('inventarios_do_estoque');

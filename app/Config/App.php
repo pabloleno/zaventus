@@ -135,6 +135,9 @@ class App extends BaseConfig
      */
     public string $appTimezone = 'America/Manaus';
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         parent::__construct();

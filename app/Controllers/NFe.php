@@ -36,6 +36,9 @@ class NFe extends Controller
     private $status_da_nfe = "";
     private $xml_protocolado = "";
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -54,11 +57,17 @@ class NFe extends Controller
         $this->forma_de_pagamento_model = new FormaDePagamentoModel();
     }
 
+    /**
+     * Formata o valor recebido conforme a configuracao da aplicacao.
+     */
     public function format($valor)
     {
         return Moeda::decimal($valor);
     }
 
+    /**
+     * Normaliza valor.
+     */
     private function normalizaValor($valor, $padrao = 0)
     {
         if ($valor === null || $valor === '') {
@@ -68,6 +77,9 @@ class NFe extends Controller
         return Moeda::normalizar($valor);
     }
 
+    /**
+     * Converte a forma de pagamento no codigo exigido pelo documento fiscal.
+     */
     private function codigoFiscalFormaPagamento($nome)
     {
         $nome = trim((string) $nome);
@@ -132,6 +144,9 @@ class NFe extends Controller
         return '99';
     }
 
+    /**
+     * Normaliza o CSOSN utilizado na emissao fiscal do produto.
+     */
     private function csosnProduto(array $produto)
     {
         $csosn = preg_replace('/\D/', '', (string) ($produto['CSOSN'] ?? ''));
@@ -139,6 +154,9 @@ class NFe extends Controller
         return preg_match('/^\d{3}$/', $csosn) ? $csosn : '102';
     }
 
+    /**
+     * Exibe a mensagem retornada pela operacao fiscal.
+     */
     public function mostraErro($id_venda, $erro)
     {
         $data['links'] = $this->links;
@@ -162,6 +180,9 @@ class NFe extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Exibe os campos obrigatorios ausentes na operacao fiscal.
+     */
     public function mostraErroCamposObr($id_venda, $erros)
     {
         $data['links'] = $this->links;
@@ -185,6 +206,9 @@ class NFe extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Inicia a emissao da NFe para a venda selecionada.
+     */
     public function emiteNFe($id_cliente, $id_venda)
     {
         if(!@fsockopen('www.google.com.br', 80, $num, $error, 5)) // Verifica se existe conexao com internet
@@ -626,6 +650,9 @@ class NFe extends Controller
         return redirect()->to("/vendas/show/$id_venda");
     }
 
+    /**
+     * Reemite o documento fiscal solicitado e registra o retorno da SEFAZ.
+     */
     public function reemitir($id_cliente, $id_venda, $id_nfe)
     {
         // Primeiro exclui a NFe atual que tentou ser emitida e deu erro
@@ -637,6 +664,9 @@ class NFe extends Controller
         return redirect()->to("/vendas/show/$id_venda");
     }
 
+    /**
+     * Cancela o documento fiscal solicitado e registra o retorno da SEFAZ.
+     */
     public function cancelar()
     {
         // Dados

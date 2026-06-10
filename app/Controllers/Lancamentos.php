@@ -13,6 +13,9 @@ class Lancamentos extends Controller
     private $lancamento_model;
     private $caixa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->links = ['menu' => '5.m', 'item' => '5.0', 'subItem' => '5.2'];
@@ -20,6 +23,9 @@ class Lancamentos extends Controller
         $this->caixa_model = new CaixaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data = [
@@ -67,6 +73,9 @@ class Lancamentos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data = $this->dadosFormulario('Novo Lancamento', 'fa fa-plus-circle');
@@ -77,6 +86,9 @@ class Lancamentos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_lancamento)
     {
         $data = $this->dadosFormulario('Editar Lancamento', 'fa fa-edit');
@@ -87,6 +99,9 @@ class Lancamentos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getVar();
@@ -98,6 +113,9 @@ class Lancamentos extends Controller
         return redirect()->to('/lancamentos');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_lancamento)
     {
         $this->lancamento_model->where('id_lancamento', $id_lancamento)->delete();
@@ -106,6 +124,9 @@ class Lancamentos extends Controller
         return redirect()->to('/lancamentos');
     }
 
+    /**
+     * Monta os dados compartilhados pelo formulario de cadastro e edicao.
+     */
     private function dadosFormulario(string $modulo, string $icone): array
     {
         return [

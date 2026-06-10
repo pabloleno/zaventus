@@ -11,12 +11,18 @@ class Despesas extends Controller
     private $links;
     private $despesa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->links = ['menu' => '5.m', 'item' => '5.0', 'subItem' => '5.5'];
         $this->despesa_model = new DespesaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data = [
@@ -68,6 +74,9 @@ class Despesas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data = $this->dadosFormulario('Nova Despesa', 'fa fa-plus-circle');
@@ -77,6 +86,9 @@ class Despesas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_despesa)
     {
         $data = $this->dadosFormulario('Editar Despesa', 'fa fa-edit');
@@ -87,6 +99,9 @@ class Despesas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getVar();
@@ -98,6 +113,9 @@ class Despesas extends Controller
         return redirect()->to('/despesas');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_despesa)
     {
         $this->despesa_model->where('id_despesa', $id_despesa)->delete();
@@ -106,6 +124,9 @@ class Despesas extends Controller
         return redirect()->to('/despesas');
     }
 
+    /**
+     * Monta os dados compartilhados pelo formulario de cadastro e edicao.
+     */
     private function dadosFormulario(string $modulo, string $icone): array
     {
         return [

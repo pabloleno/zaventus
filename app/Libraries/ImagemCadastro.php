@@ -17,6 +17,9 @@ class ImagemCadastro
         'image/webp' => 'webp',
     ];
 
+    /**
+     * Valida e armazena a imagem enviada para o cadastro.
+     */
     public static function salvar(?UploadedFile $arquivo, string $cadastro): ?string
     {
         if ($arquivo === null || $arquivo->getError() === UPLOAD_ERR_NO_FILE) {
@@ -52,6 +55,9 @@ class ImagemCadastro
         return $diretorioRelativo . '/' . $nome;
     }
 
+    /**
+     * Remove remover.
+     */
     public static function remover(?string $caminho): void
     {
         $caminho = self::normalizar($caminho);
@@ -67,6 +73,9 @@ class ImagemCadastro
         }
     }
 
+    /**
+     * Monta a URL publica da imagem cadastrada.
+     */
     public static function url(?string $caminho): string
     {
         $caminho = self::normalizar($caminho);
@@ -79,6 +88,9 @@ class ImagemCadastro
         return base_url($caminho);
     }
 
+    /**
+     * Normaliza os dados recebidos para o formato esperado pela aplicacao.
+     */
     private static function normalizar(?string $caminho): string
     {
         return ltrim(str_replace('\\', '/', trim((string) $caminho)), '/');

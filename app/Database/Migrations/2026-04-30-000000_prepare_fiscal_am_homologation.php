@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class PrepareFiscalAmHomologation extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         if ($this->db->tableExists('formas_de_pagamento') && !$this->db->fieldExists('codigo_nfce', 'formas_de_pagamento')) {
@@ -27,6 +30,9 @@ class PrepareFiscalAmHomologation extends Migration
         ]);
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         if ($this->db->tableExists('formas_de_pagamento') && $this->db->fieldExists('codigo_nfce', 'formas_de_pagamento')) {
@@ -34,6 +40,9 @@ class PrepareFiscalAmHomologation extends Migration
         }
     }
 
+    /**
+     * Atualiza formas de pagamento.
+     */
     private function atualizaFormasDePagamento()
     {
         if (!$this->db->tableExists('formas_de_pagamento') || !$this->db->fieldExists('codigo_nfce', 'formas_de_pagamento')) {
@@ -65,6 +74,9 @@ class PrepareFiscalAmHomologation extends Migration
         }
     }
 
+    /**
+     * Prepara config fiscal.
+     */
     private function preparaConfigFiscal($tabela, array $extras = [])
     {
         if (!$this->db->tableExists($tabela)) {
@@ -93,6 +105,9 @@ class PrepareFiscalAmHomologation extends Migration
         $this->db->table($tabela)->where('id_config', 1)->update($dados);
     }
 
+    /**
+     * Monta os dados de homologacao am.
+     */
     private function dadosHomologacaoAm(array $row)
     {
         $cnpj = preg_replace('/\D/', '', (string) ($row['CNPJ'] ?? ''));
@@ -132,6 +147,9 @@ class PrepareFiscalAmHomologation extends Migration
         ];
     }
 
+    /**
+     * Informa se a configuracao fiscal ainda possui os valores padrao legados.
+     */
     private function configParecePadraoAntigo(array $row)
     {
         $cnpj = preg_replace('/\D/', '', (string) ($row['CNPJ'] ?? ''));

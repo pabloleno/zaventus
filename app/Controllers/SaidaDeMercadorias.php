@@ -12,6 +12,9 @@ class SaidaDeMercadorias extends Controller
     private $saida_de_mercadoria_model;
     private $produto_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -24,6 +27,9 @@ class SaidaDeMercadorias extends Controller
         $this->saida_de_mercadoria_model = new SaidaDeMercadoriaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -45,6 +51,9 @@ class SaidaDeMercadorias extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -67,6 +76,9 @@ class SaidaDeMercadorias extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -92,6 +104,9 @@ class SaidaDeMercadorias extends Controller
         return redirect()->to('/saidaDeMercadorias');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_saida)
     {
         // ----------------- DEVOLTE A QUANTIDADE DA SAÍDA PARA O PRODUTO -------------------- // 

@@ -21,6 +21,9 @@ class Orcamentos extends Controller
     private $cliente_model;
     private $caixa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -37,6 +40,9 @@ class Orcamentos extends Controller
         $this->caixa_model = new CaixaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -129,6 +135,9 @@ class Orcamentos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_orcamento)
     {
         $data['links'] = $this->links;
@@ -153,6 +162,9 @@ class Orcamentos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_orcamento)
     {
         $this->orcamento_model->where('id_orcamento', $id_orcamento)->delete();
@@ -163,6 +175,9 @@ class Orcamentos extends Controller
         return redirect()->to('/orcamentos');
     }
 
+    /**
+     * Finaliza venda.
+     */
     public function finalizarVenda($id_orcamento)
     {
         $dados = $this->orcamento_model->where('id_orcamento', $id_orcamento)->first();

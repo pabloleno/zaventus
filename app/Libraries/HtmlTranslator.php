@@ -7,6 +7,9 @@ class HtmlTranslator
     private const SKIP_TAGS = ['script', 'style', 'textarea', 'code', 'pre'];
     private const DATA_TAGS = ['td'];
 
+    /**
+     * Traduz translate.
+     */
     public static function translate(string $buffer): string
     {
         if (! self::shouldTranslate($buffer)) {
@@ -33,6 +36,9 @@ class HtmlTranslator
         return self::translateHtml($buffer, $exact, $fragments);
     }
 
+    /**
+     * Informa se a resposta atual pode ser traduzida.
+     */
     private static function shouldTranslate(string $buffer): bool
     {
         if ($buffer === '' || stripos($buffer, '<html') === false) {
@@ -46,6 +52,9 @@ class HtmlTranslator
             || stripos($contentType, 'text/plain') !== false;
     }
 
+    /**
+     * Traduz html.
+     */
     private static function translateHtml(string $html, array $exact, array $fragments): string
     {
         $html = self::translateScriptBlocks($html, $exact, $fragments);
@@ -94,6 +103,9 @@ class HtmlTranslator
         return $translated;
     }
 
+    /**
+     * Atualiza a pilha de tags usada durante a traducao do HTML.
+     */
     private static function updateStack(string $tag, array &$stack): void
     {
         if (preg_match('/^<\s*\/\s*([a-z0-9]+)/i', $tag, $match) === 1) {
@@ -120,12 +132,18 @@ class HtmlTranslator
         $stack[] = strtolower($match[1]);
     }
 
+    /**
+     * Informa se atende a regra de closing skipped tag.
+     */
     private static function isClosingSkippedTag(string $tag): bool
     {
         return preg_match('/^<\s*\/\s*([a-z0-9]+)/i', $tag, $match) === 1
             && in_array(strtolower($match[1]), self::SKIP_TAGS, true);
     }
 
+    /**
+     * Traduz tag attributes.
+     */
     private static function translateTagAttributes(string $tag, array $exact, array $fragments): string
     {
         $tag = preg_replace_callback(
@@ -149,6 +167,9 @@ class HtmlTranslator
         return $tag;
     }
 
+    /**
+     * Traduz script blocks.
+     */
     private static function translateScriptBlocks(string $html, array $exact, array $fragments): string
     {
         return preg_replace_callback(
@@ -160,6 +181,9 @@ class HtmlTranslator
         ) ?? $html;
     }
 
+    /**
+     * Traduz script text.
+     */
     private static function translateScriptText(string $script, array $exact, array $fragments): string
     {
         return preg_replace_callback(
@@ -182,6 +206,9 @@ class HtmlTranslator
         ) ?? $script;
     }
 
+    /**
+     * Informa se um texto de script pode ser traduzido com seguranca.
+     */
     private static function shouldTranslateScriptString(string $text, array $exact, array $fragments): bool
     {
         $trimmed = trim(strip_tags($text));
@@ -211,11 +238,17 @@ class HtmlTranslator
         return false;
     }
 
+    /**
+     * Escapa o conteudo de script string.
+     */
     private static function escapeScriptString(string $text, string $quote): string
     {
         return str_replace($quote, '\\' . $quote, $text);
     }
 
+    /**
+     * Traduz text.
+     */
     private static function translateText(string $text, array $exact, array $fragments): string
     {
         if (trim($text) === '') {
@@ -238,6 +271,9 @@ class HtmlTranslator
         return $leading . $body . $trailing;
     }
 
+    /**
+     * Ordena traducoes da mais longa para a mais curta para evitar substituicoes parciais.
+     */
     private static function longestFirst(array $translations): array
     {
         uksort($translations, static fn ($left, $right): int => strlen($right) <=> strlen($left));
@@ -245,6 +281,9 @@ class HtmlTranslator
         return $translations;
     }
 
+    /**
+     * Informa se possui any tag.
+     */
     private static function hasAnyTag(array $stack, array $tags): bool
     {
         return array_intersect($stack, $tags) !== [];

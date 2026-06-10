@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class VinculaVendedoresFuncionarios extends Migration
 {
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         $this->adicionarCampo('funcionarios', 'tipo_funcionario', [
@@ -26,6 +29,9 @@ class VinculaVendedoresFuncionarios extends Migration
         $this->criarVendedoresDosFuncionarios();
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         if ($this->db->fieldExists('id_funcionario', 'vendedores')) {
@@ -37,6 +43,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Adiciona campo.
+     */
     private function adicionarCampo(string $tabela, string $campo, array $definicao): void
     {
         if (! $this->db->fieldExists($campo, $tabela)) {
@@ -44,6 +53,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Garante a existencia de vendedor geral.
+     */
     private function garantirVendedorGeral(): void
     {
         $tabela = $this->db->table('vendedores');
@@ -67,6 +79,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Marca funcionarios com cargo de vendedor antes de criar os vinculos.
+     */
     private function marcarFuncionariosComCargoVendedor(): void
     {
         $funcionarios = $this->db->table('funcionarios')
@@ -81,6 +96,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Vincula vendedores existentes.
+     */
     private function vincularVendedoresExistentes(): void
     {
         $vendedores = $this->db->table('vendedores')
@@ -112,6 +130,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Cria vendedores dos funcionarios.
+     */
     private function criarVendedoresDosFuncionarios(): void
     {
         $funcionarios = $this->db->table('funcionarios')
@@ -139,6 +160,9 @@ class VinculaVendedoresFuncionarios extends Migration
         }
     }
 
+    /**
+     * Define a data inicial usada na vinculacao do registro.
+     */
     private function dataInicio(array $funcionario): string
     {
         foreach (['data_inicio_das_atividades', 'data_de_contratacao'] as $campo) {

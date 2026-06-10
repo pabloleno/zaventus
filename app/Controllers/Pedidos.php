@@ -18,6 +18,9 @@ class Pedidos extends Controller
     private $produto_da_venda_model;
     private $cliente_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -33,6 +36,9 @@ class Pedidos extends Controller
         $this->cliente_model = new ClienteModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -125,6 +131,9 @@ class Pedidos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_pedido)
     {
         $data['links'] = $this->links;
@@ -149,6 +158,9 @@ class Pedidos extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_pedido)
     {
         $this->pedido_model->where('id_pedido', $id_pedido)->delete();
@@ -159,6 +171,9 @@ class Pedidos extends Controller
         return redirect()->to('/pedidos');
     }
 
+    /**
+     * Finaliza pedido.
+     */
     public function finalizarPedido($id_pedido)
     {
         $dados = $this->pedido_model->where('id_pedido', $id_pedido)->first();

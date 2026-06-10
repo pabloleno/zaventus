@@ -11,6 +11,9 @@ class ContasReceber extends Controller
     private $links;
     private $conta_a_receber_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->links = [
@@ -22,6 +25,9 @@ class ContasReceber extends Controller
         $this->conta_a_receber_model = new ContaReceberModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -49,6 +55,9 @@ class ContasReceber extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data = $this->dadosFormulario('Nova Conta a Receber', 'fa fa-plus-circle');
@@ -58,6 +67,9 @@ class ContasReceber extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_conta)
     {
         $data = $this->dadosFormulario('Editar Conta a Receber', 'fa fa-edit');
@@ -68,6 +80,9 @@ class ContasReceber extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getVar();
@@ -79,6 +94,9 @@ class ContasReceber extends Controller
         return redirect()->to('/contasReceber');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_conta)
     {
         $this->conta_a_receber_model->where('id_conta', $id_conta)->delete();
@@ -87,6 +105,9 @@ class ContasReceber extends Controller
         return redirect()->to('/contasReceber');
     }
 
+    /**
+     * Monta os dados compartilhados pelo formulario de cadastro e edicao.
+     */
     private function dadosFormulario(string $modulo, string $icone): array
     {
         return [
@@ -101,6 +122,9 @@ class ContasReceber extends Controller
         ];
     }
 
+    /**
+     * Le e normaliza os filtros informados na requisicao.
+     */
     private function filtros(): array
     {
         $dados = $this->request->getGet();
@@ -114,6 +138,9 @@ class ContasReceber extends Controller
         ];
     }
 
+    /**
+     * Aplica os filtros informados pelo usuario na consulta da listagem.
+     */
     private function aplicaFiltros($query, array $filtros): void
     {
         if ($filtros['id_conta'] !== '') {

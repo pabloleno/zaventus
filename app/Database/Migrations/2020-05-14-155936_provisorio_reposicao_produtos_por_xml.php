@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class ProvisorioReposicaoProdutosPorXml extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		if ($this->db->tableExists('provisorio_reposicao_produtos_por_xml')) {
@@ -50,6 +53,9 @@ class ProvisorioReposicaoProdutosPorXml extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('provisorio_reposicao_produtos_por_xml', true);

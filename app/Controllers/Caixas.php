@@ -16,6 +16,9 @@ class Caixas extends Controller
     private $venda_model;
     private $retirada_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -30,6 +33,9 @@ class Caixas extends Controller
         $this->retirada_model = new RetiradaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -125,6 +131,9 @@ class Caixas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega e exibe os detalhes do registro solicitado.
+     */
     public function show($id_caixa)
     {
         $data['links'] = $this->links;
@@ -155,6 +164,9 @@ class Caixas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Abre um novo caixa para registrar as movimentacoes do operador.
+     */
     public function abrir()
     {
         $data['links'] = $this->links;
@@ -175,6 +187,9 @@ class Caixas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_caixa)
     {
         $data['links'] = $this->links;
@@ -197,6 +212,9 @@ class Caixas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Fecha o caixa informado depois de validar seus valores finais.
+     */
     public function fechar($id_caixa)
     {
         $dados = $this->request->getvar();
@@ -216,6 +234,9 @@ class Caixas extends Controller
         return redirect()->to("/caixas/show/$id_caixa");
     }
 
+    /**
+     * Reabre o caixa informado para permitir novas movimentacoes.
+     */
     public function reabrir($id_caixa)
     {
         $this->caixa_model->save([
@@ -229,6 +250,9 @@ class Caixas extends Controller
         return redirect()->to("/caixas/show/$id_caixa");
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -251,6 +275,9 @@ class Caixas extends Controller
         return redirect()->to('/caixas');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_caixa)
     {
         $this->caixa_model->where('id_caixa', $id_caixa)->delete();

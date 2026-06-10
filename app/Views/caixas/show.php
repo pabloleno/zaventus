@@ -314,6 +314,9 @@
         <?php endif; ?>
     });
 
+    /**
+     * Verifica valor de fechamento.
+     */
     function verificaValorDeFechamento() {
         var valor_de_fechamento = document.getElementById('valor_de_fechamento').value;
 

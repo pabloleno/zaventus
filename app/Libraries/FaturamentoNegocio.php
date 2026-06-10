@@ -6,11 +6,17 @@ class FaturamentoNegocio
 {
     private $db;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     public function __construct()
     {
         $this->db = db_connect();
     }
 
+    /**
+     * Consulta as vendas de produtos do periodo, respeitando os filtros informados.
+     */
     public function vendasProdutos(string $dataInicio, string $dataFinal, array $filtros = []): array
     {
         $builder = $this->db->table('vendas')
@@ -35,6 +41,9 @@ class FaturamentoNegocio
             ->getResultArray();
     }
 
+    /**
+     * Consulta ordens concretizadas e calcula o faturamento de servicos do periodo.
+     */
     public function ordensServicos(string $dataInicio, string $dataFinal, array $filtros = []): array
     {
         $builder = $this->db->table('ordens_de_servicos')
@@ -65,6 +74,9 @@ class FaturamentoNegocio
             ->getResultArray();
     }
 
+    /**
+     * Calcula o total de produtos.
+     */
     public function totalProdutos(string $dataInicio, string $dataFinal): float
     {
         $resultado = $this->db->table('vendas')
@@ -78,6 +90,9 @@ class FaturamentoNegocio
         return (float) ($resultado['valor_a_pagar'] ?? 0);
     }
 
+    /**
+     * Calcula o total de servicos.
+     */
     public function totalServicos(string $dataInicio, string $dataFinal): float
     {
         $total = 0.0;
@@ -89,6 +104,9 @@ class FaturamentoNegocio
         return round($total, 2);
     }
 
+    /**
+     * Calcula o total de lancamentos.
+     */
     public function totalLancamentos(string $dataInicio, string $dataFinal, string $tipoNegocio): float
     {
         $builder = $this->db->table('lancamentos')
@@ -105,6 +123,9 @@ class FaturamentoNegocio
         return (float) ($resultado['valor'] ?? 0);
     }
 
+    /**
+     * Monta o resumo consolidado de faturamento para o periodo e tipo de negocio.
+     */
     public function resumo(string $dataInicio, string $dataFinal, string $tipoNegocio): array
     {
         $produtos = in_array($tipoNegocio, [TipoNegocio::TODOS, TipoNegocio::PRODUTOS], true)
@@ -123,6 +144,9 @@ class FaturamentoNegocio
         ];
     }
 
+    /**
+     * Agrupa diariamente o faturamento do mes informado.
+     */
     public function resumoDiarioMes(int $ano, int $mes, string $tipoNegocio): array
     {
         $inicio = sprintf('%04d-%02d-01', $ano, $mes);

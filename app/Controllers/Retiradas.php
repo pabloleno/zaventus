@@ -12,6 +12,9 @@ class Retiradas extends Controller
     private $retirada_model;
     private $caixa_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -24,6 +27,9 @@ class Retiradas extends Controller
         $this->caixa_model = new CaixaModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['links'] = $this->links;
@@ -114,6 +120,9 @@ class Retiradas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -136,6 +145,9 @@ class Retiradas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_retirada)
     {
         $data['links'] = $this->links;
@@ -158,6 +170,9 @@ class Retiradas extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getvar();
@@ -177,6 +192,9 @@ class Retiradas extends Controller
         return redirect()->to('/retiradas');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_retirada)
     {
         $this->retirada_model->where('id_retirada', $id_retirada)->delete();

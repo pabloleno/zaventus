@@ -13,6 +13,9 @@ class Login extends Controller
     private $empresa_model;
     private $login_model;
 
+    /**
+     * Inicializa as dependencias usadas por este componente.
+     */
     function __construct()
     {
         $this->links = [
@@ -25,6 +28,9 @@ class Login extends Controller
         $this->login_model = new LoginModel();
     }
 
+    /**
+     * Carrega os dados e exibe a tela principal deste modulo.
+     */
     public function index()
     {
         $data['empresa'] = $this->empresa_model->where('id_config', 1)->first();
@@ -32,6 +38,9 @@ class Login extends Controller
         echo view('login/index', $data);
     }
 
+    /**
+     * Carrega e exibe os usuarios e suas permissoes.
+     */
     public function usuarios()
     {
         $data['links'] = $this->links;
@@ -53,6 +62,9 @@ class Login extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Prepara os dados e exibe o formulario de cadastro.
+     */
     public function create()
     {
         $data['links'] = $this->links;
@@ -73,6 +85,9 @@ class Login extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Carrega o registro solicitado e exibe o formulario de edicao.
+     */
     public function edit($id_login)
     {
         $data['links'] = $this->links;
@@ -95,6 +110,9 @@ class Login extends Controller
         echo view('templates/footer');
     }
 
+    /**
+     * Valida e persiste os dados enviados pelo formulario.
+     */
     public function store()
     {
         $dados = $this->request->getPost();
@@ -205,6 +223,9 @@ class Login extends Controller
         return redirect()->to('/login/usuarios');
     }
 
+    /**
+     * Valida as credenciais e inicia a sessao do usuario.
+     */
     public function autenticar()
     {
         $dados = $this->request->getPost();
@@ -257,6 +278,9 @@ class Login extends Controller
         }
     }
 
+    /**
+     * Encerra a sessao autenticada e retorna para o login.
+     */
     public function logout()
     {
         $session = session();
@@ -265,6 +289,9 @@ class Login extends Controller
         return redirect()->to('/login');
     }
 
+    /**
+     * Remove o registro solicitado e retorna para a listagem.
+     */
     public function delete($id_login)
     {
         $this->login_model->where('id_login', $id_login)->delete();
@@ -275,6 +302,9 @@ class Login extends Controller
         return redirect()->to('/login/usuarios');
     }
 
+    /**
+     * Compara a senha informada com o hash armazenado.
+     */
     private function senhaConfere(string $senhaInformada, string $senhaArmazenada): bool
     {
         if ($senhaInformada === '' || $senhaArmazenada === '') {
@@ -288,6 +318,9 @@ class Login extends Controller
         return hash_equals($senhaArmazenada, $senhaInformada);
     }
 
+    /**
+     * Informa se o hash da senha deve ser atualizado.
+     */
     private function senhaPrecisaAtualizar(string $senhaArmazenada): bool
     {
         return empty(password_get_info($senhaArmazenada)['algo'])

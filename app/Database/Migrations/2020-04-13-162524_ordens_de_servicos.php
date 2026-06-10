@@ -4,6 +4,9 @@ use CodeIgniter\Database\Migration;
 
 class OrdensDeServicos extends Migration
 {
+	/**
+	 * Aplica as alteracoes de banco definidas por esta migration.
+	 */
 	public function up()
 	{
 		$this->forge->addField([
@@ -101,6 +104,9 @@ class OrdensDeServicos extends Migration
 
 	//--------------------------------------------------------------------
 
+	/**
+	 * Reverte as alteracoes de banco aplicadas por esta migration.
+	 */
 	public function down()
 	{
 		$this->forge->dropTable('ordens_de_servicos');

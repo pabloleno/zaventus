@@ -11,6 +11,9 @@ class CadastrosControleGeralFotos extends Migration
         'vendedores',
     ];
 
+    /**
+     * Aplica as alteracoes de banco definidas por esta migration.
+     */
     public function up()
     {
         foreach (self::TABELAS as $tabela) {
@@ -38,6 +41,9 @@ class CadastrosControleGeralFotos extends Migration
         }
     }
 
+    /**
+     * Reverte as alteracoes de banco aplicadas por esta migration.
+     */
     public function down()
     {
         foreach (array_reverse(self::TABELAS) as $tabela) {
