@@ -128,20 +128,27 @@ Para hospedagem compartilhada, confirme se o plano permite configurar o document
 
 ## Configuração
 
-As principais configurações ficam no arquivo `.env`.
+As principais configurações ficam no arquivo `.env`. Use o `.env.example` como referência e mantenha a chave de criptografia real somente no ambiente local.
 
 Exemplo de banco local:
 
 ```ini
 CI_ENVIRONMENT = development
 
-app.baseURL = 'http://local.zaventusgestao.com'
+app.baseURL = 'http://local.zaventus.com/'
+app.indexPage = ''
 
 database.default.hostname = localhost
-database.default.database = zaventus_gestao
+database.default.database = zaventus
 database.default.username = root
 database.default.password =
 database.default.DBDriver = MySQLi
+```
+
+Depois de criar o `.env`, gere uma chave exclusiva para proteger credenciais sensíveis:
+
+```bash
+php spark key:generate
 ```
 
 Em produção, ajuste:
@@ -156,7 +163,7 @@ app.baseURL = 'https://seudominio.com'
 1. Clone o repositório:
 
 ```bash
-git clone https://github.com/plrbxx/zaventus-gestao.git
+git clone https://github.com/plrbxx/zaventus.git
 ```
 
 2. Configure o servidor web para apontar para:
@@ -165,7 +172,7 @@ git clone https://github.com/plrbxx/zaventus-gestao.git
 public/
 ```
 
-3. Configure o `.env` com os dados do banco.
+3. Copie `.env.example` para `.env` e ajuste os dados do banco.
 
 4. Importe o banco MySQL do ambiente de implantação ou de um backup válido.
 
