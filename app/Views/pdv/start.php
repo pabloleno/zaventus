@@ -30,7 +30,8 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
     <!-- Theme style -->
     <link rel="stylesheet" href="<?= base_url('theme/dist/css/adminlte.css') ?>">
     <!-- Style -->
-    <link rel="stylesheet" href="<?= base_url('assets/css/style.css') ?>">
+    <link rel="stylesheet" href="<?= base_url('assets/css/style.css?v=' . filemtime(FCPATH . 'assets/css/style.css')) ?>">
+    <script src="<?= base_url('assets/js/tema-cor.js?v=' . filemtime(FCPATH . 'assets/js/tema-cor.js')) ?>"></script>
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
@@ -231,7 +232,7 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
     </style>
 </head>
 
-<body style="background: lightgrey">
+<body class="pdv-page" style="background: lightgrey">
     <header class="pdv-topo no-print">
         <div class="pdv-marca">
             <img src="<?= esc(base_url($logoPdv)) ?>" alt="<?= esc($nomeEmpresa) ?>">
@@ -241,6 +242,7 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
                 <small>Caixa #<?= esc($id_caixa) ?></small>
             </div>
         </div>
+        <?= view('templates/tema_cor_toggle', ['classe' => 'sistema-theme-toggle-pdv']) ?>
         <div class="pdv-relogio" aria-label="Data e horário atual">
             <span id="pdv-data-atual"><?= date('d/m/Y') ?></span>
             <strong id="pdv-horario-atual"><?= date('H:i:s') ?></strong>

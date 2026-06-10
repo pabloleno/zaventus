@@ -43,6 +43,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="<?= base_url('theme/dist/css/adminlte.css') ?>">
     <!-- Style -->
     <link rel="stylesheet" href="<?= base_url('assets/css/style.css?v=' . filemtime(FCPATH . 'assets/css/style.css')) ?>">
+    <script src="<?= base_url('assets/js/tema-cor.js?v=' . filemtime(FCPATH . 'assets/js/tema-cor.js')) ?>"></script>
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 

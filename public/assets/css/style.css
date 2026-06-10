@@ -378,10 +378,10 @@ td:has(> .foto-cadastro-miniatura){
     margin-top: 5px;
 }
 
-.dashboard-kpi-total{ color: #2563eb; }
+.dashboard-kpi-total{ color: #1d4ed8; }
 .dashboard-kpi-produtos{ color: #0f766e; }
 .dashboard-kpi-servicos{ color: #6d28d9; }
-.dashboard-kpi-financeiro{ color: #d97706; }
+.dashboard-kpi-financeiro{ color: #b45309; }
 
 .dashboard-card,
 .dashboard-segment-card{
@@ -775,6 +775,662 @@ td:has(> .foto-cadastro-miniatura){
     display: block;
     font-size: 24px;
     margin-bottom: 6px;
+}
+
+body.dashboard-dark-mode .dashboard-profissional{
+    background: #08111f;
+    color: #dbe5f1;
+}
+
+body.dashboard-dark-mode .main-header.navbar,
+body.dashboard-dark-mode .main-footer{
+    background: #0f172a !important;
+    border-color: #2a3a50;
+    color: #dbe5f1;
+}
+
+body.dashboard-dark-mode .main-header.navbar .nav-link,
+body.dashboard-dark-mode .main-header.navbar .navbar-brand,
+body.dashboard-dark-mode .main-header.navbar .brand-text,
+body.dashboard-dark-mode .zaventus-nav-title,
+body.dashboard-dark-mode .main-footer strong{
+    color: #f8fafc !important;
+}
+
+body.dashboard-dark-mode .zaventus-nav-title small{
+    color: #a8b6c8;
+}
+
+body.dashboard-dark-mode .main-header .dropdown-menu{
+    background: #111827;
+    border-color: #34445c;
+}
+
+body.dashboard-dark-mode .main-header .dropdown-divider{
+    border-color: #34445c;
+}
+
+body.dashboard-dark-mode .main-header .dropdown-item,
+body.dashboard-dark-mode .main-header .dropdown-header,
+body.dashboard-dark-mode .main-header .dropdown-footer,
+body.dashboard-dark-mode .cobrancas-navbar-item-titulo{
+    color: #dbe5f1;
+}
+
+body.dashboard-dark-mode .main-header .dropdown-item:hover,
+body.dashboard-dark-mode .main-header .dropdown-item:focus,
+body.dashboard-dark-mode .main-header .dropdown-footer:hover{
+    background: #1c2940;
+    color: #ffffff;
+}
+
+body.dashboard-dark-mode .cobrancas-navbar-item-cliente,
+body.dashboard-dark-mode .cobrancas-navbar-item-detalhe{
+    color: #a8b6c8;
+}
+
+body.dashboard-dark-mode .dashboard-hero{
+    background: linear-gradient(125deg, #020617 0%, #0f2f35 62%, #115e59 100%);
+    box-shadow: 0 18px 45px rgba(0, 0, 0, .35);
+}
+
+body.dashboard-dark-mode .dashboard-kpi,
+body.dashboard-dark-mode .dashboard-card,
+body.dashboard-dark-mode .dashboard-segment-card{
+    background: #111827;
+    border-color: #2a3a50;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .24);
+}
+
+body.dashboard-dark-mode .dashboard-card .card-header,
+body.dashboard-dark-mode .dashboard-segment-card .card-header,
+body.dashboard-dark-mode .dashboard-card .card-body,
+body.dashboard-dark-mode .dashboard-segment-card .card-body{
+    background: #111827;
+    border-color: #2a3a50;
+}
+
+body.dashboard-dark-mode .dashboard-kpi strong,
+body.dashboard-dark-mode .dashboard-card .card-title,
+body.dashboard-dark-mode .dashboard-section-heading h2,
+body.dashboard-dark-mode .dashboard-segment-title h3,
+body.dashboard-dark-mode .dashboard-segment-metrics strong,
+body.dashboard-dark-mode .dashboard-general-grid strong{
+    color: #f8fafc;
+}
+
+body.dashboard-dark-mode .dashboard-kpi-label,
+body.dashboard-dark-mode .dashboard-kpi small,
+body.dashboard-dark-mode .dashboard-eyebrow,
+body.dashboard-dark-mode .dashboard-card-kicker,
+body.dashboard-dark-mode .dashboard-card-note,
+body.dashboard-dark-mode .dashboard-section-heading p,
+body.dashboard-dark-mode .dashboard-segment-title p,
+body.dashboard-dark-mode .dashboard-segment-metrics span,
+body.dashboard-dark-mode .dashboard-finance-grid span,
+body.dashboard-dark-mode .dashboard-general-grid span,
+body.dashboard-dark-mode .dashboard-general-card p,
+body.dashboard-dark-mode .dashboard-general-card .card-header > i{
+    color: #a8b6c8;
+}
+
+body.dashboard-dark-mode .dashboard-chart-summary,
+body.dashboard-dark-mode .dashboard-card-note:hover{
+    color: #dbe5f1;
+}
+
+body.dashboard-dark-mode .dashboard-segment-metrics,
+body.dashboard-dark-mode .dashboard-segment-metrics > div,
+body.dashboard-dark-mode .dashboard-finance-grid a,
+body.dashboard-dark-mode .dashboard-general-grid div,
+body.dashboard-dark-mode .dashboard-operation-card .card-body a{
+    background: #172033;
+    border-color: #34445c;
+}
+
+body.dashboard-dark-mode .dashboard-finance-grid a,
+body.dashboard-dark-mode .dashboard-operation-card .card-body a{
+    color: #e5edf7;
+}
+
+body.dashboard-dark-mode .dashboard-segment-card .btn-outline-secondary{
+    border-color: #718096;
+    color: #e5edf7;
+}
+
+body.dashboard-dark-mode .dashboard-segment-card .btn-outline-secondary:hover,
+body.dashboard-dark-mode .dashboard-segment-card .btn-outline-secondary:focus{
+    background: #dbe5f1;
+    border-color: #dbe5f1;
+    color: #111827;
+}
+
+body.dashboard-dark-mode .dashboard-finance-grid a:hover,
+body.dashboard-dark-mode .dashboard-operation-card .card-body a:hover{
+    background: #1c2940;
+    border-color: #5eead4;
+}
+
+body.dashboard-dark-mode .dashboard-segment-metrics small,
+body.dashboard-dark-mode .dashboard-segment-movement{
+    color: #a8b6c8;
+}
+
+body.dashboard-dark-mode .dashboard-segment-movement{
+    border-color: #475569;
+}
+
+body.dashboard-dark-mode .dashboard-segment-movement strong{
+    color: #e5edf7;
+}
+
+body.dashboard-dark-mode .dashboard-segment-produtos .dashboard-segment-icon{
+    background: #134e4a;
+    color: #99f6e4;
+}
+
+body.dashboard-dark-mode .dashboard-segment-servicos .dashboard-segment-icon{
+    background: #4c1d95;
+    color: #ddd6fe;
+}
+
+body.dashboard-dark-mode .dashboard-agenda-table thead th{
+    background: #172033;
+    border-color: #34445c;
+    color: #bdc9d8;
+}
+
+body.dashboard-dark-mode .dashboard-agenda-table td{
+    background: #111827;
+    border-color: #263449;
+    color: #dbe5f1;
+}
+
+body.dashboard-dark-mode .dashboard-agenda-table a{
+    color: #5eead4;
+}
+
+body.dashboard-dark-mode .dashboard-badge-receber{ background: #064e3b; color: #a7f3d0; }
+body.dashboard-dark-mode .dashboard-badge-pagar{ background: #7f1d1d; color: #fecaca; }
+body.dashboard-dark-mode .dashboard-badge-produtos{ background: #134e4a; color: #99f6e4; }
+body.dashboard-dark-mode .dashboard-badge-servicos{ background: #4c1d95; color: #ddd6fe; }
+body.dashboard-dark-mode .dashboard-badge-geral{ background: #334155; color: #e2e8f0; }
+body.dashboard-dark-mode .dashboard-status-aberta,
+body.dashboard-dark-mode .dashboard-status-proxima{ background: #1e3a8a; color: #bfdbfe; }
+body.dashboard-dark-mode .dashboard-status-vencida,
+body.dashboard-dark-mode .dashboard-status-hoje{ background: #78350f; color: #fde68a; }
+body.dashboard-dark-mode .dashboard-status-atrasada{ background: #7f1d1d; color: #fecaca; }
+body.dashboard-dark-mode .dashboard-status-agendada{ background: #334155; color: #e2e8f0; }
+
+body.dashboard-dark-mode .dashboard-empty{
+    color: #a8b6c8 !important;
+}
+
+body.dashboard-dark-mode .dashboard-empty i,
+body.dashboard-dark-mode .dashboard-operation-card i{
+    color: #5eead4;
+}
+
+.sistema-theme-toggle{
+    align-items: center;
+    background: transparent;
+    border: 0;
+    color: inherit;
+    display: inline-flex;
+    justify-content: center;
+}
+
+.sistema-theme-toggle:focus{
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, .28);
+    outline: 0;
+}
+
+.sistema-theme-toggle-navbar{
+    height: 100%;
+    min-width: 38px;
+}
+
+.sistema-theme-toggle-login{
+    background: #ffffff;
+    border: 1px solid #d6dce2;
+    border-radius: 50%;
+    color: #334155;
+    font-size: 17px;
+    height: 42px;
+    position: fixed;
+    right: 22px;
+    top: 20px;
+    width: 42px;
+    z-index: 10;
+}
+
+.sistema-theme-toggle-pdv{
+    border: 1px solid #cbd5e1;
+    border-radius: 50%;
+    color: #334155;
+    flex: 0 0 42px;
+    font-size: 17px;
+    height: 42px;
+    margin-left: auto;
+    margin-right: 22px;
+    width: 42px;
+}
+
+html.sistema-dark-mode body,
+html.sistema-dark-mode .content-wrapper{
+    background: #08111f !important;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .main-header.navbar,
+html.sistema-dark-mode .main-footer{
+    background: #0f172a !important;
+    border-color: #2a3a50;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .main-header.navbar .nav-link,
+html.sistema-dark-mode .main-header.navbar .navbar-brand,
+html.sistema-dark-mode .main-header.navbar .brand-text,
+html.sistema-dark-mode .zaventus-nav-title,
+html.sistema-dark-mode .main-footer strong{
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .zaventus-nav-title small,
+html.sistema-dark-mode .text-muted{
+    color: #a8b6c8 !important;
+}
+
+html.sistema-dark-mode .text-dark{
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .card,
+html.sistema-dark-mode .modal-content,
+html.sistema-dark-mode .list-group-item,
+html.sistema-dark-mode .dropdown-menu,
+html.sistema-dark-mode .swal2-popup{
+    background: #111827;
+    border-color: #34445c;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .swal2-title,
+html.sistema-dark-mode .swal2-content,
+html.sistema-dark-mode .swal2-html-container,
+html.sistema-dark-mode .swal2-close{
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .swal2-popup.swal2-toast{
+    background: #172033;
+    border: 1px solid #475569;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, .4);
+}
+
+html.sistema-dark-mode .swal2-popup.swal2-toast .swal2-title{
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .card-header,
+html.sistema-dark-mode .card-footer,
+html.sistema-dark-mode .modal-header,
+html.sistema-dark-mode .modal-footer{
+    background: #172033;
+    border-color: #34445c;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .card-title,
+html.sistema-dark-mode .modal-title,
+html.sistema-dark-mode label,
+html.sistema-dark-mode legend,
+html.sistema-dark-mode h1,
+html.sistema-dark-mode h2,
+html.sistema-dark-mode h3,
+html.sistema-dark-mode h4,
+html.sistema-dark-mode h5,
+html.sistema-dark-mode h6,
+html.sistema-dark-mode strong{
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode hr,
+html.sistema-dark-mode .dropdown-divider{
+    border-color: #34445c;
+}
+
+html.sistema-dark-mode .breadcrumb{
+    background: transparent;
+}
+
+html.sistema-dark-mode .breadcrumb-item.active{
+    color: #a8b6c8;
+}
+
+html.sistema-dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.brand-link){
+    color: #5eead4;
+}
+
+html.sistema-dark-mode a:not(.btn):not(.nav-link):not(.dropdown-item):not(.page-link):not(.brand-link):hover{
+    color: #99f6e4;
+}
+
+html.sistema-dark-mode .dropdown-item,
+html.sistema-dark-mode .dropdown-header,
+html.sistema-dark-mode .dropdown-footer{
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .dropdown-item:hover,
+html.sistema-dark-mode .dropdown-item:focus,
+html.sistema-dark-mode .dropdown-footer:hover{
+    background: #1c2940;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .form-control,
+html.sistema-dark-mode .custom-select,
+html.sistema-dark-mode .input-group-text{
+    background: #172033 !important;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .form-control::placeholder{
+    color: #94a3b8;
+}
+
+html.sistema-dark-mode .form-control:focus,
+html.sistema-dark-mode .custom-select:focus{
+    background: #1c2940 !important;
+    border-color: #2dd4bf;
+    box-shadow: 0 0 0 .2rem rgba(45, 212, 191, .2);
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .form-control:disabled,
+html.sistema-dark-mode .form-control[readonly],
+html.sistema-dark-mode .custom-select:disabled{
+    background: #263449 !important;
+    color: #bdc9d8;
+}
+
+html.sistema-dark-mode input[type="file"]{
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .select2-container--default .select2-selection--single,
+html.sistema-dark-mode .select2-container--default .select2-selection--multiple,
+html.sistema-dark-mode .select2-container--bootstrap4 .select2-selection{
+    background: #172033;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .select2-container--default .select2-selection--single .select2-selection__rendered,
+html.sistema-dark-mode .select2-container--bootstrap4 .select2-selection--single .select2-selection__rendered,
+html.sistema-dark-mode .select2-container--default .select2-search--dropdown .select2-search__field{
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .select2-dropdown,
+html.sistema-dark-mode .select2-container--default .select2-search--dropdown .select2-search__field{
+    background: #172033;
+    border-color: #475569;
+}
+
+html.sistema-dark-mode .select2-container--default .select2-results__option,
+html.sistema-dark-mode .select2-container--bootstrap4 .select2-results__option{
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .select2-container--default .select2-results__option--highlighted[aria-selected],
+html.sistema-dark-mode .select2-container--bootstrap4 .select2-results__option--highlighted[aria-selected]{
+    background: #0f766e;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .select2-container--default .select2-results__option[aria-selected="true"]{
+    background: #263449;
+}
+
+html.sistema-dark-mode .table{
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .table thead th,
+html.sistema-dark-mode .table td,
+html.sistema-dark-mode .table th{
+    border-color: #34445c;
+}
+
+html.sistema-dark-mode .table thead th{
+    background: #172033;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .table-striped tbody tr:nth-of-type(odd){
+    background: rgba(148, 163, 184, .07);
+}
+
+html.sistema-dark-mode .table-hover tbody tr:hover{
+    background: #1c2940;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .table-danger,
+html.sistema-dark-mode .table-danger > td,
+html.sistema-dark-mode .table-danger > th{
+    background: #581c27;
+    color: #fecdd3;
+}
+
+html.sistema-dark-mode .table-warning,
+html.sistema-dark-mode .table-warning > td,
+html.sistema-dark-mode .table-warning > th{
+    background: #58320b;
+    color: #fde68a;
+}
+
+html.sistema-dark-mode .table-success,
+html.sistema-dark-mode .table-success > td,
+html.sistema-dark-mode .table-success > th{
+    background: #064e3b;
+    color: #a7f3d0;
+}
+
+html.sistema-dark-mode .dataTables_wrapper,
+html.sistema-dark-mode .dataTables_info,
+html.sistema-dark-mode .dataTables_length,
+html.sistema-dark-mode .dataTables_filter{
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .page-link{
+    background: #172033;
+    border-color: #475569;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .page-item.active .page-link{
+    background: #0f766e;
+    border-color: #14b8a6;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .page-item.disabled .page-link{
+    background: #111827;
+    border-color: #34445c;
+    color: #718096;
+}
+
+html.sistema-dark-mode .nav-tabs{
+    border-color: #34445c;
+}
+
+html.sistema-dark-mode .nav-tabs .nav-link,
+html.sistema-dark-mode .nav-pills .nav-link:not(.active){
+    color: #bdc9d8;
+}
+
+html.sistema-dark-mode .nav-tabs .nav-link.active{
+    background: #172033;
+    border-color: #475569 #475569 #172033;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .btn-default,
+html.sistema-dark-mode .btn-light{
+    background: #263449;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .btn-default:hover,
+html.sistema-dark-mode .btn-light:hover{
+    background: #34445c;
+    border-color: #64748b;
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .btn-outline-secondary{
+    border-color: #718096;
+    color: #e5edf7;
+}
+
+html.sistema-dark-mode .btn-tool{
+    color: #bdc9d8;
+}
+
+html.sistema-dark-mode .btn-tool:hover{
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .close{
+    color: #f8fafc;
+    text-shadow: none;
+}
+
+html.sistema-dark-mode .alert-info{
+    background: #164e63;
+    border-color: #0e7490;
+    color: #cffafe;
+}
+
+html.sistema-dark-mode .alert-danger{
+    background: #581c27;
+    border-color: #be123c;
+    color: #ffe4e6;
+}
+
+html.sistema-dark-mode .alert-warning{
+    background: #58320b;
+    border-color: #b45309;
+    color: #fef3c7;
+}
+
+html.sistema-dark-mode .alert-success{
+    background: #064e3b;
+    border-color: #047857;
+    color: #d1fae5;
+}
+
+html.sistema-dark-mode .bg-light,
+html.sistema-dark-mode .bg-white{
+    background: #263449 !important;
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .badge-warning{
+    background: #fbbf24;
+    color: #1f2937 !important;
+}
+
+html.sistema-dark-mode .custom-control-label::before{
+    background: #172033;
+    border-color: #64748b;
+}
+
+html.sistema-dark-mode .custom-control-input:checked ~ .custom-control-label::before{
+    background: #0f766e;
+    border-color: #14b8a6;
+}
+
+html.sistema-dark-mode .small-box,
+html.sistema-dark-mode .info-box{
+    color: #ffffff;
+}
+
+html.sistema-dark-mode .small-box.bg-warning,
+html.sistema-dark-mode .small-box.bg-warning h3,
+html.sistema-dark-mode .small-box.bg-warning p{
+    color: #1f2937;
+}
+
+html.sistema-dark-mode .foto-cadastro-preview,
+html.sistema-dark-mode .foto-cadastro-miniatura{
+    background: #263449;
+    border-color: #475569;
+}
+
+html.sistema-dark-mode .cobranca-form-secao{
+    border-color: #475569;
+    color: #e5edf7;
+}
+
+html.sistema-dark-mode .login-card-body{
+    background: #111827;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .login-page .zaventus-login-title{
+    color: #f8fafc !important;
+}
+
+html.sistema-dark-mode .sistema-theme-toggle-login,
+html.sistema-dark-mode .sistema-theme-toggle-pdv{
+    background: #172033;
+    border-color: #475569;
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .pdv-page,
+html.sistema-dark-mode .pdv-topo{
+    background: #08111f !important;
+    color: #dbe5f1;
+}
+
+html.sistema-dark-mode .pdv-topo{
+    border-color: #14b8a6;
+}
+
+html.sistema-dark-mode .pdv-marca-titulo strong,
+html.sistema-dark-mode .pdv-relogio strong{
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .pdv-marca-titulo span,
+html.sistema-dark-mode .pdv-relogio span{
+    color: #a8b6c8;
+}
+
+html.sistema-dark-mode #modal-cupom-nao-fiscal .modal-content,
+html.sistema-dark-mode #modal-cupom-nao-fiscal .modal-body,
+html.sistema-dark-mode .cupom-nao-fiscal-conteudo{
+    background: #ffffff;
+    color: #000000;
+}
+
+html.sistema-dark-mode .cupom-nao-fiscal-conteudo strong,
+html.sistema-dark-mode .cupom-nao-fiscal-conteudo span,
+html.sistema-dark-mode .cupom-nao-fiscal-conteudo div{
+    color: #000000;
+}
+
+html.sistema-dark-mode .pedido-cliente-link{
+    color: #5eead4 !important;
 }
 
 @media (max-width: 991px){

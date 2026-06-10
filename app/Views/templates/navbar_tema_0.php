@@ -22,6 +22,9 @@
 
     <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto">
+        <li class="nav-item">
+            <?= view('templates/tema_cor_toggle', ['classe' => 'nav-link sistema-theme-toggle-navbar']) ?>
+        </li>
         <?php if ($pode_alertas_cobrancas) : ?>
             <?= view('templates/alertas_cobrancas_navbar') ?>
         <?php endif; ?>

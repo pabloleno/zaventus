@@ -153,7 +153,7 @@
                                     <tr>
                                         <td><?= $pedido['id_pedido'] ?></td>
                                         <td>
-                                            <a href="/clientes/show/<?= $pedido['id_cliente'] ?>" style="color: black"><u><?= $pedido['nome'] ?></u></a>
+                                            <a href="/clientes/show/<?= $pedido['id_cliente'] ?>" class="pedido-cliente-link"><u><?= $pedido['nome'] ?></u></a>
                                         </td>
                                         <td><?= date('d/m/Y', strtotime($pedido['data'])) ?></td>
                                         <td>

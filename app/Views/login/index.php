@@ -34,6 +34,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <link rel="stylesheet" href="<?= base_url('theme/dist/css/adminlte.css') ?>">
     <!-- Style -->
     <link rel="stylesheet" href="<?= base_url('assets/css/style.css?v=' . filemtime(FCPATH . 'assets/css/style.css')) ?>">
+    <script src="<?= base_url('assets/js/tema-cor.js?v=' . filemtime(FCPATH . 'assets/js/tema-cor.js')) ?>"></script>
     <style>
         .login-page .zaventus-login-logo{
             margin-bottom: 18px;
@@ -72,6 +73,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 </head>
 
 <body class="hold-transition login-page">
+    <?= view('templates/tema_cor_toggle', ['classe' => 'sistema-theme-toggle-login']) ?>
     <div class="login-box">
         <div class="login-logo zaventus-login-logo">
             <img class="zaventus-login-mark" src="<?= esc(base_url($logo_login)) ?>" alt="<?= esc($nome_sistema) ?>">

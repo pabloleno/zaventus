@@ -513,6 +513,55 @@
             pagarAberta: '#64748b',
             pagarVencida: '#dc2626'
         };
+        var graficosDashboard = [];
+
+        /**
+         * Informa se a dashboard esta usando a paleta escura.
+         */
+        function modoEscuroDashboardAtivo() {
+            return window.TemaCor ? window.TemaCor.escuroAtivo() : false;
+        }
+
+        /**
+         * Registra o grafico para que suas cores acompanhem a alternancia visual.
+         */
+        function registraGraficoDashboard(grafico) {
+            graficosDashboard.push(grafico);
+
+            return grafico;
+        }
+
+        /**
+         * Atualiza textos, eixos e grades dos graficos para manter contraste adequado.
+         */
+        function aplicaTemaGraficosDashboard() {
+            var escuro = modoEscuroDashboardAtivo();
+            var texto = escuro ? '#dbe5f1' : '#475569';
+            var grade = escuro ? 'rgba(148, 163, 184, .22)' : 'rgba(148, 163, 184, .16)';
+
+            Chart.defaults.global.defaultFontColor = texto;
+
+            graficosDashboard.forEach(function(grafico) {
+                if (grafico.options.legend && grafico.options.legend.labels) {
+                    grafico.options.legend.labels.fontColor = texto;
+                }
+
+                if (grafico.options.scales) {
+                    (grafico.options.scales.xAxes || []).forEach(function(eixo) {
+                        eixo.ticks.fontColor = texto;
+                        eixo.gridLines.color = grade;
+                        eixo.gridLines.zeroLineColor = grade;
+                    });
+                    (grafico.options.scales.yAxes || []).forEach(function(eixo) {
+                        eixo.ticks.fontColor = texto;
+                        eixo.gridLines.color = grade;
+                        eixo.gridLines.zeroLineColor = grade;
+                    });
+                }
+
+                grafico.update();
+            });
+        }
 
         /**
          * Formata valores monetarios exibidos nas dicas dos graficos.
@@ -528,7 +577,7 @@
          * Monta um grafico de composicao financeira para o conjunto informado.
          */
         function doughnutFinanceiro(id, dados) {
-            new Chart(document.getElementById(id), {
+            registraGraficoDashboard(new Chart(document.getElementById(id), {
                 type: 'doughnut',
                 data: {
                     labels: ['Receber aberto', 'Receber vencido', 'Pagar aberto', 'Pagar vencido'],
@@ -558,10 +607,10 @@
                         }
                     }
                 }
-            });
+            }));
         }
 
-        new Chart(document.getElementById('dashboard-faturamento-anual'), {
+        registraGraficoDashboard(new Chart(document.getElementById('dashboard-faturamento-anual'), {
             type: 'bar',
             data: {
                 labels: labelsMeses,
@@ -604,9 +653,9 @@
                     }
                 }
             }
-        });
+        }));
 
-        new Chart(document.getElementById('dashboard-composicao'), {
+        registraGraficoDashboard(new Chart(document.getElementById('dashboard-composicao'), {
             type: 'doughnut',
             data: {
                 labels: ['Produtos', 'Serviços'],
@@ -631,7 +680,7 @@
                     }
                 }
             }
-        });
+        }));
 
         doughnutFinanceiro('dashboard-financeiro-produtos', <?= json_encode([
             $financeiro['Produtos']['receber_aberta'],
@@ -646,6 +695,9 @@
             $financeiro['Servicos']['pagar_aberta'],
             $financeiro['Servicos']['pagar_vencida'],
         ], JSON_NUMERIC_CHECK) ?>);
+
+        document.addEventListener('sistema:tema-cor-alterado', aplicaTemaGraficosDashboard);
+        aplicaTemaGraficosDashboard();
 
         <?php $alert = $session->getFlashdata('alert'); ?>
         <?php if ($alert === 'success_autentication') : ?>
