@@ -1,443 +1,523 @@
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-    <!-- Content Header (Page header) -->
+<?php
+    $session = session();
+    $periodo = $dashboard['periodo'];
+    $faturamento = $dashboard['faturamento'];
+    $operacao = $dashboard['operacao'];
+    $financeiro = $dashboard['financeiro'];
+    $movimentacao = $dashboard['movimentacao'];
+    $agenda = $dashboard['agenda'];
+    $meses = [
+        1 => 'Janeiro',
+        2 => 'Fevereiro',
+        3 => 'Março',
+        4 => 'Abril',
+        5 => 'Maio',
+        6 => 'Junho',
+        7 => 'Julho',
+        8 => 'Agosto',
+        9 => 'Setembro',
+        10 => 'Outubro',
+        11 => 'Novembro',
+        12 => 'Dezembro',
+    ];
+    $mesesCurtos = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+    $moeda = static fn ($valor): string => 'R$ ' . number_format((float) $valor, 2, ',', '.');
+    $segmentos = [
+        [
+            'tipo' => \App\Libraries\TipoNegocio::PRODUTOS,
+            'slug' => 'produtos',
+            'titulo' => 'Produtos',
+            'subtitulo' => 'Vendas de produtos, inclusive peças vendidas em OS',
+            'icone' => 'fas fa-boxes',
+            'cor' => '#0f766e',
+            'cor_clara' => '#ccfbf1',
+            'faturamento' => $faturamento['produtos'],
+            'quantidade' => $operacao['vendas_produtos'],
+            'rotulo_quantidade' => 'vendas no período',
+            'ticket' => $operacao['ticket_produtos'],
+        ],
+        [
+            'tipo' => \App\Libraries\TipoNegocio::SERVICOS,
+            'slug' => 'servicos',
+            'titulo' => 'Serviços',
+            'subtitulo' => 'Mão de obra, frete e adicionais de OS concretizadas',
+            'icone' => 'fas fa-tools',
+            'cor' => '#6d28d9',
+            'cor_clara' => '#ede9fe',
+            'faturamento' => $faturamento['servicos'],
+            'quantidade' => $operacao['os_concretizadas'],
+            'rotulo_quantidade' => 'OS concretizadas',
+            'ticket' => $operacao['ticket_servicos'],
+        ],
+    ];
+    $financeiroOperacionalReceber = $financeiro['Produtos']['total_receber'] + $financeiro['Servicos']['total_receber'];
+    $financeiroOperacionalPagar = $financeiro['Produtos']['total_pagar'] + $financeiro['Servicos']['total_pagar'];
+?>
+
+<div class="content-wrapper dashboard-profissional">
     <div class="content-header">
         <div class="container-fluid">
-            <div class="row mb-2">
-                <div class="col-sm-6">
-                    <?php $session = session() ?>
-                    <h1 class="m-0 text-dark">Seja bem vindo <b><?= $session->get('primeiro_nome') ?></b>!</h1>
-                </div><!-- /.col -->
-                <!-- <div class="col-sm-6">
-                    <ol class="breadcrumb float-sm-right">
-                        <li class="breadcrumb-item"><a href="#">Home</a></li>
-                        <li class="breadcrumb-item active">Starter Page</li>
-                    </ol>
-                </div> -->
-            </div><!-- /.row -->
-        </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content-header -->
+            <div class="dashboard-hero">
+                <div>
+                    <span class="dashboard-eyebrow">Visão executiva</span>
+                    <h1>Olá, <?= esc($session->get('primeiro_nome')) ?>.</h1>
+                    <p>
+                        Produtos e serviços analisados separadamente em
+                        <strong><?= esc($meses[$periodo['mes']]) ?> de <?= esc($periodo['ano']) ?></strong>.
+                    </p>
+                </div>
 
-    <!-- Main content -->
+                <form class="dashboard-periodo" action="/inicio" method="get">
+                    <div>
+                        <label for="dashboard-mes">Mês</label>
+                        <select id="dashboard-mes" class="form-control" name="mes">
+                            <?php foreach ($meses as $numero => $nome) : ?>
+                                <option value="<?= $numero ?>" <?= $numero === $periodo['mes'] ? 'selected' : '' ?>>
+                                    <?= esc($nome) ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="dashboard-ano">Ano</label>
+                        <select id="dashboard-ano" class="form-control" name="ano">
+                            <?php for ($ano = date('Y') + 1; $ano >= date('Y') - 5; $ano--) : ?>
+                                <option value="<?= $ano ?>" <?= $ano === $periodo['ano'] ? 'selected' : '' ?>><?= $ano ?></option>
+                            <?php endfor; ?>
+                        </select>
+                    </div>
+                    <button class="btn btn-light" type="submit"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-lg-12">
-                    <div class="row">
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box bg-success">
-                                <span class="info-box-icon"><i class="far fa-calendar-alt"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Vendas <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= $total_de_vendas ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box bg-primary">
-                                <span class="info-box-icon"><i class="fas fa-comments"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Fat. Produtos <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= number_format($faturamento_produtos, 2, ',', '.') ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box bg-danger">
-                                <span class="info-box-icon"><i class="fas fa-comments"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Pedidos <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= $total_de_pedidos ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box bg-warning">
-                                <span class="info-box-icon"><i class="fas fa-comments"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Orçam. <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= $total_de_orcamentos ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box" style="background: #20c997; color: white">
-                                <span class="info-box-icon"><i class="fas fa-check-circle"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">OS Concret. <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= $total_de_orcamentos_concretizados ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
-                        <div class="col-md-2 col-sm-6 col-12">
-                            <div class="info-box" style="background: #6f42c1; color: white">
-                                <span class="info-box-icon"><i class="fas fa-tools"></i></span>
-
-                                <div class="info-box-content">
-                                    <span class="info-box-text">Fat. Servicos <?= date('m/Y') ?></span>
-                                    <span class="info-box-number"><?= number_format($faturamento_servicos, 2, ',', '.') ?></span>
-                                </div>
-                                <!-- /.info-box-content -->
-                            </div>
-                            <!-- /.info-box -->
-                        </div>
-                        <!-- /.col -->
+                <div class="col-xl-3 col-md-6">
+                    <div class="dashboard-kpi dashboard-kpi-total">
+                        <span class="dashboard-kpi-icon"><i class="fas fa-chart-line"></i></span>
+                        <span class="dashboard-kpi-label">Faturamento do período</span>
+                        <strong><?= $moeda($faturamento['total']) ?></strong>
+                        <small>Produtos + serviços concretizados</small>
                     </div>
-                    <!-- /.row -->
                 </div>
-                <div class="col-lg-6">
-                    <!-- BAR CHART -->
-                    <div class="card">
-                        <div class="card-header">
-                            <h3 class="card-title">Faturamento de Produtos em <?= date('Y') ?></h3>
+                <div class="col-xl-3 col-md-6">
+                    <div class="dashboard-kpi dashboard-kpi-produtos">
+                        <span class="dashboard-kpi-icon"><i class="fas fa-boxes"></i></span>
+                        <span class="dashboard-kpi-label">Vendas de produtos</span>
+                        <strong><?= $moeda($faturamento['produtos']) ?></strong>
+                        <small><?= $operacao['vendas_produtos'] ?> vendas · Ticket <?= $moeda($operacao['ticket_produtos']) ?></small>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="dashboard-kpi dashboard-kpi-servicos">
+                        <span class="dashboard-kpi-icon"><i class="fas fa-tools"></i></span>
+                        <span class="dashboard-kpi-label">Vendas de serviços</span>
+                        <strong><?= $moeda($faturamento['servicos']) ?></strong>
+                        <small><?= $operacao['os_concretizadas'] ?> OS · Ticket <?= $moeda($operacao['ticket_servicos']) ?></small>
+                    </div>
+                </div>
+                <div class="col-xl-3 col-md-6">
+                    <div class="dashboard-kpi dashboard-kpi-financeiro">
+                        <span class="dashboard-kpi-icon"><i class="fas fa-balance-scale"></i></span>
+                        <span class="dashboard-kpi-label">Compromissos operacionais</span>
+                        <strong><?= $moeda($financeiroOperacionalReceber - $financeiroOperacionalPagar) ?></strong>
+                        <small>A receber <?= $moeda($financeiroOperacionalReceber) ?> · A pagar <?= $moeda($financeiroOperacionalPagar) ?></small>
+                    </div>
+                </div>
+            </div>
 
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+            <div class="row">
+                <div class="col-xl-8">
+                    <div class="card dashboard-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="dashboard-card-kicker">Evolução anual</span>
+                                <h3 class="card-title">Faturamento mensal por tipo de venda</h3>
+                            </div>
+                            <span class="dashboard-card-note"><?= esc($periodo['ano']) ?></span>
+                        </div>
+                        <div class="card-body dashboard-chart-lg">
+                            <canvas id="dashboard-faturamento-anual"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="card dashboard-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="dashboard-card-kicker">Composição do período</span>
+                                <h3 class="card-title">Participação no faturamento</h3>
+                            </div>
+                        </div>
+                        <div class="card-body dashboard-chart-lg dashboard-chart-center">
+                            <canvas id="dashboard-composicao"></canvas>
+                            <div class="dashboard-chart-summary">
+                                <span><i class="dashboard-dot dashboard-dot-produtos"></i> Produtos <?= number_format($faturamento['percentual_produtos'], 1, ',', '.') ?>%</span>
+                                <span><i class="dashboard-dot dashboard-dot-servicos"></i> Serviços <?= number_format($faturamento['percentual_servicos'], 1, ',', '.') ?>%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dashboard-section-heading">
+                <div>
+                    <span class="dashboard-eyebrow">Leitura por segmento</span>
+                    <h2>Produtos e serviços sem mistura</h2>
+                </div>
+                <p>Contas a receber e a pagar consideram todos os vencimentos ainda não liquidados.</p>
+            </div>
+
+            <div class="row">
+                <?php foreach ($segmentos as $segmento) : ?>
+                    <?php
+                        $dadosFinanceiros = $financeiro[$segmento['tipo']];
+                        $dadosMovimentacao = $movimentacao[$segmento['tipo']];
+                    ?>
+                    <div class="col-xl-6">
+                        <div class="card dashboard-segment-card dashboard-segment-<?= esc($segmento['slug']) ?>">
+                            <div class="card-header">
+                                <div class="dashboard-segment-title">
+                                    <span class="dashboard-segment-icon"><i class="<?= esc($segmento['icone']) ?>"></i></span>
+                                    <div>
+                                        <span class="dashboard-card-kicker">Área do negócio</span>
+                                        <h3><?= esc($segmento['titulo']) ?></h3>
+                                        <p><?= esc($segmento['subtitulo']) ?></p>
+                                    </div>
+                                </div>
+                                <a class="btn btn-sm btn-outline-secondary" href="/relatorios/faturamentoDetalhado?tipo_negocio=<?= esc($segmento['tipo']) ?>&amp;data_inicio=<?= esc($periodo['inicio']) ?>&amp;data_final=<?= esc($periodo['final']) ?>">
+                                    Ver relatório
+                                </a>
+                            </div>
+                            <div class="card-body">
+                                <div class="dashboard-segment-metrics">
+                                    <div>
+                                        <span>Faturamento</span>
+                                        <strong><?= $moeda($segmento['faturamento']) ?></strong>
+                                    </div>
+                                    <div>
+                                        <span>Volume</span>
+                                        <strong><?= $segmento['quantidade'] ?></strong>
+                                        <small><?= esc($segmento['rotulo_quantidade']) ?></small>
+                                    </div>
+                                    <div>
+                                        <span>Ticket médio</span>
+                                        <strong><?= $moeda($segmento['ticket']) ?></strong>
+                                    </div>
+                                </div>
+
+                                <div class="row dashboard-segment-finance">
+                                    <div class="col-lg-7">
+                                        <div class="dashboard-finance-grid">
+                                            <a href="/contasReceber?tipo_negocio=<?= esc($segmento['tipo']) ?>">
+                                                <span>A receber em aberto</span>
+                                                <strong><?= $moeda($dadosFinanceiros['receber_aberta']) ?></strong>
+                                            </a>
+                                            <a class="is-overdue" href="/contasReceber?tipo_negocio=<?= esc($segmento['tipo']) ?>">
+                                                <span>A receber vencido</span>
+                                                <strong><?= $moeda($dadosFinanceiros['receber_vencida']) ?></strong>
+                                            </a>
+                                            <a href="/contasPagar?tipo_negocio=<?= esc($segmento['tipo']) ?>">
+                                                <span>A pagar em aberto</span>
+                                                <strong><?= $moeda($dadosFinanceiros['pagar_aberta']) ?></strong>
+                                            </a>
+                                            <a class="is-overdue" href="/contasPagar?tipo_negocio=<?= esc($segmento['tipo']) ?>">
+                                                <span>A pagar vencido</span>
+                                                <strong><?= $moeda($dadosFinanceiros['pagar_vencida']) ?></strong>
+                                            </a>
+                                        </div>
+                                        <div class="dashboard-segment-movement">
+                                            <span>Outros lançamentos no período <strong><?= $moeda($dadosMovimentacao['lancamentos']) ?></strong></span>
+                                            <span>Despesas no período <strong><?= $moeda($dadosMovimentacao['despesas']) ?></strong></span>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-5 dashboard-chart-sm">
+                                        <canvas id="dashboard-financeiro-<?= esc($segmento['slug']) ?>"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-4">
+                    <div class="card dashboard-card dashboard-general-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="dashboard-card-kicker">Administrativo</span>
+                                <h3 class="card-title">Movimentação geral</h3>
+                            </div>
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="card-body">
+                            <p>
+                                <strong>Geral</strong> reúne valores administrativos que não pertencem exclusivamente
+                                a Produtos ou Serviços.
+                            </p>
+                            <div class="dashboard-general-grid">
+                                <div><span>A receber</span><strong><?= $moeda($financeiro['Geral']['total_receber']) ?></strong></div>
+                                <div><span>A pagar</span><strong><?= $moeda($financeiro['Geral']['total_pagar']) ?></strong></div>
+                                <div><span>Outros lançamentos</span><strong><?= $moeda($movimentacao['Geral']['lancamentos']) ?></strong></div>
+                                <div><span>Despesas</span><strong><?= $moeda($movimentacao['Geral']['despesas']) ?></strong></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card dashboard-card dashboard-operation-card">
+                        <div class="card-header">
+                            <div>
+                                <span class="dashboard-card-kicker">Operação atual</span>
+                                <h3 class="card-title">Pontos de atenção</h3>
                             </div>
                         </div>
                         <div class="card-body">
-                            <canvas id="chartjs-0" class="chartjs" width="undefined" height="undefined"></canvas>
-
-                            <script>
-                                new Chart(document.getElementById("chartjs-0"), {
-                                    "type": "line",
-                                    "data": {
-                                        "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-                                        "datasets": [{
-                                            "label": "Produtos",
-                                            "data": [
-                                                <?php
-                                                if (!empty($faturamentos_produtos)) {
-                                                    foreach ($faturamentos_produtos as $faturamento) {
-                                                        echo $faturamento . ", ";
-                                                    }
-                                                }
-                                                ?>
-                                            ],
-                                            "fill": false,
-                                            "borderColor": "rgb(75, 192, 192)",
-                                            "lineTension": 0.1
-                                        }]
-                                    },
-                                    "options": {}
-                                });
-                            </script>
+                            <a href="/pedidos">
+                                <i class="fas fa-shopping-bag"></i>
+                                <span><strong><?= $operacao['pedidos_abertos'] ?></strong> pedidos em andamento</span>
+                            </a>
+                            <a href="/ordensDeServicos">
+                                <i class="fas fa-clipboard-list"></i>
+                                <span><strong><?= $operacao['os_abertas'] ?></strong> ordens de serviço abertas</span>
+                            </a>
+                            <a href="/produtos">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span><strong><?= count($produtos_estoque_baixo) ?></strong> produtos no estoque mínimo</span>
+                            </a>
+                            <a href="/caixas">
+                                <i class="fas fa-cash-register"></i>
+                                <span><strong><?= count($caixas_abertos) ?></strong> caixas abertos</span>
+                            </a>
                         </div>
-                        <!-- /.card-body -->
                     </div>
-                    <!-- /.card -->
                 </div>
-                <div class="col-lg-6">
-                    <!-- BAR CHART -->
-                    <div class="card">
+
+                <div class="col-xl-8">
+                    <div class="card dashboard-card">
                         <div class="card-header">
-                            <h3 class="card-title">Faturamento de Servicos Concretizados em <?= date('Y') ?></h3>
-
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
+                            <div>
+                                <span class="dashboard-card-kicker">Agenda financeira</span>
+                                <h3 class="card-title">Próximas contas e valores vencidos</h3>
                             </div>
+                            <span class="dashboard-card-note">Produtos, Serviços e Geral identificados</span>
                         </div>
-                        <div class="card-body">
-                            <canvas id="chartjs-1" class="chartjs" width="undefined" height="undefined"></canvas>
-
-                            <script>
-                                new Chart(document.getElementById("chartjs-1"), {
-                                    "type": "line",
-                                    "data": {
-                                        "labels": ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"],
-                                        "datasets": [{
-                                            "label": "Servicos",
-                                            "data": [
-                                                <?php
-                                                if (!empty($faturamentos_servicos)) {
-                                                    foreach ($faturamentos_servicos as $faturamento) {
-                                                        echo $faturamento . ", ";
-                                                    }
-                                                }
-                                                ?>
-                                            ],
-                                            "fill": false,
-                                            "borderColor": "rgb(255, 99, 132)",
-                                            "lineTension": 0.1
-                                        }]
-                                    },
-                                    "options": {
-                                        "scales": {
-                                            "yAxes": [{
-                                                "ticks": {
-                                                    "beginAtZero": true
-                                                }
-                                            }]
-                                        }
-                                    }
-                                });
-                            </script>
-                        </div>
-                        <!-- /.card-body -->
-                    </div>
-                    <!-- /.card -->
-                </div>
-                <div class="col-lg-12">
-                    <!-- BAR CHART -->
-                    <div class="card card-success">
-                        <div class="card-header">
-                            <h3 class="card-title">Contas à Receber em <?= date('m/Y') ?> (Abertas e Vencidas)</h3>
-
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
+                        <div class="card-body table-responsive p-0">
+                            <table class="table dashboard-agenda-table">
+                                <thead>
+                                    <tr>
+                                        <th>Vencimento</th>
+                                        <th>Natureza</th>
+                                        <th>Área</th>
+                                        <th>Descrição</th>
+                                        <th>Status</th>
+                                        <th class="text-right">Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (!empty($agenda)) : ?>
+                                        <?php foreach ($agenda as $conta) : ?>
                                             <tr>
-                                                <th>Cód</th>
-                                                <th>Status</th>
-                                                <th>Descrição</th>
-                                                <th>Vencimento</th>
-                                                <th>Valor</th>
+                                                <td><?= date('d/m/Y', strtotime($conta['data_de_vencimento'])) ?></td>
+                                                <td>
+                                                    <span class="dashboard-badge dashboard-badge-<?= esc($conta['natureza']) ?>">
+                                                        <?= $conta['natureza'] === 'receber' ? 'A receber' : 'A pagar' ?>
+                                                    </span>
+                                                </td>
+                                                <td>
+                                                    <span class="dashboard-badge dashboard-badge-<?= strtolower(esc($conta['tipo_negocio'])) ?>">
+                                                        <?= esc(\App\Libraries\TipoNegocio::rotulo($conta['tipo_negocio'])) ?>
+                                                    </span>
+                                                </td>
+                                                <td><?= esc($conta['nome']) ?></td>
+                                                <td>
+                                                    <span class="dashboard-status dashboard-status-<?= strtolower(esc($conta['status_dashboard'])) ?>">
+                                                        <?= esc($conta['status_dashboard']) ?>
+                                                    </span>
+                                                </td>
+                                                <td class="text-right font-weight-bold"><?= $moeda($conta['valor']) ?></td>
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if (!empty($contas_a_receber_do_mes_atual)) : ?>
-                                                <?php foreach ($contas_a_receber_do_mes_atual as $conta) : ?>
-                                                    <tr>
-                                                        <td><?= $conta['id_conta'] ?></td>
-                                                        <td><?= $conta['status'] ?></td>
-                                                        <td><?= $conta['nome'] ?></td>
-                                                        <td><?= date('d/m/Y', strtotime($conta['data_de_vencimento'])) ?></td>
-                                                        <td><?= number_format($conta['valor'], 2, ',', '.') ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else : ?>
-                                                <tr>
-                                                    <td colspan="5">Nenhum registro!</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+                                        <?php endforeach; ?>
+                                    <?php else : ?>
+                                        <tr>
+                                            <td class="dashboard-empty" colspan="6">
+                                                <i class="far fa-check-circle"></i>
+                                                Nenhuma conta pendente ou vencida.
+                                            </td>
+                                        </tr>
+                                    <?php endif; ?>
+                                </tbody>
+                            </table>
                         </div>
-                        <!-- /.card-body -->
-                        <!-- <div class="card-footer">
-                            <div class="row">
-                                <div class="col-lg-12" style="text-align: right">
-                                    <button type="button" class="btn btn-info">Gerar Relatório</button>
-                                </div>
-                            </div>
-                        </div> -->
                     </div>
-                    <!-- /.card -->
-                </div>
-                <div class="col-lg-12">
-                    <div class="card card-danger">
-                        <div class="card-header">
-                            <h3 class="card-title">Contas à Pagar em <?= date('m/Y') ?> (Abertas e Vencidas)</h3>
-
-                            <div class="card-tools">
-                                <button type="button" class="btn btn-tool" data-card-widget="collapse"><i class="fas fa-minus"></i>
-                                </button>
-                                <button type="button" class="btn btn-tool" data-card-widget="remove"><i class="fas fa-times"></i></button>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="row">
-                                <div class="col-lg-12">
-                                    <table class="table table-bordered table-striped">
-                                        <thead>
-                                            <tr>
-                                                <th>Cód</th>
-                                                <th>Status</th>
-                                                <th>Descrição</th>
-                                                <th>Vencimento</th>
-                                                <th>Valor</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if (!empty($contas_a_pagar_do_mes_atual)) : ?>
-                                                <?php foreach ($contas_a_pagar_do_mes_atual as $conta) : ?>
-                                                    <tr>
-                                                        <td><?= $conta['id_conta'] ?></td>
-                                                        <td><?= $conta['status'] ?></td>
-                                                        <td><?= $conta['nome'] ?></td>
-                                                        <td><?= date('d/m/Y', strtotime($conta['data_de_vencimento'])) ?></td>
-                                                        <td><?= number_format($conta['valor'], 2, ',', '.') ?></td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else : ?>
-                                                <tr>
-                                                    <td colspan="5">Nenhum registro!</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <!-- /.card-body -->
-                    </div>
-                    <!-- /.card -->
                 </div>
             </div>
         </div>
     </div>
-    <!-- /.content -->
 </div>
-<!-- /.content-wrapper -->
 
-<script type="text/javascript">
+<script>
     $(function() {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 3000
+        var moeda = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
         });
+        var labelsMeses = <?= json_encode($mesesCurtos, JSON_UNESCAPED_UNICODE) ?>;
+        var faturamentoMensal = <?= json_encode($dashboard['mensal'], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE) ?>;
+        var chartColors = {
+            produtos: '#0f766e',
+            servicos: '#6d28d9',
+            receberAberta: '#14b8a6',
+            receberVencida: '#f59e0b',
+            pagarAberta: '#64748b',
+            pagarVencida: '#dc2626'
+        };
 
-        <?php if (!empty($produtos)) : ?>
-            $(document).Toasts('create', {
-                class: 'bg-default',
-                title: 'Produtos do Estoque',
-                // subtitle: 'Atenção',
-                body: 'Existem produtos no estoque que precisam de reposição. <a href="/produtos">Acessar Relatório</a>'
-            })
-        <?php endif; ?>
+        function tooltipMoeda(tooltipItem, data) {
+            var dataset = data.datasets[tooltipItem.datasetIndex];
+            var valor = dataset.data[tooltipItem.index];
 
-        <?php if (!empty($caixas)) : ?>
-            $(document).Toasts('create', {
-                class: 'bg-default',
-                title: 'Caixas Abertos',
-                // subtitle: 'Atenção',
-                body: 'Existem caixas abertos. <a href="/caixas">Ver Caixas</a>'
-            })
-        <?php endif; ?>
-
-        <?php if (!empty($contas_a_pagar)) : ?>
-            // $(document).Toasts('create', {
-            //     class: 'bg-default',
-            //     title: 'Contas à Pagar',
-            //     // subtitle: 'Atenção',
-            //     body: 'Existem contas à pagar que necessitam de atenção. <a href="/contasPagar">Ver Contas</a>'
-            // })
-        <?php endif; ?>
-
-        <?php if (!empty($contas_a_receber)) : ?>
-            // $(document).Toasts('create', {
-            //     class: 'bg-default',
-            //     title: 'Contas à Receber',
-            //     // subtitle: 'Atenção',
-            //     body: 'Existem contas à receber que necessitam de atenção. <a href="/contasReceber">Ver Contas</a>'
-            // })
-        <?php endif; ?>
-    });
-
-    $(function() {
-        //-------------
-        //- DONUT CHART -
-        //-------------
-        // Get context with jQuery - using jQuery's .get() method.
-        var donutChartCanvas = $('#donutChart').get(0).getContext('2d')
-        var donutData = {
-            labels: [
-                'Receitas',
-                'Despesas'
-            ],
-            datasets: [{
-                data: [<?= $receitas['valor'] ?>, <?= $despesas['valor'] ?>],
-                backgroundColor: ['#00a65a', '#f56954'],
-            }]
-        }
-        var donutOptions = {
-            maintainAspectRatio: false,
-            responsive: true,
-        }
-        //Create pie or douhnut chart
-        // You can switch between pie and douhnut using the method below.
-        var donutChart = new Chart(donutChartCanvas, {
-            type: 'doughnut',
-            data: donutData,
-            options: donutOptions
-        })
-
-        //-------------
-        //- BAR CHART -
-        //-------------
-        var barChartCanvas = $('#barChart').get(0).getContext('2d')
-        var barChartData = jQuery.extend(true, {}, areaChartData)
-        var temp0 = areaChartData.datasets[0]
-        var temp1 = areaChartData.datasets[1]
-        barChartData.datasets[0] = temp1
-        barChartData.datasets[1] = temp0
-
-        var barChartOptions = {
-            responsive: true,
-            maintainAspectRatio: false,
-            datasetFill: false
+            return dataset.label + ': ' + moeda.format(valor || 0);
         }
 
-        var barChart = new Chart(barChartCanvas, {
+        function doughnutFinanceiro(id, dados) {
+            new Chart(document.getElementById(id), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Receber aberto', 'Receber vencido', 'Pagar aberto', 'Pagar vencido'],
+                    datasets: [{
+                        label: 'Financeiro',
+                        data: dados,
+                        backgroundColor: [
+                            chartColors.receberAberta,
+                            chartColors.receberVencida,
+                            chartColors.pagarAberta,
+                            chartColors.pagarVencida
+                        ],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    cutoutPercentage: 66,
+                    maintainAspectRatio: false,
+                    legend: {
+                        display: false
+                    },
+                    tooltips: {
+                        callbacks: {
+                            label: function(tooltipItem, data) {
+                                return data.labels[tooltipItem.index] + ': ' + moeda.format(data.datasets[0].data[tooltipItem.index] || 0);
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        new Chart(document.getElementById('dashboard-faturamento-anual'), {
             type: 'bar',
-            data: barChartData,
-            options: barChartOptions
-        })
-    })
-
-    $(function() {
-        // -------------- ALERTAS ---------------- //
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 5000
+            data: {
+                labels: labelsMeses,
+                datasets: [{
+                    label: 'Produtos',
+                    data: faturamentoMensal.map(function(item) { return item.produtos; }),
+                    backgroundColor: chartColors.produtos,
+                    borderWidth: 0
+                }, {
+                    label: 'Serviços',
+                    data: faturamentoMensal.map(function(item) { return item.servicos; }),
+                    backgroundColor: chartColors.servicos,
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                legend: {
+                    position: 'bottom'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true,
+                            callback: function(valor) { return moeda.format(valor); }
+                        },
+                        gridLines: {
+                            color: 'rgba(148, 163, 184, .16)'
+                        }
+                    }],
+                    xAxes: [{
+                        gridLines: {
+                            display: false
+                        }
+                    }]
+                },
+                tooltips: {
+                    callbacks: {
+                        label: tooltipMoeda
+                    }
+                }
+            }
         });
 
-        <?php
-        $session = session();
-        $alert = $session->getFlashdata('alert');
+        new Chart(document.getElementById('dashboard-composicao'), {
+            type: 'doughnut',
+            data: {
+                labels: ['Produtos', 'Serviços'],
+                datasets: [{
+                    label: 'Faturamento',
+                    data: <?= json_encode([$faturamento['produtos'], $faturamento['servicos']], JSON_NUMERIC_CHECK) ?>,
+                    backgroundColor: [chartColors.produtos, chartColors.servicos],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                cutoutPercentage: 72,
+                maintainAspectRatio: false,
+                legend: {
+                    display: false
+                },
+                tooltips: {
+                    callbacks: {
+                        label: function(tooltipItem, data) {
+                            return data.labels[tooltipItem.index] + ': ' + moeda.format(data.datasets[0].data[tooltipItem.index] || 0);
+                        }
+                    }
+                }
+            }
+        });
 
-        if (isset($alert)) :
-        ?>
-            <?php if ($alert == "success_autentication") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Seja bem vindo <?= $session->get('primeiro_nome') ?>!'
-                })
-            <?php elseif ($alert == "success_bkp_database") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Backup de <?= $session->get('nome_fantasia') ?> realizado com sucesso!'
-                })
-            <?php endif; ?>
+        doughnutFinanceiro('dashboard-financeiro-produtos', <?= json_encode([
+            $financeiro['Produtos']['receber_aberta'],
+            $financeiro['Produtos']['receber_vencida'],
+            $financeiro['Produtos']['pagar_aberta'],
+            $financeiro['Produtos']['pagar_vencida'],
+        ], JSON_NUMERIC_CHECK) ?>);
+
+        doughnutFinanceiro('dashboard-financeiro-servicos', <?= json_encode([
+            $financeiro['Servicos']['receber_aberta'],
+            $financeiro['Servicos']['receber_vencida'],
+            $financeiro['Servicos']['pagar_aberta'],
+            $financeiro['Servicos']['pagar_vencida'],
+        ], JSON_NUMERIC_CHECK) ?>);
+
+        <?php $alert = $session->getFlashdata('alert'); ?>
+        <?php if ($alert === 'success_autentication') : ?>
+            Swal.fire({
+                type: 'success',
+                title: 'Bem-vindo, <?= esc($session->get('primeiro_nome')) ?>!',
+                timer: 2200,
+                showConfirmButton: false
+            });
+        <?php elseif ($alert === 'success_bkp_database') : ?>
+            Swal.fire({
+                type: 'success',
+                title: 'Backup realizado com sucesso!',
+                timer: 2200,
+                showConfirmButton: false
+            });
         <?php endif; ?>
     });
 </script>
