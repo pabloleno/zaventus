@@ -38,13 +38,21 @@ class Inicio extends Controller
      */
     public function index()
     {
-        $mes = (int) ($this->request->getGet('mes') ?: date('n'));
-        $ano = (int) ($this->request->getGet('ano') ?: date('Y'));
+        $mesInformado = $this->request->getGet('mes');
+        $anoInformado = $this->request->getGet('ano');
+        $periodoAutomatico = $mesInformado === null && $anoInformado === null;
+
+        $mesAtual = (int) date('n');
+        $anoAtual = (int) date('Y');
+        $mes = (int) ($mesInformado ?: $mesAtual);
+        $ano = (int) ($anoInformado ?: $anoAtual);
         $mes = min(max($mes, 1), 12);
         $ano = min(max($ano, 2000), 2100);
 
         $data['empresa'] = $this->empresa_model->where('id_config', 1)->first();
         $data['links'] = $this->links;
+        $data['periodo_automatico'] = $periodoAutomatico;
+        $data['segundos_ate_proxima_virada'] = max(1, strtotime('first day of next month 00:00:05') - time());
         $data['dashboard'] = $this->dashboard_negocio->montar($ano, $mes);
         $data['produtos_estoque_baixo'] = $this->produto_model->where('quantidade <= quantidade_minima')->findAll();
         $data['caixas_abertos'] = $this->caixa_model->where('status', 'Aberto')->findAll();

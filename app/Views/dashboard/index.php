@@ -6,6 +6,7 @@
     $financeiro = $dashboard['financeiro'];
     $movimentacao = $dashboard['movimentacao'];
     $agenda = $dashboard['agenda'];
+    $periodoAutomatico = $periodo_automatico ?? true;
     $meses = [
         1 => 'Janeiro',
         2 => 'Fevereiro',
@@ -58,17 +59,32 @@
     <div class="content-header">
         <div class="container-fluid">
             <div class="dashboard-hero">
-                <div>
+                <div class="dashboard-hero-conteudo">
                     <span class="dashboard-eyebrow">Visão executiva</span>
                     <h1>Olá, <?= esc($session->get('primeiro_nome')) ?>.</h1>
                     <p>
                         Produtos e serviços analisados separadamente em
                         <strong><?= esc($meses[$periodo['mes']]) ?> de <?= esc($periodo['ano']) ?></strong>.
                     </p>
+                    <div class="dashboard-periodo-contexto">
+                        <?php if ($periodoAutomatico) : ?>
+                            <i class="fas fa-calendar-check"></i>
+                            <span>
+                                <strong>Período automático.</strong>
+                                A dashboard acompanha o mês atual e muda sozinha na virada do mês ou do ano.
+                            </span>
+                        <?php else : ?>
+                            <i class="fas fa-history"></i>
+                            <span>
+                                <strong>Consulta manual.</strong>
+                                Este período permanecerá selecionado até você voltar ao mês atual.
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
 
                 <form class="dashboard-periodo" action="/inicio" method="get">
-                    <div>
+                    <div class="dashboard-periodo-campo">
                         <label for="dashboard-mes">Mês</label>
                         <select id="dashboard-mes" class="form-control" name="mes">
                             <?php foreach ($meses as $numero => $nome) : ?>
@@ -78,15 +94,29 @@
                             <?php endforeach; ?>
                         </select>
                     </div>
-                    <div>
+                    <div class="dashboard-periodo-campo">
                         <label for="dashboard-ano">Ano</label>
-                        <select id="dashboard-ano" class="form-control" name="ano">
-                            <?php for ($ano = date('Y') + 1; $ano >= date('Y') - 5; $ano--) : ?>
-                                <option value="<?= $ano ?>" <?= $ano === $periodo['ano'] ? 'selected' : '' ?>><?= $ano ?></option>
-                            <?php endfor; ?>
-                        </select>
+                        <input
+                            id="dashboard-ano"
+                            class="form-control dashboard-ano"
+                            type="number"
+                            name="ano"
+                            min="2000"
+                            max="2100"
+                            step="1"
+                            value="<?= esc($periodo['ano']) ?>"
+                            aria-describedby="dashboard-ano-ajuda"
+                        >
+                        <small id="dashboard-ano-ajuda">2000 a 2100</small>
                     </div>
-                    <button class="btn btn-light" type="submit"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                    <div class="dashboard-periodo-acoes">
+                        <button class="btn btn-light" type="submit"><i class="fas fa-search"></i> Consultar</button>
+                        <?php if (! $periodoAutomatico) : ?>
+                            <a class="btn btn-outline-light" href="/inicio" title="Retomar atualização automática">
+                                <i class="fas fa-calendar-day"></i> Voltar ao mês atual
+                            </a>
+                        <?php endif; ?>
+                    </div>
                 </form>
             </div>
         </div>
@@ -361,6 +391,35 @@
 
 <script>
     $(function() {
+        <?php if ($periodoAutomatico) : ?>
+        /**
+         * Agenda a recarga da dashboard quando o período automático virar.
+         */
+        function agendaViradaDoPeriodo() {
+            var limiteTimeout = 2147483647;
+            var intervalo = Math.min(esperaViradaPeriodo, limiteTimeout);
+
+            if (esperaViradaPeriodo <= 0) {
+                window.location.replace('/inicio');
+                return;
+            }
+
+            window.setTimeout(function() {
+                esperaViradaPeriodo -= intervalo;
+
+                if (esperaViradaPeriodo > 0) {
+                    agendaViradaDoPeriodo();
+                    return;
+                }
+
+                window.location.replace('/inicio');
+            }, intervalo);
+        }
+
+        var esperaViradaPeriodo = <?= (int) ($segundos_ate_proxima_virada ?? max(1, strtotime('first day of next month 00:00:05') - time())) ?> * 1000;
+        agendaViradaDoPeriodo();
+        <?php endif; ?>
+
         var moeda = new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL'
