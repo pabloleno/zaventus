@@ -6,15 +6,21 @@
                 <input type="hidden" name="id_integracao" value="<?= $integracao['id_integracao'] ?>">
 
                 <div class="card">
-                    <div class="card-header">
+                    <div class="card-header integracao-pagamento-form-header">
                         <h6 class="card-title"><i class="fas fa-plug"></i> <?= esc($integracao['nome']) ?></h6>
-                        <a href="/desenvolvedor" class="btn btn-success float-right"><i class="fas fa-arrow-left"></i> Voltar</a>
+                        <a href="/desenvolvedor" class="btn btn-success"><i class="fas fa-arrow-left"></i> Voltar</a>
                     </div>
                     <div class="card-body">
                         <div class="alert alert-warning">
-                            <strong>Importante:</strong> salvar estas credenciais prepara a homologacao, mas nao executa cobrancas automaticamente.
+                            <strong>Importante:</strong> salvar e testar estas credenciais valida apenas a autenticação, mas não executa cobranças automaticamente.
                             <?= esc($detalhes_provedor['recomendacao']) ?>
                         </div>
+                        <?php if (! ($detalhes_provedor['ativacao_suportada'] ?? false)) : ?>
+                            <div class="alert alert-secondary">
+                                <i class="fas fa-info-circle"></i>
+                                <?= esc($detalhes_provedor['motivo_teste_indisponivel'] ?? 'Este conector ainda não pode ser ativado.') ?>
+                            </div>
+                        <?php endif; ?>
 
                         <div class="row">
                             <div class="col-lg-6">
@@ -29,13 +35,14 @@
                             <div class="col-lg-6">
                                 <div class="form-group">
                                     <label>Status</label>
-                                    <select class="form-control select2" name="ativo" <?= (int) $integracao['api_publica'] !== 1 ? 'disabled' : '' ?>>
+                                    <select class="form-control select2" name="ativo" <?= ! ($detalhes_provedor['ativacao_suportada'] ?? false) ? 'disabled' : '' ?>>
                                         <option value="0" <?= (int) $integracao['ativo'] !== 1 ? 'selected' : '' ?>>Inativa</option>
-                                        <option value="1" <?= (int) $integracao['ativo'] === 1 ? 'selected' : '' ?>>Ativa para homologacao</option>
+                                        <option value="1" <?= (int) $integracao['ativo'] === 1 ? 'selected' : '' ?>>Ativa após teste válido</option>
                                     </select>
-                                    <?php if ((int) $integracao['api_publica'] !== 1) : ?>
+                                    <?php if (! ($detalhes_provedor['ativacao_suportada'] ?? false)) : ?>
                                         <input type="hidden" name="ativo" value="0">
-                                        <small class="form-text text-muted">Nao existe API publica suportada para este provedor.</small>
+                                    <?php else : ?>
+                                        <small class="form-text text-muted">Para ativar, salve como inativa, execute o diagnóstico e volte a esta tela.</small>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -70,7 +77,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="card-footer text-right">
+                    <div class="card-footer integracao-pagamento-form-acoes">
                         <a class="btn btn-outline-info" href="<?= esc($integracao['documentacao_url']) ?>" target="_blank" rel="noopener noreferrer">
                             <i class="fas fa-external-link-alt"></i> Documentacao oficial
                         </a>

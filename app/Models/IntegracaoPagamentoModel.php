@@ -19,6 +19,9 @@ class IntegracaoPagamentoModel extends PadraoModel
         'ativo',
         'api_publica',
         'observacoes',
+        'ultimo_teste_em',
+        'ultimo_teste_status',
+        'ultimo_teste_mensagem',
     ];
     protected $useTimestamps = true;
     protected $createdField = 'created_at';

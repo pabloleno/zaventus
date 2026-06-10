@@ -1433,6 +1433,111 @@ html.sistema-dark-mode .pedido-cliente-link{
     color: #5eead4 !important;
 }
 
+.integracao-pagamento-card{
+    width: 100%;
+}
+
+.integracao-pagamento-card .card-header,
+.integracao-pagamento-form-header{
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: space-between;
+}
+
+.integracao-pagamento-card .card-body{
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+}
+
+.integracao-pagamento-status{
+    margin-left: auto;
+    max-width: 100%;
+    text-align: center;
+    white-space: normal;
+}
+
+.integracao-pagamento-resumo{
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    margin: 0 0 12px;
+}
+
+.integracao-pagamento-resumo div{
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    padding: 8px;
+    text-align: center;
+}
+
+.integracao-pagamento-resumo span,
+.integracao-pagamento-resumo strong{
+    display: block;
+}
+
+.integracao-pagamento-resumo span{
+    color: #6c757d;
+    font-size: 0.8rem;
+}
+
+.integracao-pagamento-teste{
+    background: #f4f6f9;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    padding: 10px;
+}
+
+.integracao-pagamento-teste > strong,
+.integracao-pagamento-teste > small{
+    display: block;
+}
+
+.integracao-pagamento-teste .badge{
+    margin: 4px 0;
+}
+
+.integracao-pagamento-acoes,
+.integracao-pagamento-form-acoes{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.integracao-pagamento-acoes{
+    margin-top: auto;
+}
+
+.integracao-pagamento-form-acoes{
+    justify-content: flex-end;
+}
+
+.integracao-pagamento-acoes form{
+    margin: 0;
+}
+
+html.sistema-dark-mode .integracao-pagamento-resumo div{
+    border-color: #475569;
+}
+
+html.sistema-dark-mode .integracao-pagamento-resumo span{
+    color: #a8b6c8;
+}
+
+html.sistema-dark-mode .integracao-pagamento-teste{
+    background: #263449;
+    color: #e5edf7;
+}
+
+html.sistema-dark-mode .integracao-pagamento-card .alert-secondary,
+html.sistema-dark-mode .integracao-pagamento-form-header + .card-body .alert-secondary{
+    background: #263449;
+    border-color: #64748b;
+    color: #e5edf7;
+}
+
 @media (max-width: 991px){
     .dashboard-hero,
     .dashboard-section-heading{
@@ -1484,5 +1589,23 @@ html.sistema-dark-mode .pedido-cliente-link{
 
     .dashboard-finance-grid{
         grid-template-columns: 1fr;
+    }
+
+    .integracao-pagamento-resumo{
+        grid-template-columns: 1fr;
+    }
+
+    .integracao-pagamento-acoes,
+    .integracao-pagamento-form-acoes{
+        align-items: stretch;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .integracao-pagamento-acoes .btn,
+    .integracao-pagamento-acoes form,
+    .integracao-pagamento-acoes form .btn,
+    .integracao-pagamento-form-acoes .btn{
+        width: 100%;
     }
 }

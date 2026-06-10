@@ -51,11 +51,11 @@
                                                 value="<?= $integracao['id_integracao'] ?>"
                                                 <?= (string) old('id_integracao', $forma_de_pagamento['id_integracao'] ?? '') === (string) $integracao['id_integracao'] ? 'selected' : '' ?>
                                             >
-                                                <?= esc($integracao['nome']) ?> - <?= esc($integracao['ambiente']) ?>
+                                                <?= esc($integracao['nome']) ?> - <?= esc($integracao['ambiente']) ?> - <?= (int) $integracao['ativo'] === 1 && ($integracao['ultimo_teste_status'] ?? '') === 'sucesso' ? 'autenticação validada/ativa' : 'inativa ou pendente' ?>
                                             </option>
                                         <?php endforeach; ?>
                                     </select>
-                                    <small class="form-text text-muted">O vinculo identifica o provedor; cobrancas automaticas exigem homologacao adicional.</small>
+                                    <small class="form-text text-muted">O vínculo identifica o provedor. A venda continua manual enquanto não existir um conector transacional homologado.</small>
                                 </div>
                             </div>
                             <div class="col-lg-6">

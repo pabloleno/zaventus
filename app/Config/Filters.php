@@ -118,6 +118,7 @@ class Filters extends BaseFilters
                 'configs/store_personalizacao',
                 'configs/store_forma_de_pagamento',
                 'desenvolvedor/store',
+                'desenvolvedor/testar/*',
             ],
         ],
     ];
