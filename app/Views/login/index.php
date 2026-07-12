@@ -145,6 +145,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         type: 'error',
                         title: <?= json_encode(lang('App.login.invalidCredentials')) ?>
                     })
+                <?php elseif ($alert == "error_too_many_login_attempts") : ?>
+                    Toast.fire({
+                        type: 'warning',
+                        title: <?= json_encode(lang('App.login.tooManyAttempts')) ?>
+                    })
                 <?php elseif ($alert == "session_expired") : ?>
                     Toast.fire({
                         type: 'warning',

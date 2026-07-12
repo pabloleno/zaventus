@@ -15,6 +15,7 @@ return [
         'password' => 'Senha',
         'authenticate' => 'Autenticar',
         'invalidCredentials' => 'Usuario ou senha incorretos!',
+        'tooManyAttempts' => 'Muitas tentativas de login. Aguarde alguns instantes antes de tentar novamente.',
         'sessionExpired' => 'Sessao expirada! Acesse sua conta para continuar.',
     ],
     'footer' => [

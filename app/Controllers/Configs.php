@@ -14,6 +14,7 @@ use App\Models\FormaDePagamentoModel;
 use App\Models\IntegracaoPagamentoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Libraries\EnderecoPadrao;
+use App\Libraries\UploadSecurityPolicy;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\Files\UploadedFile;
 use Config\SystemOptions;
@@ -31,6 +32,7 @@ class Configs extends Controller
     private $integracao_pagamento_model;
     private $login_model;
     private $tabela_municipios_ibge_model;
+    private UploadSecurityPolicy $upload_policy;
 
     /**
      * Inicializa as dependencias usadas por este componente.
@@ -44,6 +46,7 @@ class Configs extends Controller
         $this->integracao_pagamento_model = new IntegracaoPagamentoModel();
         $this->login_model = new LoginModel();
         $this->tabela_municipios_ibge_model = new TabelaMunicipiosIBGEModel();
+        $this->upload_policy = new UploadSecurityPolicy();
     }
 
     /**
@@ -91,13 +94,17 @@ class Configs extends Controller
 
         $file = $this->request->getFile('arquivo');
 
-        if ($file->isValid()) // Verifica se foi selecionado o certificado.
+        if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE)
         {
-            $local = WRITEPATH . "uploads\certificado_nfe.pfx";
-            if (is_file($local)) {
-                @unlink($local);
+            $errosUpload = $this->upload_policy->validateCertificate($file);
+
+            if (! empty($errosUpload)) {
+                session()->setFlashdata('errors', $errosUpload);
+
+                return redirect()->back()->withInput();
             }
-            $file->store('../../writable/uploads/', "certificado_nfe.pfx");
+
+            $this->salvarCertificadoFiscal($file, 'certificado_nfe.pfx');
 
             $dados['certificado'] = 1;
         }
@@ -152,13 +159,17 @@ class Configs extends Controller
         }
 
         $dados = $preparo['dados'];
-        if ($file->isValid()) // Verifica se foi selecionado o certificado.
+        if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE)
         {
-            $local = WRITEPATH . "uploads\certificado_nfce.pfx";
-            if (is_file($local)) {
-                @unlink($local);
+            $errosUpload = $this->upload_policy->validateCertificate($file);
+
+            if (! empty($errosUpload)) {
+                session()->setFlashdata('errors', $errosUpload);
+
+                return redirect()->back()->withInput();
             }
-            $file->store('../../writable/uploads/', "certificado_nfce.pfx");
+
+            $this->salvarCertificadoFiscal($file, 'certificado_nfce.pfx');
 
             $dados['certificado'] = 1;
         }
@@ -594,6 +605,26 @@ class Configs extends Controller
         $arquivo->move(FCPATH . self::DIRETORIO_PERSONALIZACAO, $nome);
 
         return self::DIRETORIO_PERSONALIZACAO . '/' . $nome;
+    }
+
+    /**
+     * Salva certificado fiscal validado fora do diretorio publico.
+     */
+    private function salvarCertificadoFiscal(UploadedFile $arquivo, string $nome): void
+    {
+        $diretorio = WRITEPATH . 'uploads';
+
+        if (! is_dir($diretorio)) {
+            mkdir($diretorio, 0775, true);
+        }
+
+        $local = $diretorio . DIRECTORY_SEPARATOR . $nome;
+
+        if (is_file($local)) {
+            @unlink($local);
+        }
+
+        $arquivo->move($diretorio, $nome, true);
     }
 
     /**

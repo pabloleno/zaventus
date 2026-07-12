@@ -15,6 +15,7 @@ return array_replace_recursive(require __DIR__ . '/../en/App.php', [
         'password' => 'Passwort',
         'authenticate' => 'Anmelden',
         'invalidCredentials' => 'Benutzer oder Passwort falsch!',
+        'tooManyAttempts' => 'Zu viele Anmeldeversuche. Warten Sie einen Moment, bevor Sie es erneut versuchen.',
         'sessionExpired' => 'Sitzung abgelaufen! Melden Sie sich erneut an.',
     ],
     'footer' => [

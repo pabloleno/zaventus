@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="system/Test/bootstrap.php"
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd"
+		bootstrap="system/Test/bootstrap.php"
 		backupGlobals="false"
 		colors="true"
-		convertErrorsToExceptions="true"
-		convertNoticesToExceptions="true"
-		convertWarningsToExceptions="true"
 		stopOnError="false"
 		stopOnFailure="false"
 		stopOnIncomplete="false"
-		stopOnSkipped="false">
+		stopOnSkipped="false"
+		cacheDirectory=".phpunit.cache">
 	<testsuites>
+		<testsuite name="application">
+			<directory>./tests/app</directory>
+		</testsuite>
 		<testsuite name="system">
 			<directory>./tests/system</directory>
 			<exclude>./tests/system/Database</exclude>
@@ -19,26 +22,29 @@
 		</testsuite>
 	</testsuites>
 
-	<filter>
-		<whitelist processUncoveredFilesFromWhitelist="true">
+	<source>
+		<include>
+			<directory suffix=".php">./app</directory>
 			<directory suffix=".php">./system</directory>
-			<exclude>
-				<directory>./system/Debug/Toolbar/Views</directory>
-				<directory>./system/Pager/Views</directory>
-				<directory>./system/ThirdParty</directory>
-				<directory>./system/Validation/Views</directory>
-				<file>./system/bootstrap.php</file>
-				<file>./system/Commands/Sessions/Views/migration.tpl.php</file>
-				<file>./system/ComposerScripts.php</file>
-				<file>./system/Config/Routes.php</file>
-				<file>./system/Test/bootstrap.php</file>
-			</exclude>
-		</whitelist>
-	</filter>
+		</include>
+		<exclude>
+			<directory>./system/Debug/Toolbar/Views</directory>
+			<directory>./system/Pager/Views</directory>
+			<directory>./system/ThirdParty</directory>
+			<directory>./system/Validation/Views</directory>
+			<file>./system/bootstrap.php</file>
+			<file>./system/Commands/Sessions/Views/migration.tpl.php</file>
+			<file>./system/ComposerScripts.php</file>
+			<file>./system/Config/Routes.php</file>
+			<file>./system/Test/bootstrap.php</file>
+		</exclude>
+	</source>
 
-	<logging>
-		<log type="coverage-clover" target="build/logs/clover.xml"/>
-	</logging>
+	<coverage>
+		<report>
+			<clover outputFile="build/logs/clover.xml"/>
+		</report>
+	</coverage>
 
 	<php>
 		<server name="app.baseURL" value="http://example.com"/>

@@ -15,6 +15,7 @@ return [
         'password' => 'Password',
         'authenticate' => 'Sign in',
         'invalidCredentials' => 'Incorrect user or password!',
+        'tooManyAttempts' => 'Too many login attempts. Wait a moment before trying again.',
         'sessionExpired' => 'Session expired! Sign in to continue.',
     ],
     'footer' => [

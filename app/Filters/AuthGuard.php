@@ -163,6 +163,7 @@ class AuthGuard implements FilterInterface
             'add_por_xml',
             'cancelar',
             'cancelarlegado',
+            'concluir',
             'consultar',
             'emitenfe',
             'emitenfce',

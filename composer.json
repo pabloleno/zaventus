@@ -121,7 +121,8 @@
         "phpstan:check": "vendor/bin/phpstan analyse --verbose --ansi --memory-limit=512M",
         "sa": "@analyze",
         "style": "@cs-fix",
-        "test": "phpunit"
+        "test": "phpunit",
+        "test:app": "phpunit --testsuite application"
     },
     "scripts-descriptions": {
         "analyze": "Run static analysis",

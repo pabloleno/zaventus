@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\LoginAttemptLimiter;
 use App\Models\ConfigEmpresaModel;
 use App\Models\LoginModel;
 use CodeIgniter\Controller;
@@ -12,6 +13,7 @@ class Login extends Controller
     private $links;
     private $empresa_model;
     private $login_model;
+    private LoginAttemptLimiter $login_attempt_limiter;
 
     /**
      * Inicializa as dependencias usadas por este componente.
@@ -26,6 +28,7 @@ class Login extends Controller
 
         $this->empresa_model = new ConfigEmpresaModel();
         $this->login_model = new LoginModel();
+        $this->login_attempt_limiter = new LoginAttemptLimiter();
     }
 
     /**
@@ -230,16 +233,35 @@ class Login extends Controller
      */
     public function autenticar()
     {
+        if (! $this->request->is('post')) {
+            return $this->response
+                ->setStatusCode(405)
+                ->setHeader('Allow', 'POST')
+                ->setBody('Metodo nao permitido para esta acao.');
+        }
+
         $dados = $this->request->getPost();
         $usuario = (string) ($dados['usuario'] ?? '');
         $senha = (string) ($dados['senha'] ?? '');
-
-        $empresa = $this->empresa_model->where('id_config', 1)->first();
-        $login = $this->login_model->where('usuario', $usuario)->first();
-
+        $ipAddress = (string) $this->request->getIPAddress();
         $session = session();
+
+        if (! $this->login_attempt_limiter->canAttempt($ipAddress, $usuario)) {
+            $retryAfter = max(1, $this->login_attempt_limiter->retryAfterSeconds());
+
+            $session->setFlashdata('alert', 'error_too_many_login_attempts');
+            $session->setFlashdata('retry_after', $retryAfter);
+
+            return redirect()
+                ->to('/login')
+                ->setHeader('Retry-After', (string) $retryAfter);
+        }
+
+        $login = $this->login_model->where('usuario', $usuario)->first();
         if(!empty($login) && $this->senhaConfere($senha, (string) $login['senha']))
         {
+            $empresa = $this->empresa_model->where('id_config', 1)->first();
+            $this->login_attempt_limiter->clear($ipAddress, $usuario);
             $session->regenerate(true);
 
             // Alerta de succeso de autenticação

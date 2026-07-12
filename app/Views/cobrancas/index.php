@@ -145,7 +145,7 @@
                                             Nao informado
                                         <?php endif; ?>
                                     </td>
-                                    <td><a href="/cobrancas/concluir/<?= $pendencia['id_ocorrencia'] ?>" class="btn btn-success btn-sm" title="Marcar lembrete como realizado"><i class="fas fa-check"></i> Realizada</a></td>
+                                    <td><button type="button" class="btn btn-success btn-sm" title="Marcar lembrete como realizado" onclick="confirmaAcaoExcluir('Marcar este lembrete como realizado?', '/cobrancas/concluir/<?= $pendencia['id_ocorrencia'] ?>')"><i class="fas fa-check"></i> Realizada</button></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>

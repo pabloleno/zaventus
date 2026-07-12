@@ -15,6 +15,7 @@ return array_replace_recursive(require __DIR__ . '/../en/App.php', [
         'password' => 'Contrasena',
         'authenticate' => 'Autenticar',
         'invalidCredentials' => 'Usuario o contrasena incorrectos!',
+        'tooManyAttempts' => 'Demasiados intentos de acceso. Espere un momento antes de intentarlo de nuevo.',
         'sessionExpired' => 'Sesion expirada! Accede a tu cuenta para continuar.',
     ],
     'footer' => [

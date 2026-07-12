@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\UploadSecurityPolicy;
 use App\Models\ReposicaoModel;
 use App\Models\ProvisorioReposicaoProdutosPorXmlModel;
 use App\Models\ProvisorioAddProdutoPorXmlModel;
@@ -9,6 +10,7 @@ use App\Models\CategoriasDosProdutosModel;
 use App\Models\ProdutoModel;
 use App\Models\FornecedorModel;
 use CodeIgniter\Controller;
+use CodeIgniter\HTTP\Files\UploadedFile;
 
 class Produtos extends Controller
 {
@@ -20,6 +22,7 @@ class Produtos extends Controller
     private $produto_model;
     private $categoria_model;
     private $fornecedor_model;
+    private UploadSecurityPolicy $upload_policy;
 
     /**
      * Inicializa as dependencias usadas por este componente.
@@ -38,6 +41,7 @@ class Produtos extends Controller
         $this->produto_model                               = new ProdutoModel();
         $this->categoria_model                             = new CategoriasDosProdutosModel();
         $this->fornecedor_model                            = new FornecedorModel();
+        $this->upload_policy                               = new UploadSecurityPolicy();
     }
 
     /**
@@ -235,14 +239,22 @@ class Produtos extends Controller
 
         $dados = $preparo['dados'];
 
-        if ($file->isValid()) // Verifica se foi selecionado uma imagem, e atribui ao array o nome do arquivo depois de movido para a pasta.
+        if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE)
         {
+            $errosUpload = $this->upload_policy->validateProductImage($file);
+
+            if (! empty($errosUpload)) {
+                session()->setFlashdata('errors', $errosUpload);
+
+                return redirect()->back()->withInput();
+            }
+
             if(isset($dados['id_produto'])) // Se a ação for editar, e se foi selecionado uma foto para trocar, então remove a que já existe e cadastra a nova
             {
                 $produto = $this->produto_model->where('id_produto', $dados['id_produto'])->first();
                 if($produto['arquivo'] != "")
                 {
-                    $arquivo_antigo = FCPATH . "assets/img/produtos/{$produto['arquivo']}";
+                    $arquivo_antigo = FCPATH . 'assets/img/produtos/' . basename((string) $produto['arquivo']);
 
                     if(is_file($arquivo_antigo))
                     {
