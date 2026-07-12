@@ -1,14 +1,147 @@
+:root{
+    --zav-btn-radius: 6px;
+    --zav-btn-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+    --zav-btn-shadow-hover: 0 8px 18px rgba(15, 23, 42, .14);
+    --zav-btn-focus: 0 0 0 .2rem rgba(15, 118, 110, .2);
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close),
+a.btn:not(.btn-tool):not(.btn-link){
+    align-items: center;
+    border-radius: var(--zav-btn-radius);
+    box-shadow: var(--zav-btn-shadow);
+    display: inline-flex;
+    font-weight: 600;
+    gap: .42rem;
+    justify-content: center;
+    line-height: 1.2;
+    min-height: 34px;
+    padding: .42rem .78rem;
+    transform: translateY(0);
+    transition: background-color .16s ease, border-color .16s ease, box-shadow .16s ease, color .16s ease, transform .16s ease;
+    vertical-align: middle;
+}
+
+.btn-sm:not(.btn-tool):not(.btn-link),
+.btn-group-sm > .btn{
+    min-height: 30px;
+    padding: .32rem .62rem;
+}
+
+.btn-lg:not(.btn-tool):not(.btn-link),
+.btn-group-lg > .btn{
+    min-height: 42px;
+    padding: .62rem 1rem;
+}
+
+.btn-block{
+    width: 100%;
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):hover,
+a.btn:not(.btn-tool):not(.btn-link):hover{
+    box-shadow: var(--zav-btn-shadow-hover);
+    text-decoration: none;
+    transform: translateY(-1px);
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):active,
+.btn:not(.btn-tool):not(.btn-link):not(.close).active,
+a.btn:not(.btn-tool):not(.btn-link):active{
+    box-shadow: 0 2px 6px rgba(15, 23, 42, .12);
+    transform: translateY(0);
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):focus,
+a.btn:not(.btn-tool):not(.btn-link):focus{
+    box-shadow: var(--zav-btn-focus), var(--zav-btn-shadow-hover);
+}
+
+.btn:not(.btn-tool):not(.btn-link):not(.close):focus-visible,
+a.btn:not(.btn-tool):not(.btn-link):focus-visible{
+    outline: 2px solid rgba(15, 118, 110, .35);
+    outline-offset: 2px;
+}
+
+.btn.disabled,
+.btn:disabled,
+fieldset:disabled .btn{
+    box-shadow: none;
+    cursor: not-allowed;
+    opacity: .68;
+    transform: none;
+}
+
+.btn.disabled:hover,
+.btn:disabled:hover,
+fieldset:disabled .btn:hover{
+    box-shadow: none;
+    transform: none;
+}
+
+.btn i,
+.btn .fa,
+.btn .fas,
+.btn .far{
+    line-height: 1;
+}
+
+.btn-group,
+.btn-group-vertical{
+    gap: 2px;
+}
+
+.btn-group > .btn,
+.btn-group-vertical > .btn{
+    border-radius: var(--zav-btn-radius) !important;
+}
+
+.btn-group > .btn:not(:first-child),
+.btn-group > .btn-group:not(:first-child){
+    margin-left: 0;
+}
+
+.modal-footer .btn,
+.card-header .btn{
+    white-space: nowrap;
+}
+
+.table td .btn,
+.dataTable td .btn{
+    margin: 1px 2px;
+}
+
 .style-action{
-    padding-top: 1px;
-    padding-bottom: 1px;
-    padding-left: 7px;
-    padding-right: 7px
+    min-height: 32px;
+    min-width: 32px;
+    padding: .35rem .55rem;
+}
+
+.style-action:has(> i:only-child),
+.style-action:has(> .fa:only-child),
+.style-action:has(> .fas:only-child),
+.style-action:has(> .far:only-child){
+    height: 32px;
+    padding: 0;
+    width: 32px;
 }
 
 .button-voltar{
-    height: 23px;
-    padding-top: 0px;
-    margin-right: 15px
+    margin-right: 15px;
+    min-height: 32px;
+    padding: .35rem .72rem;
+}
+
+@media (prefers-reduced-motion: reduce){
+    .btn:not(.btn-tool):not(.btn-link):not(.close),
+    a.btn:not(.btn-tool):not(.btn-link){
+        transition: none;
+    }
+
+    .btn:not(.btn-tool):not(.btn-link):not(.close):hover,
+    a.btn:not(.btn-tool):not(.btn-link):hover{
+        transform: none;
+    }
 }
 
 .foto-cadastro-container{
