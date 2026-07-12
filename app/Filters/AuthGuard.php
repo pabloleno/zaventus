@@ -75,6 +75,10 @@ class AuthGuard implements FilterInterface
             return redirect()->to('/login');
         }
 
+        if ($this->requiresPost($method) && strtolower($request->getMethod()) !== 'post') {
+            return $this->methodNotAllowed($request);
+        }
+
         $permission = $this->requiredPermission($controller, $method);
 
         if (
@@ -142,6 +146,52 @@ class AuthGuard implements FilterInterface
     {
         return str_starts_with($method, '__')
             || in_array($method, ['format', 'initcontroller'], true);
+    }
+
+    /**
+     * Bloqueia chamadas GET para operacoes que alteram dados ou emitem documentos.
+     */
+    private function requiresPost(string $method): bool
+    {
+        foreach (['store', 'delete', 'remove', 'remover', 'adiciona'] as $prefix) {
+            if (str_starts_with($method, $prefix)) {
+                return true;
+            }
+        }
+
+        return in_array($method, [
+            'add_por_xml',
+            'cancelar',
+            'cancelarlegado',
+            'consultar',
+            'emitenfe',
+            'emitenfce',
+            'estender',
+            'fechar',
+            'finalizaordemdeservico',
+            'finalizavenda',
+            'finalizavendaemitenfce',
+            'finalizar_e_cadastrar_produtos_por_xml',
+            'finalizar_e_repoe_produtos_por_xml',
+            'finalizarpedido',
+            'reemitir',
+        ], true);
+    }
+
+    /**
+     * Responde com metodo nao permitido sem executar a acao solicitada.
+     */
+    private function methodNotAllowed(IncomingRequest $request)
+    {
+        $response = service('response')
+            ->setStatusCode(405)
+            ->setHeader('Allow', 'POST');
+
+        if ($request->isAJAX()) {
+            return $response->setJSON(['error' => 'method_not_allowed']);
+        }
+
+        return $response->setBody('Metodo nao permitido para esta acao.');
     }
 
     /**

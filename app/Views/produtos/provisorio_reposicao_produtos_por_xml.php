@@ -97,7 +97,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-lg-12" style="text-align: right">
-                            <button type="button" class="btn btn-success" onclick="window.location.href = '/produtos/finalizar_e_repoe_produtos_por_xml'" <?= (isset($verifica_se_esta_tudo_certo)) ? 'disabled' : '' ?>><i class="fas fa-save"></i> Finalizar e Repor Produtos</button>
+                            <button type="button" class="btn btn-success" onclick="confirmaAcaoExcluir('Deseja finalizar e repor os produtos importados?', '/produtos/finalizar_e_repoe_produtos_por_xml')" <?= (isset($verifica_se_esta_tudo_certo)) ? 'disabled' : '' ?>><i class="fas fa-save"></i> Finalizar e Repor Produtos</button>
                         </div>
                     </div>
                 </div>

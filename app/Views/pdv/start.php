@@ -5,6 +5,7 @@ $faviconPdv = trim((string) ($empresa['favicon'] ?? '')) ?: 'favicon.ico';
 $fusoHorarioPdv = trim((string) ($empresa['fuso_horario'] ?? '')) ?: 'America/Manaus';
 $finalizarComNfce = ($empresa['finalizacao_pdv'] ?? 'cupom_nao_fiscal') === 'nfce';
 $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
+$security = config('Security');
 ?>
 <!DOCTYPE html>
 <html lang="pt_BR">
@@ -13,6 +14,9 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
+    <meta name="csrf-token-value" content="<?= esc(csrf_hash()) ?>">
+    <meta name="csrf-header-name" content="<?= esc($security->headerName) ?>">
 
     <title>PDV | <?= esc($nomeEmpresa) ?></title>
 
@@ -635,6 +639,54 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
     <!-- AdminLTE App -->
     <script src="<?= base_url('theme/dist/js/adminlte.js') ?>"></script>
     <script>
+        var csrfTokenName = $('meta[name="csrf-token-name"]').attr('content') || '';
+        var csrfTokenValue = $('meta[name="csrf-token-value"]').attr('content') || '';
+        var csrfHeaderName = $('meta[name="csrf-header-name"]').attr('content') || 'X-CSRF-TOKEN';
+
+        function aplicaTokenCsrf(form) {
+            if (!csrfTokenName || !csrfTokenValue || !form) {
+                return;
+            }
+
+            var $form = $(form);
+            var method = ($form.attr('method') || 'get').toLowerCase();
+
+            if (method !== 'post' || $form.find('input[name="' + csrfTokenName + '"]').length) {
+                return;
+            }
+
+            $('<input>', {
+                type: 'hidden',
+                name: csrfTokenName,
+                value: csrfTokenValue
+            }).appendTo($form);
+        }
+
+        function enviaPostComCsrf(rota) {
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = rota;
+            form.style.display = 'none';
+            document.body.appendChild(form);
+            aplicaTokenCsrf(form);
+            form.submit();
+        }
+
+        $(document).on('submit', 'form', function() {
+            aplicaTokenCsrf(this);
+        });
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                var method = (settings.type || settings.method || 'GET').toUpperCase();
+                var safeMethods = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
+
+                if (csrfHeaderName && csrfTokenValue && safeMethods.indexOf(method) === -1) {
+                    xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+                }
+            }
+        });
+
         $(function() {
             //Initialize Select2 Elements
             $('.select2').select2()
@@ -732,7 +784,7 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
          */
         function confirmaAcaoExcluir(msg, rota) {
             if (confirm(msg)) {
-                window.location.href = rota;
+                enviaPostComCsrf(rota);
             }
         }
 
@@ -741,7 +793,7 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
          */
         function adicionaProdutoPorNome() {
             var id_produto = document.getElementById('pesq_de_produto_por_nome').value;
-            window.location.href = "/pdv/adicionaProdutoPorNome/<?= $id_caixa ?>/" + id_produto;
+            enviaPostComCsrf("/pdv/adicionaProdutoPorNome/<?= $id_caixa ?>/" + encodeURIComponent(id_produto));
         }
 
         /**
@@ -836,7 +888,7 @@ $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);
                         throw new Error('A venda foi registrada, mas o emissor fiscal nao foi localizado.');
                     }
 
-                    window.location.href = data.redirect;
+                    enviaPostComCsrf(data.redirect);
                 <?php else : ?>
                     $('#modal-loading').modal('hide');
                     document.getElementById('cupom-nao-fiscal').innerHTML = data;

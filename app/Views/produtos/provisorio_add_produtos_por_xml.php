@@ -150,7 +150,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-lg-12" style="text-align: right">
-                            <a href="/produtos/finalizar_e_cadastrar_produtos_por_xml" class="btn btn-success"><i class="fas fa-save"></i> Finalizar e Cadastrar Produtos</a>
+                            <button type="button" class="btn btn-success" onclick="confirmaAcaoExcluir('Deseja finalizar e cadastrar os produtos importados?', '/produtos/finalizar_e_cadastrar_produtos_por_xml')"><i class="fas fa-save"></i> Finalizar e Cadastrar Produtos</button>
                         </div>
                     </div>
                 </div>

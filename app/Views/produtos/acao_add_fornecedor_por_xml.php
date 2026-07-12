@@ -77,7 +77,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <a href="/produtos/remove_fornecedor_cadastrado_por_xml/<?= $fornecedor['id_fornecedor'] ?>" class="btn btn-info" onclick="alert('Fornecedor não cadastrado, será usado o fornecedor GERAL!')">Não Cadastrar</a>
+                    <button type="button" class="btn btn-info" onclick="confirmaAcaoExcluir('Fornecedor nao cadastrado, sera usado o fornecedor GERAL?', '/produtos/remove_fornecedor_cadastrado_por_xml/<?= $fornecedor['id_fornecedor'] ?>')">Não Cadastrar</button>
                     <a href="/produtos/provisorio_add_produtos_por_xml" class="btn btn-info" onclick="alert('Fornecedor cadastrado com sucesso!')"><i class="fas fa-plus-circle"></i> Cadastrar Fornecedor</a>
                 </div>
             </form>

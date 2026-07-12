@@ -2,6 +2,7 @@
     $session = session();
     $usuario = $session->get('usuario');
     $favicon = trim((string) $session->get('favicon')) ?: 'favicon.ico';
+    $security = config('Security');
     $controle_alertas = json_decode((string) $session->get('controle_de_acesso'), true);
     $pode_alertas_cobrancas = is_array($controle_alertas)
         && (int) ($controle_alertas['controle_geral']['modulo'] ?? 0) === 1
@@ -23,6 +24,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="csrf-token-name" content="<?= esc(csrf_token()) ?>">
+    <meta name="csrf-token-value" content="<?= esc(csrf_hash()) ?>">
+    <meta name="csrf-header-name" content="<?= esc($security->headerName) ?>">
 
     <title><?= esc(lang('App.appName')) ?><?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
 

@@ -160,18 +160,18 @@
                                     <button type="button" class="btn btn-default" disabled>NFe Cancelada!</button>
                                 <?php else : ?>
                                     <button type="button" class="btn btn-default" disabled>A NFe não pode ser emitida!</button>
-                                    <a href="/NFe/reemitir/<?= $venda['id_cliente'] ?>/<?= $venda['id_venda'] ?>/<?= $nfe_da_venda['id_nfe'] ?>" class="btn btn-primary">Emitir</a>
+                                    <button type="button" class="btn btn-primary" onclick="confirmaAcaoExcluir('Deseja reemitir esta NFe?', '/NFe/reemitir/<?= $venda['id_cliente'] ?>/<?= $venda['id_venda'] ?>/<?= $nfe_da_venda['id_nfe'] ?>')">Emitir</button>
                                 <?php endif; ?>
                             <?php endif; ?>
 
                             <?php if (empty($nfce_da_venda)) : ?>
-                                <a href="/pdv/emiteNFCe/<?= $venda['id_venda'] ?>/2" class="btn btn-primary">Emitir NFCe</a>
+                                <button type="button" id="btnEmitirNFCe" class="btn btn-primary" onclick="emiteNFCe()">Emitir NFCe</button>
                             <?php else : ?>
                                 <?php if ($nfce_da_venda['status'] == "Emitida") : ?>
                                     <a href="/ImprimeDanfe/index/<?= $nfce_da_venda['id_nfce'] ?>/2" class="btn btn-success" target="_blank">Imprimir Cupom Fiscal - NFCe</a>
                                 <?php else : ?>
                                     <button type="button" class="btn btn-default" disabled>A NFCe não pode ser emitida!</button>
-                                    <a href="/Pdv/emiteNFCe/<?= $venda['id_venda'] ?>/2" class="btn btn-primary">Emitir</a>
+                                    <button type="button" id="btnEmitirNFCe" class="btn btn-primary" onclick="emiteNFCe()">Emitir</button>
                                 <?php endif; ?>
                             <?php endif; ?>
 
@@ -367,13 +367,30 @@
 
 <script>
     /**
+     * Envia operacoes sensiveis por POST com CSRF.
+     */
+    function enviaPostComCsrf(rota) {
+        var form = document.createElement('form');
+        form.method = 'post';
+        form.action = rota;
+        form.style.display = 'none';
+        document.body.appendChild(form);
+
+        if (typeof window.aplicaTokenCsrf === 'function') {
+            window.aplicaTokenCsrf(form);
+        }
+
+        form.submit();
+    }
+
+    /**
      * Inicia a emissao da NFe para a venda selecionada.
      */
     function emiteNFe() {
         document.getElementById('btnEmitirNFe').disabled = true;
         document.getElementById('btnEmitirNFe').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Aguarde..';
 
-        window.location.href = "/NFe/emiteNFe/<?= $venda['id_cliente'] ?>/<?= $venda['id_venda'] ?>";
+        enviaPostComCsrf("/NFe/emiteNFe/<?= $venda['id_cliente'] ?>/<?= $venda['id_venda'] ?>");
     }
 
     /**
@@ -383,7 +400,7 @@
         document.getElementById('btnEmitirNFCe').disabled = true;
         document.getElementById('btnEmitirNFCe').innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Aguarde..';
 
-        window.location.href = "/Pdv/emiteNFCe/<?= $venda['id_venda'] ?>/<?= $venda['valor_a_pagar'] ?>/<?= $venda['troco'] ?>/2";
+        enviaPostComCsrf("/Pdv/emiteNFCe/<?= $venda['id_venda'] ?>/2");
     }
 
     $(function() {

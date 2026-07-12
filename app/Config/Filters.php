@@ -99,7 +99,12 @@ class Filters extends BaseFilters
      *
      * @var array<string, list<string>>
      */
-    public array $methods = [];
+    public array $methods = [
+        'post'   => ['csrf'],
+        'put'    => ['csrf'],
+        'patch'  => ['csrf'],
+        'delete' => ['csrf'],
+    ];
 
     /**
      * List of filter aliases that should run on any
@@ -110,16 +115,5 @@ class Filters extends BaseFilters
      *
      * @var array<string, array<string, list<string>>>
      */
-    public array $filters = [
-        'csrf' => [
-            'before' => [
-                'login/autenticar',
-                'login/store',
-                'configs/store_personalizacao',
-                'configs/store_forma_de_pagamento',
-                'desenvolvedor/store',
-                'desenvolvedor/testar/*',
-            ],
-        ],
-    ];
+    public array $filters = [];
 }

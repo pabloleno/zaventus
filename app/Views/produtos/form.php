@@ -190,7 +190,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            <a href="/produtos/removerImagem/<?= $produto['id_produto'] ?>" class="btn btn-danger">Remover Foto</a>
+                                            <button type="button" class="btn btn-danger" onclick="confirmaAcaoExcluir('Deseja remover a foto deste produto?', '/produtos/removerImagem/<?= $produto['id_produto'] ?>')">Remover Foto</button>
                                         <?php endif; ?>
                                     </div>
                                 </div>

@@ -6,7 +6,7 @@
     </div>
     <!-- Default to the left -->
     <?php $session = session() ?>
-    <strong><?= $session->get('nome_fantasia') ?> &copy; <?= date('Y') ?> </strong> - <?= esc(lang('App.footer.rights')) ?>
+    <strong><?= esc($session->get('nome_fantasia')) ?> &copy; <?= date('Y') ?> </strong> - <?= esc(lang('App.footer.rights')) ?>
 </footer>
 </div>
 <!-- ./wrapper -->
@@ -44,9 +44,50 @@
 <script src="<?= base_url('assets/js/filtros-listagens.js?v=' . filemtime(FCPATH . 'assets/js/filtros-listagens.js')) ?>"></script>
 <script>
     $(function() {
+        var csrfTokenName = $('meta[name="csrf-token-name"]').attr('content') || '';
+        var csrfTokenValue = $('meta[name="csrf-token-value"]').attr('content') || '';
+        var csrfHeaderName = $('meta[name="csrf-header-name"]').attr('content') || 'X-CSRF-TOKEN';
         var dataTablesLanguage = <?= json_encode(lang('Ui.datatables'), JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         var select2Language = <?= json_encode($select2_locale, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP) ?>;
         FiltrosListagens.inicializar(dataTablesLanguage);
+
+        window.aplicaTokenCsrf = function(form) {
+            if (!csrfTokenName || !csrfTokenValue || !form) {
+                return;
+            }
+
+            var $form = $(form);
+            var method = ($form.attr('method') || 'get').toLowerCase();
+
+            if (method !== 'post' || $form.find('input[name="' + csrfTokenName + '"]').length) {
+                return;
+            }
+
+            $('<input>', {
+                type: 'hidden',
+                name: csrfTokenName,
+                value: csrfTokenValue
+            }).appendTo($form);
+        };
+
+        $('form').each(function() {
+            window.aplicaTokenCsrf(this);
+        });
+
+        $(document).on('submit', 'form', function() {
+            window.aplicaTokenCsrf(this);
+        });
+
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                var method = (settings.type || settings.method || 'GET').toUpperCase();
+                var safeMethods = ['GET', 'HEAD', 'OPTIONS', 'TRACE'];
+
+                if (csrfHeaderName && csrfTokenValue && safeMethods.indexOf(method) === -1) {
+                    xhr.setRequestHeader(csrfHeaderName, csrfTokenValue);
+                }
+            }
+        });
 
         //Initialize Select2 Elements
         $('.select2').select2({
@@ -81,7 +122,17 @@
      */
     function confirmaAcaoExcluir(msg, rota) {
         if (confirm(msg)) {
-            window.location.href = rota;
+            var form = document.createElement('form');
+            form.method = 'post';
+            form.action = rota;
+            form.style.display = 'none';
+            document.body.appendChild(form);
+
+            if (typeof window.aplicaTokenCsrf === 'function') {
+                window.aplicaTokenCsrf(form);
+            }
+
+            form.submit();
         }
     }
 

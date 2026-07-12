@@ -94,7 +94,9 @@ class Configs extends Controller
         if ($file->isValid()) // Verifica se foi selecionado o certificado.
         {
             $local = WRITEPATH . "uploads\certificado_nfe.pfx";
-            unlink($local);
+            if (is_file($local)) {
+                @unlink($local);
+            }
             $file->store('../../writable/uploads/', "certificado_nfe.pfx");
 
             $dados['certificado'] = 1;
@@ -153,7 +155,9 @@ class Configs extends Controller
         if ($file->isValid()) // Verifica se foi selecionado o certificado.
         {
             $local = WRITEPATH . "uploads\certificado_nfce.pfx";
-            unlink($local);
+            if (is_file($local)) {
+                @unlink($local);
+            }
             $file->store('../../writable/uploads/', "certificado_nfce.pfx");
 
             $dados['certificado'] = 1;

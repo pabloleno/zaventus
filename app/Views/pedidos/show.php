@@ -9,7 +9,7 @@
                     <?php if($pedido['situacao'] == "Pago - Finalizado"): ?>
                         <button type="button" class="btn btn-success" disabled><i class="fas fa-print"></i> Finalizar Pedido</button>
                     <?php else: ?>
-                        <a href="/pedidos/finalizarPedido/<?= $pedido['id_pedido'] ?>" class="btn btn-success"><i class="fas fa-print"></i> Finalizar Pedido</a>
+                        <button type="button" class="btn btn-success" onclick="confirmaAcaoExcluir('Deseja finalizar este pedido?', '/pedidos/finalizarPedido/<?= $pedido['id_pedido'] ?>')"><i class="fas fa-print"></i> Finalizar Pedido</button>
                     <?php endif;?>
                 </div>
             </div>

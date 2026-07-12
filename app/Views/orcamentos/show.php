@@ -9,7 +9,7 @@
                     <?php if($orcamento['status'] == "Finalizado"): ?>
                         <button type="button" class="btn btn-success" disabled><i class="fas fa-print"></i> Finalizar Venda</button>
                     <?php else: ?>
-                        <a href="/orcamentos/finalizarVenda/<?= $orcamento['id_orcamento'] ?>" class="btn btn-success"><i class="fas fa-print"></i> Finalizar Venda</a>
+                        <button type="button" class="btn btn-success" onclick="confirmaAcaoExcluir('Deseja finalizar esta venda?', '/orcamentos/finalizarVenda/<?= $orcamento['id_orcamento'] ?>')"><i class="fas fa-print"></i> Finalizar Venda</button>
                     <?php endif;?>
                 </div>
             </div>
