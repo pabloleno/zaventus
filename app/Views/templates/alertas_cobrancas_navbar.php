@@ -44,6 +44,9 @@
         function criaItemAlertaCobranca(alerta) {
             var item = $('<a class="dropdown-item cobrancas-navbar-item"></a>').attr('href', '/cobrancas');
             var linhaTitulo = $('<span class="cobrancas-navbar-item-titulo"></span>');
+            var rotuloParcela = alerta.rotulo_parcela || (alerta.numero_parcela + '/' + (alerta.total_parcelas || alerta.numero_parcela));
+            var restantes = Number(alerta.parcelas_restantes) || 0;
+            var textoRestantes = restantes === 1 ? '1 restante' : restantes + ' restantes';
             var status = $('<span class="cobrancas-navbar-status"></span>')
                 .addClass(alerta.status_alerta === 'Atrasada' ? 'cobrancas-navbar-status-atrasada' : 'cobrancas-navbar-status-hoje')
                 .text(alerta.status_alerta);
@@ -51,7 +54,7 @@
             $('<strong></strong>').text(alerta.titulo).appendTo(linhaTitulo);
             status.appendTo(linhaTitulo);
             linhaTitulo.appendTo(item);
-            $('<span class="cobrancas-navbar-item-cliente"></span>').text(alerta.cliente + ' - parcela ' + alerta.numero_parcela).appendTo(item);
+            $('<span class="cobrancas-navbar-item-cliente"></span>').text(alerta.cliente + ' - parcela ' + rotuloParcela + ' - ' + textoRestantes).appendTo(item);
             $('<span class="cobrancas-navbar-item-detalhe"></span>')
                 .text(formataVencimentoAlertaCobranca(alerta.vencimento) + ' | ' + formataMoedaAlertaCobranca(alerta.valor_com_juros))
                 .appendTo(item);

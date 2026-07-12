@@ -41,7 +41,7 @@ class Cobrancas extends Controller
             ->orderBy('cobrancas.id_cobranca', 'DESC')
             ->findAll();
         $pendencias = $this->ocorrencias
-            ->select('cobranca_ocorrencias.*, cobrancas.titulo, cobrancas.juros_atraso, cobrancas.juros_percentual, clientes.nome, clientes.razao_social, clientes.whatsapp, clientes.celular')
+            ->select('cobranca_ocorrencias.*, cobrancas.titulo, cobrancas.quantidade_parcelas, cobrancas.juros_atraso, cobrancas.juros_percentual, clientes.nome, clientes.razao_social, clientes.whatsapp, clientes.celular')
             ->join('cobrancas', 'cobrancas.id_cobranca = cobranca_ocorrencias.id_cobranca AND cobrancas.deleted_at IS NULL')
             ->join('clientes', 'clientes.id_cliente = cobrancas.id_cliente', 'left')
             ->where('cobranca_ocorrencias.status', 'Pendente')
@@ -59,6 +59,7 @@ class Cobrancas extends Controller
         $data['cobrancas'] = $cobrancas;
         $data['pendencias'] = $pendencias;
         $data['proximas'] = $proximas;
+        $data['resumos_parcelas'] = $this->recorrencia->resumosParcelas(array_map(static fn (array $cobranca): int => (int) $cobranca['id_cobranca'], $cobrancas));
 
         echo view('templates/header');
         echo view('cobrancas/index', $data);
@@ -163,6 +164,10 @@ class Cobrancas extends Controller
                 'titulo' => (string) $alerta['titulo'],
                 'cliente' => (string) $alerta['cliente'],
                 'numero_parcela' => (int) $alerta['numero_parcela'],
+                'total_parcelas' => (int) ($alerta['total_parcelas'] ?? $alerta['numero_parcela']),
+                'parcelas_realizadas' => (int) ($alerta['parcelas_realizadas'] ?? 0),
+                'parcelas_restantes' => (int) ($alerta['parcelas_restantes'] ?? 1),
+                'rotulo_parcela' => (string) ($alerta['rotulo_parcela'] ?? $alerta['numero_parcela']),
                 'vencimento' => (string) $alerta['vencimento'],
                 'valor_com_juros' => (float) $alerta['valor_com_juros'],
                 'status_alerta' => (string) $alerta['status_alerta'],

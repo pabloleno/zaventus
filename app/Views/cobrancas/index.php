@@ -2,6 +2,7 @@
     $agora = time();
     $pendentesHoje = 0;
     $atrasadas = 0;
+    $resumosParcelas = $resumos_parcelas ?? [];
 
     foreach ($pendencias as $pendencia) {
         $vencimento = strtotime($pendencia['vencimento']);
@@ -63,12 +64,24 @@
                                 <?php
                                     $cliente = trim((string) ($cobranca['nome'] ?: $cobranca['razao_social'])) ?: 'Cliente nao informado';
                                     $proxima = $proximas[(int) $cobranca['id_cobranca']] ?? null;
+                                    $totalParcelas = max(1, (int) $cobranca['quantidade_parcelas']);
+                                    $resumoParcela = $resumosParcelas[(int) $cobranca['id_cobranca']] ?? [
+                                        'total' => $totalParcelas,
+                                        'pendentes' => $totalParcelas,
+                                        'realizadas' => 0,
+                                    ];
+                                    $totalParcelas = max($totalParcelas, (int) $resumoParcela['total']);
+                                    $parcelasPendentes = min($totalParcelas, (int) $resumoParcela['pendentes']);
+                                    $parcelasRealizadas = min($totalParcelas, (int) $resumoParcela['realizadas']);
                                 ?>
                                 <tr>
                                     <td><?= esc($cliente) ?></td>
                                     <td><strong><?= esc($cobranca['titulo']) ?></strong><br><small><?= esc($cobranca['descricao']) ?></small></td>
                                     <td>R$ <?= number_format((float) $cobranca['valor_total'], 2, ',', '.') ?></td>
-                                    <td><?= (int) $cobranca['quantidade_parcelas'] ?></td>
+                                    <td>
+                                        <strong><?= $parcelasPendentes ?></strong> faltam
+                                        <small class="d-block text-muted"><?= $parcelasRealizadas ?>/<?= $totalParcelas ?> realizadas</small>
+                                    </td>
                                     <td><?= esc($cobranca['recorrencia']) ?></td>
                                     <td><?= $proxima ? date('d/m/Y H:i', strtotime($proxima['vencimento'])) : 'Sem pendencias' ?></td>
                                     <td><span class="badge badge-<?= $cobranca['status'] === 'Ativa' ? 'success' : ($cobranca['status'] === 'Pausada' ? 'warning' : 'secondary') ?>"><?= esc($cobranca['status']) ?></span></td>
@@ -107,12 +120,23 @@
                                     $cliente = trim((string) ($pendencia['nome'] ?: $pendencia['razao_social'])) ?: 'Cliente nao informado';
                                     $whatsappLink = \App\Libraries\ContatoPadrao::whatsappLink($pendencia['whatsapp'] ?: $pendencia['celular']);
                                     $atrasada = strtotime($pendencia['vencimento']) < $agora;
+                                    $totalParcelas = max(1, (int) ($pendencia['quantidade_parcelas'] ?? $pendencia['numero_parcela']));
+                                    $resumoParcela = $resumosParcelas[(int) $pendencia['id_cobranca']] ?? [
+                                        'total' => $totalParcelas,
+                                        'pendentes' => $totalParcelas,
+                                        'realizadas' => 0,
+                                    ];
+                                    $totalParcelas = max($totalParcelas, (int) $resumoParcela['total']);
+                                    $parcelasPendentes = min($totalParcelas, (int) $resumoParcela['pendentes']);
                                 ?>
                                 <tr class="<?= $atrasada ? 'table-danger' : '' ?>">
                                     <td><?= date('d/m/Y H:i', strtotime($pendencia['vencimento'])) ?></td>
                                     <td><?= esc($cliente) ?></td>
                                     <td><?= esc($pendencia['titulo']) ?></td>
-                                    <td><?= (int) $pendencia['numero_parcela'] ?></td>
+                                    <td>
+                                        <strong><?= (int) $pendencia['numero_parcela'] ?>/<?= $totalParcelas ?></strong>
+                                        <small class="d-block text-muted"><?= $parcelasPendentes ?> restantes</small>
+                                    </td>
                                     <td>R$ <?= number_format((float) $pendencia['valor'], 2, ',', '.') ?></td>
                                     <td>
                                         <?php if ($whatsappLink !== '') : ?>

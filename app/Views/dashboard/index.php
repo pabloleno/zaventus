@@ -415,12 +415,20 @@
                                 <tbody>
                                     <?php if (! empty($cobrancasAlerta)) : ?>
                                         <?php foreach ($cobrancasAlerta as $alertaCobranca) : ?>
-                                            <?php $whatsappLink = \App\Libraries\ContatoPadrao::whatsappLink($alertaCobranca['whatsapp'] ?: $alertaCobranca['celular']); ?>
+                                            <?php
+                                                $whatsappLink = \App\Libraries\ContatoPadrao::whatsappLink($alertaCobranca['whatsapp'] ?: $alertaCobranca['celular']);
+                                                $totalParcelas = (int) ($alertaCobranca['total_parcelas'] ?? $alertaCobranca['numero_parcela']);
+                                                $rotuloParcela = $alertaCobranca['rotulo_parcela'] ?? ((int) $alertaCobranca['numero_parcela'] . '/' . $totalParcelas);
+                                                $parcelasRestantes = (int) ($alertaCobranca['parcelas_restantes'] ?? 1);
+                                            ?>
                                             <tr>
                                                 <td><?= date('d/m/Y H:i', strtotime($alertaCobranca['vencimento'])) ?></td>
                                                 <td><?= esc($alertaCobranca['cliente']) ?></td>
                                                 <td><?= esc($alertaCobranca['titulo']) ?></td>
-                                                <td><?= (int) $alertaCobranca['numero_parcela'] ?></td>
+                                                <td>
+                                                    <strong><?= esc($rotuloParcela) ?></strong>
+                                                    <small class="d-block text-muted"><?= $parcelasRestantes ?> restantes</small>
+                                                </td>
                                                 <td><span class="dashboard-status dashboard-status-<?= strtolower(esc($alertaCobranca['status_alerta'])) ?>"><?= esc($alertaCobranca['status_alerta']) ?></span></td>
                                                 <td>
                                                     <?php if ($whatsappLink !== '') : ?>

@@ -131,6 +131,7 @@ class CobrancaRecorrente
     {
         $agora = new DateTimeImmutable();
         $registros = $this->consultaPendentesAtivas()->findAll();
+        $resumosParcelas = $this->resumosParcelas($this->idsCobrancas($registros));
         $alertas = [];
         $cobrancasListadas = [];
 
@@ -147,6 +148,7 @@ class CobrancaRecorrente
             $registro['cliente'] = $this->nomeCliente($registro);
             $registro['status_alerta'] = $agora < $inicioAlerta ? 'Agendada' : $this->statusAlerta($vencimento, $agora);
             $registro['valor_com_juros'] = $this->valorComJuros($registro, $vencimento, $agora);
+            $registro = $this->adicionarResumoParcelas($registro, $resumosParcelas[$idCobranca] ?? []);
             $alertas[] = $registro;
             $cobrancasListadas[$idCobranca] = true;
 
@@ -168,17 +170,60 @@ class CobrancaRecorrente
         $registros = $this->consultaPendentesAtivas()
             ->where('cobranca_ocorrencias.vencimento <=', $fimHoje->format('Y-m-d H:i:s'))
             ->findAll();
+        $resumosParcelas = $this->resumosParcelas($this->idsCobrancas($registros));
         $alertas = [];
 
         foreach ($registros as $registro) {
             $vencimento = new DateTimeImmutable($registro['vencimento']);
+            $idCobranca = (int) $registro['id_cobranca'];
             $registro['cliente'] = $this->nomeCliente($registro);
             $registro['status_alerta'] = $this->statusAlerta($vencimento, $agora);
             $registro['valor_com_juros'] = $this->valorComJuros($registro, $vencimento, $agora);
+            $registro = $this->adicionarResumoParcelas($registro, $resumosParcelas[$idCobranca] ?? []);
             $alertas[] = $registro;
         }
 
         return $alertas;
+    }
+
+    /**
+     * Resume o andamento das parcelas de cada cobranca informada.
+     */
+    public function resumosParcelas(array $idsCobrancas): array
+    {
+        $idsCobrancas = array_values(array_unique(array_filter(array_map('intval', $idsCobrancas))));
+
+        if (empty($idsCobrancas)) {
+            return [];
+        }
+
+        $registros = db_connect()
+            ->table('cobranca_ocorrencias')
+            ->select('id_cobranca')
+            ->select('COUNT(*) AS total_ocorrencias', false)
+            ->select("SUM(CASE WHEN status = 'Pendente' THEN 1 ELSE 0 END) AS pendentes", false)
+            ->select("SUM(CASE WHEN status = 'Realizada' THEN 1 ELSE 0 END) AS realizadas", false)
+            ->whereIn('id_cobranca', $idsCobrancas)
+            ->where('deleted_at', null)
+            ->groupBy('id_cobranca')
+            ->get()
+            ->getResultArray();
+
+        $resumos = [];
+
+        foreach ($registros as $registro) {
+            $idCobranca = (int) $registro['id_cobranca'];
+            $total = (int) $registro['total_ocorrencias'];
+            $pendentes = (int) $registro['pendentes'];
+
+            $resumos[$idCobranca] = [
+                'total' => $total,
+                'pendentes' => $pendentes,
+                'realizadas' => max(0, $total - $pendentes),
+            ];
+        }
+
+        return $resumos;
     }
 
     /**
@@ -187,7 +232,7 @@ class CobrancaRecorrente
     private function consultaPendentesAtivas(): CobrancaOcorrenciaModel
     {
         return $this->ocorrencias
-            ->select('cobranca_ocorrencias.*, cobrancas.titulo, cobrancas.juros_atraso, cobrancas.juros_percentual, cobrancas.lembrete_1_hora, cobrancas.lembrete_1_dia, cobrancas.lembrete_1_semana, clientes.nome, clientes.razao_social, clientes.whatsapp, clientes.celular, clientes.email')
+            ->select('cobranca_ocorrencias.*, cobrancas.titulo, cobrancas.quantidade_parcelas, cobrancas.juros_atraso, cobrancas.juros_percentual, cobrancas.lembrete_1_hora, cobrancas.lembrete_1_dia, cobrancas.lembrete_1_semana, clientes.nome, clientes.razao_social, clientes.whatsapp, clientes.celular, clientes.email')
             ->join('cobrancas', 'cobrancas.id_cobranca = cobranca_ocorrencias.id_cobranca AND cobrancas.deleted_at IS NULL')
             ->join('clientes', 'clientes.id_cliente = cobrancas.id_cliente', 'left')
             ->where('cobranca_ocorrencias.status', 'Pendente')
@@ -201,6 +246,31 @@ class CobrancaRecorrente
     private function nomeCliente(array $registro): string
     {
         return trim((string) ($registro['nome'] ?: $registro['razao_social'])) ?: 'Cliente nao informado';
+    }
+
+    /**
+     * Extrai ids de cobrancas de uma lista de registros.
+     */
+    private function idsCobrancas(array $registros): array
+    {
+        return array_map(static fn (array $registro): int => (int) $registro['id_cobranca'], $registros);
+    }
+
+    /**
+     * Inclui dados de progresso das parcelas no alerta.
+     */
+    private function adicionarResumoParcelas(array $registro, array $resumo): array
+    {
+        $totalParcelas = max(1, (int) ($registro['quantidade_parcelas'] ?? 0), (int) ($resumo['total'] ?? 0));
+        $realizadas = min($totalParcelas, max(0, (int) ($resumo['realizadas'] ?? 0)));
+        $pendentes = min($totalParcelas, max((int) ($resumo['pendentes'] ?? 0), $totalParcelas - $realizadas));
+
+        $registro['total_parcelas'] = $totalParcelas;
+        $registro['parcelas_realizadas'] = $realizadas;
+        $registro['parcelas_restantes'] = $pendentes;
+        $registro['rotulo_parcela'] = (int) $registro['numero_parcela'] . '/' . $totalParcelas;
+
+        return $registro;
     }
 
     /**
