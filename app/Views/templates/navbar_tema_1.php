@@ -196,20 +196,7 @@
                     <?php endif; ?>
 
                     <?php if($array_c_a->financeiro->controle_fiscal == 1): ?>
-                      <!-- Level two dropdown-->
-                      <li class="dropdown-submenu dropdown-hover">
-                        <a id="dropdownSubMenu2" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="dropdown-item dropdown-toggle"><?= esc(lang('App.menu.fiscalControl')) ?></a>
-                        <ul aria-labelledby="dropdownSubMenu2" class="dropdown-menu border-0 shadow">
-                          <li>
-                            <a id="5.12" tabindex="-1" href="/controleFiscal/nfe" class="dropdown-item">NFe</a>
-                          </li>
-                          <li>
-                            <a id="5.13" tabindex="-1" href="/controleFiscal/nfce" class="dropdown-item">NFCe</a>
-                          </li>
-                          </li>
-                        </ul>
-                      </li>
-                      <!-- End Level two -->
+                      <li><a id="5.12" href="/controleFiscal" class="dropdown-item">Gestao Fiscal</a></li>
                     <?php endif; ?>
 
                   </ul>
@@ -309,6 +296,10 @@
 
                   <?php if($array_c_a->configs->nfce == 1): ?>
                     <li><a id="11.2" href="/configs/nfce" class="dropdown-item">NFCe</a></li>
+                  <?php endif; ?>
+
+                  <?php if((int) ($array_c_a->configs->nfe ?? 0) === 1 || (int) ($array_c_a->configs->nfce ?? 0) === 1): ?>
+                    <li><a id="11.8" href="/controleFiscal" class="dropdown-item">Gestao Fiscal</a></li>
                   <?php endif; ?>
 
                   <?php if($array_c_a->configs->empresa == 1): ?>

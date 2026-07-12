@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\SefazFiscalService;
 use App\Models\NFCeModel;
 use App\Models\NFeModel;
 use CodeIgniter\Controller;
@@ -9,103 +10,97 @@ use ZipArchive;
 
 class ControleFiscal extends Controller
 {
-    private $nfce_model;
-    private $nfe_model;
+    private NFeModel $nfe_model;
+    private NFCeModel $nfce_model;
+    private SefazFiscalService $sefaz;
 
     /**
-     * Inicializa as dependencias usadas por este componente.
+     * Inicializa as dependencias usadas pela gestao fiscal.
      */
-    function __construct()
+    public function __construct()
     {
-        $this->nfce_model = new NFCeModel();
         $this->nfe_model = new NFeModel();
+        $this->nfce_model = new NFCeModel();
+        $this->sefaz = new SefazFiscalService();
     }
 
     /**
-     * Carrega os dados necessarios para a operacao com NFC-e.
+     * Exibe a gestao fiscal consolidada.
      */
-    public function nfce()
+    public function index()
     {
-        $data['links'] = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.13'
-        ];
-
-        $data['titulo'] = [
-            'modulo' => 'Controle Fiscal',
-            'icone'  => 'fa fa-database'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "NFCEs", 'rota'   => "", 'active' => true]
-        ];
-
-        $data['nfces'] = $this->nfce_model->findAll();
-
-        echo view('templates/header');
-        echo view('controle_fiscal/xmls', $data);
-        echo view('templates/footer');
+        return $this->documentos(null);
     }
 
     /**
-     * Carrega os dados necessarios para a operacao com NFe.
+     * Exibe somente NFe.
      */
     public function nfe()
     {
-        $data['links'] = [
-            'menu' => '5.m',
-            'item' => '5.0',
-            'subItem' => '5.12'
-        ];
+        return $this->documentos(SefazFiscalService::MODELO_NFE);
+    }
 
-        $data['titulo'] = [
-            'modulo' => 'Controle Fiscal',
-            'icone'  => 'fa fa-database'
-        ];
+    /**
+     * Exibe somente NFCe.
+     */
+    public function nfce()
+    {
+        return $this->documentos(SefazFiscalService::MODELO_NFCE);
+    }
 
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "NFEs", 'rota'   => "", 'active' => true]
-        ];
-
-        // ---------------------------------------- FILTRAR ----------------------------------------- //
-        $dados = $this->request->getvar();
-
-        $session = session();
-
-        if(!empty($dados))
-        {
-            $data_inicio = $dados['data_inicio'];
-            $data_final = $dados['data_final'];
-
-            
-            if($dados['data_inicio'] != "" && $dados['data_final'] != "") // Filtra pela data inicial e data final
-            {
-                $nfes = $this->nfe_model->where('data >=', $data_inicio)->where('data <=', $data_final)->find();
-                
-                $data['data_inicio'] = $data_inicio;
-                $data['data_final'] = $data_final;
-            }
-            else // Caso desfaça todos os filtros sem clicar no botão REMOVER FILTROS mostra os 5 últimas contas cadastrados
-            {
-                $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->findAll();
-            }
-
-            $session->setFlashdata('alert', 'success_filter');
+    /**
+     * Consulta o status do servico autorizador da SEFAZ.
+     */
+    public function statusServico($modelo)
+    {
+        try {
+            $resultado = $this->sefaz->statusServico((string) $modelo);
+            session()->setFlashdata('alert', $resultado['cstat'] === '107' ? 'success_fiscal' : 'warning_fiscal');
+            session()->setFlashdata('fiscal_message', $this->mensagemRetorno($resultado, 'Status do servico consultado.'));
+        } catch (\Throwable $exception) {
+            session()->setFlashdata('alert', 'error_fiscal');
+            session()->setFlashdata('fiscal_message', $exception->getMessage());
         }
-        else
-        {
-            $nfes = $this->nfe_model->orderBy('id_nfe', 'DESC')->findAll();
+
+        return redirect()->back();
+    }
+
+    /**
+     * Consulta a situacao atual do documento na SEFAZ.
+     */
+    public function consultar($modelo, $idDocumento)
+    {
+        try {
+            $resultado = $this->sefaz->consultarDocumento((string) $modelo, (int) $idDocumento);
+            session()->setFlashdata('alert', $resultado['sucesso'] ? 'success_fiscal' : 'warning_fiscal');
+            session()->setFlashdata('fiscal_message', $this->mensagemRetorno($resultado, 'Documento sincronizado com a SEFAZ.'));
+        } catch (\Throwable $exception) {
+            session()->setFlashdata('alert', 'error_fiscal');
+            session()->setFlashdata('fiscal_message', $exception->getMessage());
         }
-        // ------------------------------------------------------------------------------------------ //
 
-        $data['nfes'] = $nfes;
+        return redirect()->back();
+    }
 
-        echo view('templates/header');
-        echo view('controle_fiscal/nfe', $data);
-        echo view('templates/footer');
+    /**
+     * Cancela NFe/NFCe autorizada.
+     */
+    public function cancelar()
+    {
+        $modelo = (string) $this->request->getPost('modelo');
+        $idDocumento = (int) $this->request->getPost('id_documento');
+        $justificativa = (string) $this->request->getPost('justificativa');
+
+        try {
+            $resultado = $this->sefaz->cancelarDocumento($modelo, $idDocumento, $justificativa);
+            session()->setFlashdata('alert', $resultado['sucesso'] ? 'success_fiscal' : 'error_fiscal');
+            session()->setFlashdata('fiscal_message', $this->mensagemRetorno($resultado, $resultado['sucesso'] ? 'Cancelamento homologado.' : 'Cancelamento rejeitado.'));
+        } catch (\Throwable $exception) {
+            session()->setFlashdata('alert', 'error_fiscal');
+            session()->setFlashdata('fiscal_message', $exception->getMessage());
+        }
+
+        return redirect()->back();
     }
 
     /**
@@ -113,23 +108,7 @@ class ControleFiscal extends Controller
      */
     public function showErroNFe($id_nfe)
     {
-        $data['links'] = [
-            'menu' => '7.m',
-            'item' => '7.0',
-            'subItem' => '7.2'
-        ];
-
-        $data['titulo'] = [
-            'modulo' => 'Erro da NFe',
-            'icone'  => 'fa fa-database'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "NFEs", 'rota' => "/controleFiscal/nfe", 'active' => false],
-            ['titulo' => "Erro", 'rota'   => "", 'active' => true]
-        ];
-
+        $data = $this->dadosErro('Erro da NFe', '/controleFiscal/nfe');
         $data['nfe'] = $this->nfe_model->where('id_nfe', $id_nfe)->first();
 
         echo view('templates/header');
@@ -138,27 +117,19 @@ class ControleFiscal extends Controller
     }
 
     /**
-     * Exibe os detalhes do erro registrado na NFC-e.
+     * Mantem compatibilidade com a rota antiga da NFCe.
+     */
+    public function showErro($id_nfce)
+    {
+        return $this->showErroNFCe($id_nfce);
+    }
+
+    /**
+     * Exibe os detalhes do erro registrado na NFCe.
      */
     public function showErroNFCe($id_nfce)
     {
-        $data['links'] = [
-            'menu' => '7.m',
-            'item' => '7.0',
-            'subItem' => '7.2'
-        ];
-
-        $data['titulo'] = [
-            'modulo' => 'Erro da NFCe',
-            'icone'  => 'fa fa-database'
-        ];
-
-        $data['caminhos'] = [
-            ['titulo' => "Início", 'rota' => "/inicio", 'active' => false],
-            ['titulo' => "NFEs", 'rota' => "/controleFiscal/nfce", 'active' => false],
-            ['titulo' => "Erro", 'rota'   => "", 'active' => true]
-        ];
-
+        $data = $this->dadosErro('Erro da NFCe', '/controleFiscal/nfce');
         $data['nfce'] = $this->nfce_model->where('id_nfce', $id_nfce)->first();
 
         echo view('templates/header');
@@ -167,83 +138,241 @@ class ControleFiscal extends Controller
     }
 
     /**
-     * Prepara o download de xml.
+     * Prepara o download de XML de autorizacao ou cancelamento.
      */
-    public function baixaXML($id_nfe)
+    public function baixaXML($modeloOuId = null, $idDocumento = null, $tipo = 'autorizacao')
     {
-        $nfe = $this->nfe_model->where('id_nfe', $id_nfe)->first();
+        $modelo = $idDocumento === null ? SefazFiscalService::MODELO_NFE : (string) $modeloOuId;
+        $id = $idDocumento === null ? (int) $modeloOuId : (int) $idDocumento;
 
-        $name = "{$nfe['chave']}.xml";
-        $data = $nfe['xml'];
+        try {
+            $xml = $this->sefaz->xmlDocumento($modelo, $id, (string) $tipo);
 
-        return $this->response->download($name, $data);
+            return $this->response->download($xml['nome'], $xml['conteudo']);
+        } catch (\Throwable $exception) {
+            session()->setFlashdata('alert', 'error_fiscal');
+            session()->setFlashdata('fiscal_message', $exception->getMessage());
+
+            return redirect()->back();
+        }
     }
 
     /**
-     * Prepara o download de xmls.
+     * Prepara o download de XMLs de NFe autorizadas do periodo.
      */
     public function baixaXMLS($data_inicio, $data_final)
     {
-        $nfes = $this->nfe_model->where('status', "Emitida")->where('data >=', $data_inicio)->where('data <=', $data_final)->findAll();
+        $nfes = $this->nfe_model
+            ->where('status', 'Emitida')
+            ->where('data >=', $data_inicio)
+            ->where('data <=', $data_final)
+            ->findAll();
 
-        // ------------------------------------- GERA O ARQUIVO ZIP COM O XML ----------------------------------------------- //
-        $nome_do_arquivo_download = "xmls_do_periodo_".date('d-m-Y', strtotime($data_inicio))."_ate_".date('d-m-Y', strtotime($data_final));
-        
-        // Inicia a instância da classe ZipArchive
-        $zip = new ZipArchive;
+        $nomeDoArquivo = 'xmls_do_periodo_' . date('d-m-Y', strtotime($data_inicio)) . '_ate_' . date('d-m-Y', strtotime($data_final));
+        $pasta = WRITEPATH . 'put_xmls/';
 
-        // Cria um novo arquivo .zip chamado minhas_fotos.zip
-        $zip->open(WRITEPATH . "/put_xmls/" . $nome_do_arquivo_download . ".zip", ZipArchive::CREATE);
-
-        // Adiciona os arquivos à pasta
-        foreach($nfes as $nfe)
-        {
-            //Gera o arquivo
-            file_put_contents(WRITEPATH . "/put_xmls/" . "{$nfe['chave']}.xml", $nfe['xml']);
-
-            $zip->addFile(
-                // Caminho do arquivo original
-                WRITEPATH . "/put_xmls/" . "{$nfe['chave']}.xml",
-                // Novo nome do arquivo
-                "{$nfe['chave']}.xml"
-            );
+        if (! is_dir($pasta)) {
+            mkdir($pasta, 0775, true);
         }
 
-        // Fecha a pasta e salva o arquivo
+        $zip = new ZipArchive();
+        $zip->open($pasta . $nomeDoArquivo . '.zip', ZipArchive::CREATE | ZipArchive::OVERWRITE);
+
+        foreach ($nfes as $nfe) {
+            $arquivo = $pasta . "{$nfe['chave']}.xml";
+            file_put_contents($arquivo, $nfe['xml']);
+            $zip->addFile($arquivo, "{$nfe['chave']}.xml");
+        }
+
         $zip->close();
-        // ---------------------------------------------------------------------------------------------------------------------- //
 
+        foreach (glob($pasta . '*.xml') ?: [] as $arquivo) {
+            @unlink($arquivo);
+        }
 
-        // ------------------------------------- APAGA TODOS OS ARQUIVOS TEMPORARIO DA PASTA ------------------------------------ //
-        $pasta = WRITEPATH . "/put_xmls/";
+        return $this->response->download($pasta . $nomeDoArquivo . '.zip', null);
+    }
 
-        if(is_dir($pasta))
-        {
-            $diretorio = dir($pasta);
+    /**
+     * Monta os dados e exibe a listagem fiscal.
+     */
+    private function documentos(?string $modeloFiltro)
+    {
+        $filtros = $this->filtros($modeloFiltro);
+        $documentos = [];
 
-            while($arquivo = $diretorio->read())
-            {
-                if(($arquivo != '.') && ($arquivo != '..'))
-                {
-                    if($arquivo != $nome_do_arquivo_download.".zip") // Não deixa apagar o arquivo zip que foi criado
-                    {
-                        unlink($pasta . $arquivo);
-                        echo 'Arquivo ' . $arquivo . ' foi apagado com sucesso. <br />';
-                    }
-                }
+        if ($filtros['modelo'] === '' || $filtros['modelo'] === SefazFiscalService::MODELO_NFE) {
+            $documentos = array_merge($documentos, $this->documentosPorModelo(SefazFiscalService::MODELO_NFE, $filtros));
+        }
+
+        if ($filtros['modelo'] === '' || $filtros['modelo'] === SefazFiscalService::MODELO_NFCE) {
+            $documentos = array_merge($documentos, $this->documentosPorModelo(SefazFiscalService::MODELO_NFCE, $filtros));
+        }
+
+        usort($documentos, static function (array $a, array $b): int {
+            return strcmp($b['ordenacao'], $a['ordenacao']);
+        });
+
+        $data = [
+            'links' => [
+                'menu' => '11.m',
+                'item' => '11.0',
+                'subItem' => '11.8',
+            ],
+            'titulo' => [
+                'modulo' => 'Gestao Fiscal',
+                'icone' => 'fas fa-file-invoice',
+            ],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Configs', 'rota' => '/configs/sistema', 'active' => false],
+                ['titulo' => 'Gestao Fiscal', 'rota' => '', 'active' => true],
+            ],
+            'documentos' => $documentos,
+            'filtros' => $filtros,
+            'resumo' => $this->resumo($documentos),
+        ];
+
+        echo view('templates/header');
+        echo view('controle_fiscal/documentos', $data);
+        echo view('templates/footer');
+    }
+
+    /**
+     * Consulta documentos de uma tabela fiscal e normaliza para a view.
+     */
+    private function documentosPorModelo(string $modelo, array $filtros): array
+    {
+        $model = $modelo === SefazFiscalService::MODELO_NFCE ? $this->nfce_model : $this->nfe_model;
+        $idCampo = $modelo === SefazFiscalService::MODELO_NFCE ? 'id_nfce' : 'id_nfe';
+        $query = $model->orderBy($idCampo, 'DESC');
+
+        if ($filtros['data_inicio'] !== '') {
+            $query->where('data >=', $filtros['data_inicio']);
+        }
+
+        if ($filtros['data_final'] !== '') {
+            $query->where('data <=', $filtros['data_final']);
+        }
+
+        if ($filtros['status'] !== '') {
+            $query->where('status', $filtros['status']);
+        }
+
+        if ($filtros['chave'] !== '') {
+            $query->like('chave', $filtros['chave']);
+        }
+
+        return array_map(static function (array $documento) use ($modelo, $idCampo): array {
+            $status = (string) ($documento['status'] ?? 'Pendente');
+            $dataHora = trim((string) ($documento['data'] ?? '') . ' ' . (string) ($documento['hora'] ?? ''));
+            $metadadosChave = SefazFiscalService::metadadosDaChave((string) ($documento['chave'] ?? ''));
+
+            if (trim((string) ($documento['serie'] ?? '')) === '' && isset($metadadosChave['serie'])) {
+                $documento['serie'] = $metadadosChave['serie'];
             }
 
-            $diretorio->close();
-        }
-        else
-        {
-            echo 'A pasta não existe.';
-        }
-        // ----------------------------------------------------------------------------------------------------------------------- //
+            if (trim((string) ($documento['numero'] ?? '')) === '' && isset($metadadosChave['numero'])) {
+                $documento['numero'] = $metadadosChave['numero'];
+            }
 
+            return $documento + [
+                'modelo' => $modelo,
+                'modelo_nome' => SefazFiscalService::nomeModelo($modelo),
+                'id_documento' => (int) $documento[$idCampo],
+                'status_classe' => SefazFiscalService::classeStatus($status),
+                'ambiente_rotulo' => (int) ($documento['ambiente'] ?? 0) === 1 ? 'Producao' : 'Homologacao',
+                'ordenacao' => $dataHora !== '' ? $dataHora : (string) ($documento['created_at'] ?? ''),
+            ];
+        }, $query->findAll());
+    }
 
-        // ------------------------------------------------ BAIXA O ARQUIVO ZIP --------------------------------------------------//
-        return $this->response->download(WRITEPATH . "/put_xmls/" . $nome_do_arquivo_download . ".zip", NULL);
-        // ----------------------------------------------------------------------------------------------------------------------- //
+    /**
+     * Le os filtros da requisicao.
+     */
+    private function filtros(?string $modeloFiltro): array
+    {
+        $dados = $this->request->getGet();
+        $modelo = $modeloFiltro ?? trim((string) ($dados['modelo'] ?? ''));
+
+        if (! in_array($modelo, [SefazFiscalService::MODELO_NFE, SefazFiscalService::MODELO_NFCE], true)) {
+            $modelo = '';
+        }
+
+        return [
+            'modelo' => $modelo,
+            'status' => trim((string) ($dados['status'] ?? '')),
+            'chave' => trim((string) ($dados['chave'] ?? '')),
+            'data_inicio' => trim((string) ($dados['data_inicio'] ?? '')),
+            'data_final' => trim((string) ($dados['data_final'] ?? '')),
+        ];
+    }
+
+    /**
+     * Resume os documentos exibidos.
+     */
+    private function resumo(array $documentos): array
+    {
+        $resumo = [
+            'total' => count($documentos),
+            'emitidas' => 0,
+            'canceladas' => 0,
+            'pendentes' => 0,
+            'problemas' => 0,
+        ];
+
+        foreach ($documentos as $documento) {
+            $status = (string) ($documento['status'] ?? '');
+
+            if ($status === 'Emitida') {
+                $resumo['emitidas']++;
+            } elseif ($status === 'Cancelada') {
+                $resumo['canceladas']++;
+            } elseif (in_array($status, ['Nao Emitida', 'Pendente'], true)) {
+                $resumo['pendentes']++;
+            } else {
+                $resumo['problemas']++;
+            }
+        }
+
+        return $resumo;
+    }
+
+    /**
+     * Dados comuns das telas de erro.
+     */
+    private function dadosErro(string $titulo, string $voltar): array
+    {
+        return [
+            'links' => [
+                'menu' => '11.m',
+                'item' => '11.0',
+                'subItem' => '11.8',
+            ],
+            'titulo' => [
+                'modulo' => $titulo,
+                'icone' => 'fa fa-database',
+            ],
+            'caminhos' => [
+                ['titulo' => 'Inicio', 'rota' => '/inicio', 'active' => false],
+                ['titulo' => 'Gestao Fiscal', 'rota' => $voltar, 'active' => false],
+                ['titulo' => 'Erro', 'rota' => '', 'active' => true],
+            ],
+        ];
+    }
+
+    /**
+     * Monta uma mensagem curta para retorno de operacoes fiscais.
+     */
+    private function mensagemRetorno(array $resultado, string $padrao): string
+    {
+        $cStat = trim((string) ($resultado['cstat'] ?? ''));
+        $xMotivo = trim((string) ($resultado['xmotivo'] ?? ''));
+
+        if ($cStat === '' && $xMotivo === '') {
+            return $padrao;
+        }
+
+        return trim($padrao . ' ' . ($cStat !== '' ? '[' . $cStat . '] ' : '') . $xMotivo);
     }
 }

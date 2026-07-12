@@ -11,6 +11,7 @@ use App\Models\NFeModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\VendaModel;
 use App\Libraries\Moeda;
+use App\Libraries\SefazFiscalService;
 use App\Libraries\ThirdPartyComposerLoader;
 use CodeIgniter\Controller;
 
@@ -667,7 +668,7 @@ class NFe extends Controller
     /**
      * Cancela o documento fiscal solicitado e registra o retorno da SEFAZ.
      */
-    public function cancelar()
+    public function cancelarLegado()
     {
         // Dados
         $id_nfe = $this->request->getvar('id_nfe');
@@ -778,5 +779,27 @@ class NFe extends Controller
         {
             echo $e->getMessage();
         }
+    }
+
+    /**
+     * Cancela uma NFe usando a gestao fiscal centralizada.
+     */
+    public function cancelar()
+    {
+        $id_nfe = (int) $this->request->getvar('id_nfe');
+        $id_venda = (int) $this->request->getvar('id_venda');
+        $justificativa = (string) $this->request->getvar('justificativa');
+        $session = session();
+
+        try {
+            $resultado = (new SefazFiscalService())->cancelarDocumento(SefazFiscalService::MODELO_NFE, $id_nfe, $justificativa);
+            $session->setFlashdata('alert', $resultado['sucesso'] ? 'success_cancelamento_nfe' : 'erro_cancelamento_nfe');
+            $session->setFlashdata('fiscal_message', trim((string) ($resultado['cstat'] ?? '') . ' ' . (string) ($resultado['xmotivo'] ?? '')));
+        } catch (\Throwable $exception) {
+            $session->setFlashdata('alert', 'erro_cancelamento_nfe');
+            $session->setFlashdata('fiscal_message', $exception->getMessage());
+        }
+
+        return redirect()->to("/vendas/show/$id_venda");
     }
 }

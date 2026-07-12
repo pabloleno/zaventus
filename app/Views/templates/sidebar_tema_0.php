@@ -257,8 +257,7 @@
                                 <li class="nav-item"><a id="5.11" href="/inventarioDoEstoque" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.stockInventory')) ?></p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->financeiro->controle_fiscal == 1): ?>
-                                <li class="nav-item"><a id="5.12" href="/controleFiscal/nfe" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.fiscalNfe')) ?></p></a></li>
-                                <li class="nav-item"><a id="5.13" href="/controleFiscal/nfce" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.fiscalNfce')) ?></p></a></li>
+                                <li class="nav-item"><a id="5.12" href="/controleFiscal" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Gestao Fiscal</p></a></li>
                             <?php endif; ?>
                         </ul>
                     </li>
@@ -312,6 +311,9 @@
                             <?php endif; ?>
                             <?php if($array_c_a->configs->nfce == 1): ?>
                                 <li class="nav-item"><a id="11.2" href="/configs/nfce" class="nav-link"><i class="far fa-circle nav-icon"></i><p>NFCe</p></a></li>
+                            <?php endif; ?>
+                            <?php if((int) ($array_c_a->configs->nfe ?? 0) === 1 || (int) ($array_c_a->configs->nfce ?? 0) === 1): ?>
+                                <li class="nav-item"><a id="11.8" href="/controleFiscal" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Gestao Fiscal</p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->configs->empresa == 1): ?>
                                 <li class="nav-item"><a id="11.3" href="/configs/empresa" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.company')) ?></p></a></li>

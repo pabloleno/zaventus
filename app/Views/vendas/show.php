@@ -95,12 +95,13 @@
                 </button>
             </div>
            <form action="/NFe/cancelar" method="post">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
                             <div class="form-group">
                                 <label for="">Justificativa</label>
-                                <textarea class="form-control" name="justificativa" rows="10" required=""></textarea>
+                                <textarea class="form-control" name="justificativa" rows="10" minlength="15" maxlength="255" required=""></textarea>
                             </div>
                         </div>
 
@@ -396,6 +397,7 @@
         <?php
         $session = session();
         $alert = $session->getFlashdata('alert');
+        $fiscalMessage = trim((string) $session->getFlashdata('fiscal_message'));
 
         if (isset($alert)) :
         ?>
@@ -416,13 +418,13 @@
                 })
             <?php elseif ($alert == "success_cancelamento_nfe") : ?>
                 Toast.fire({
-                    type: 'error',
-                    title: 'NFe cancelada com sucesso!'
+                    type: 'success',
+                    title: <?= json_encode($fiscalMessage !== '' ? $fiscalMessage : 'NFe cancelada com sucesso!') ?>
                 })
             <?php elseif ($alert == "erro_cancelamento_nfe") : ?>
                 Toast.fire({
                     type: 'error',
-                    title: 'Não foi possível cancelar NFe! Tente mais tarde..'
+                    title: <?= json_encode($fiscalMessage !== '' ? $fiscalMessage : 'Nao foi possivel cancelar NFe! Tente mais tarde.') ?>
                 })
             <?php endif; ?>
         <?php endif; ?>

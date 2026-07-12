@@ -77,7 +77,11 @@ class AuthGuard implements FilterInterface
 
         $permission = $this->requiredPermission($controller, $method);
 
-        if ($permission !== null && ! $this->hasPermission($session->get('controle_de_acesso'), $permission[0], $permission[1])) {
+        if (
+            $permission !== null
+            && ! $this->hasPermission($session->get('controle_de_acesso'), $permission[0], $permission[1])
+            && ! $this->hasAlternativePermission($controller, $session->get('controle_de_acesso'))
+        ) {
             $session->setFlashdata('alert', 'access_denied');
 
             if ($request->isAJAX()) {
@@ -253,5 +257,18 @@ class AuthGuard implements FilterInterface
 
         return (int) ($permissions[$module]['modulo'] ?? 0) === 1
             && (int) ($permissions[$module][$permission] ?? 0) === 1;
+    }
+
+    /**
+     * Permite acessos equivalentes para telas consolidadas.
+     */
+    private function hasAlternativePermission(string $controller, $accessControl): bool
+    {
+        if ($controller !== 'controlefiscal') {
+            return false;
+        }
+
+        return $this->hasPermission($accessControl, 'configs', 'nfe')
+            || $this->hasPermission($accessControl, 'configs', 'nfce');
     }
 }
