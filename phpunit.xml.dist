@@ -40,12 +40,6 @@
 		</exclude>
 	</source>
 
-	<coverage>
-		<report>
-			<clover outputFile="build/logs/clover.xml"/>
-		</report>
-	</coverage>
-
 	<php>
 		<server name="app.baseURL" value="http://example.com"/>
 

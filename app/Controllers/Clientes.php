@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\ContatoPadrao;
 use App\Libraries\EnderecoPadrao;
 use App\Libraries\ImagemCadastro;
+use App\Libraries\AtendimentoGrafica;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Models\OrdemDeServicoModel;
 use App\Models\PagamentoDoClienteModel;
@@ -91,23 +92,27 @@ class Clientes extends Controller
         $data['cliente']            = $this->cliente_model->where('id_cliente', $id_cliente)->first();
         $data['vendas']             = $this->venda_model->where('id_cliente', $id_cliente)->find();
         $data['pagamentos']         = $this->pagamento_do_cliente_model->where('id_cliente', $id_cliente)->find();
-        $data['orcamentos']         = $this->orcamento_model->where('id_cliente', $id_cliente)->find();
         $data['pedidos']            = $this->pedido_model->where('id_cliente', $id_cliente)->find();
-        // $data['ordens_de_servicos'] = $this->ordem_de_servico_model->where('id_cliente', $id_cliente)->find();
-
-        $data['ordens_de_servicos'] = $this->ordem_de_servico_model
-            ->select('
-                id_ordem,
-                clientes.nome AS nome_do_cliente,
-                data_de_entrada,
-                hora_de_entrada,
-                data_de_saida,
-                hora_de_saida,
-                situacao
-            ')
+        $ordens = db_connect()->table('ordens_de_servicos')
+            ->select('ordens_de_servicos.*, clientes.nome AS nome_do_cliente')
             ->join('clientes', 'ordens_de_servicos.id_cliente = clientes.id_cliente')
             ->where('ordens_de_servicos.id_cliente', $id_cliente)
-            ->findAll();
+            ->groupStart()->where('ordens_de_servicos.deleted_at', null)
+            ->orWhere("CAST(ordens_de_servicos.deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
+            ->orderBy('id_ordem', 'DESC')->get()->getResultArray();
+        $data['orcamentos'] = [];
+        $data['ordens_de_servicos'] = [];
+        foreach ($ordens as $ordem) {
+            $status = AtendimentoGrafica::status($ordem);
+            $ordem['status_rotulo'] = AtendimentoGrafica::STATUS[$status];
+            $itens = db_connect()->table('servicos_mao_de_obra_da_os')->where('id_ordem', $ordem['id_ordem'])->get()->getResultArray();
+            $ordem['valor_total'] = AtendimentoGrafica::totais($ordem, $itens)['total'];
+            if (in_array($status, ['concluido', 'cancelado'], true)) {
+                $data['ordens_de_servicos'][] = $ordem;
+            } else {
+                $data['orcamentos'][] = $ordem;
+            }
+        }
 
         echo view('templates/header');
         echo view('clientes/show', $data);
@@ -240,7 +245,24 @@ class Clientes extends Controller
             return redirect()->to('/clientes');
         }
 
-        $this->cliente_model->where('id_cliente', $id_cliente)->delete();
+        $db = db_connect();
+        $db->transBegin();
+        try {
+            $db->query($db->table('clientes')->where('id_cliente', $id_cliente)->getCompiledSelect() . ' FOR UPDATE');
+            foreach (['ordens_de_servicos', 'pagamentos_do_cliente', 'vendas', 'orcamentos', 'pedidos', 'cobrancas'] as $tabela) {
+                if ($db->tableExists($tabela) && $db->table($tabela)->where('id_cliente', $id_cliente)->countAllResults() > 0) {
+                    throw new \RuntimeException('Cliente com historico vinculado.');
+                }
+            }
+            if (! $this->cliente_model->where('id_cliente', $id_cliente)->delete() || ! $db->transStatus()) {
+                throw new \RuntimeException('Nao foi possivel excluir o cliente.');
+            }
+            $db->transCommit();
+        } catch (\Throwable $exception) {
+            $db->transRollback();
+            session()->setFlashdata('errors', ['Este cliente possui atendimentos ou movimentacoes vinculadas. Seu cadastro foi preservado.']);
+            return redirect()->to('/clientes/show/' . (int) $id_cliente);
+        }
         ImagemCadastro::remover($cliente['foto'] ?? '');
         
         $session = session();

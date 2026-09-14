@@ -29,7 +29,12 @@
             <?= view('templates/alertas_cobrancas_navbar') ?>
         <?php endif; ?>
         <li class="nav-item">
-            <a class="nav-link" href="/login/logout"><i class="fas fa-sign-out-alt"></i></a>
+            <form action="/login/logout" method="post" class="m-0">
+                <?= csrf_field() ?>
+                <button type="submit" class="nav-link btn btn-link" title="<?= esc(lang('App.menu.logout')) ?>">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </form>
         </li>
     </ul>
 </nav>

@@ -48,16 +48,12 @@
               $exibe_orcamentos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->orcamentos)
                 && (int) $array_c_a->financeiro->modulo === 1
                 && (int) $array_c_a->financeiro->orcamentos === 1;
-              $exibe_pedidos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->pedidos)
-                && (int) $array_c_a->financeiro->modulo === 1
-                && (int) $array_c_a->financeiro->pedidos === 1;
-
-              $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
+              $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['hist_de_vendas']) || $exibe_orcamentos;
               $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
               $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']) || $pode_cobrancas;
+              $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque']) || $pode_cobrancas;
               $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
-              $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'desenvolvedor', 'usuarios', 'backup_de_dados']);
+              $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['empresa', 'sistema', 'desenvolvedor', 'usuarios', 'backup_de_dados']);
             ?>
 
               <?php if($exibe_menu_vendas): ?>
@@ -65,19 +61,7 @@
                   <a id="2.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><?= esc(lang('App.menu.salesOs')) ?></a>
                   <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
                     
-                    <?php if($array_c_a->vendas->venda_rapida == 1): ?>
-                      <li><a id="2.2" href="/vendaRapida" class="dropdown-item"><?= esc(lang('App.menu.quickSale')) ?></a></li>
-                    <?php endif; ?>
-                    
-                    <?php if($array_c_a->vendas->pdv == 1): ?>
-                      <li><a id="2.1" href="/pdv" class="dropdown-item"><?= esc(lang('App.menu.pdv')) ?></a></li>
-                    <?php endif; ?>
-
-                    <?php if($array_c_a->vendas->pesq_produto == 1): ?>
-                      <li><a id="2.3" href="/produtos/pesquisar" class="dropdown-item"><?= esc(lang('App.menu.productSearch')) ?></a></li>
-                    <?php endif; ?>
-                    
-                    <?php if($array_c_a->vendas->hist_de_vendas == 1): ?>
+                    <?php if((int) ($array_c_a->vendas->hist_de_vendas ?? 0) === 1): ?>
                       <li><a id="2.4" href="/vendas" class="dropdown-item"><?= esc(lang('App.menu.salesHistory')) ?></a></li>
                     <?php endif; ?>
 
@@ -89,9 +73,6 @@
                       <li><a id="2.7" href="/ordensDeServicos/orcamentos" class="dropdown-item"><?= esc(lang('App.menu.quotes')) ?></a></li>
                     <?php endif; ?>
 
-                    <?php if($exibe_pedidos): ?>
-                    <li><a id="2.8" href="/pedidos" class="dropdown-item"><?= esc(lang('App.menu.orders')) ?></a></li>
-                    <?php endif; ?>
                   </ul>
                 </li>
               <?php endif; ?>
@@ -195,9 +176,6 @@
                       <li><a id="5.11" href="/inventarioDoEstoque" class="dropdown-item"><?= esc(lang('App.menu.stockInventory')) ?></a></li>
                     <?php endif; ?>
 
-                    <?php if($array_c_a->financeiro->controle_fiscal == 1): ?>
-                      <li><a id="5.12" href="/controleFiscal" class="dropdown-item">Gestao Fiscal</a></li>
-                    <?php endif; ?>
 
                   </ul>
                 </li>
@@ -290,18 +268,6 @@
                 <a id="11.0" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" class="nav-link dropdown-toggle"><?= esc(lang('App.menu.settings')) ?></a>
                 <ul aria-labelledby="dropdownSubMenu1" class="dropdown-menu border-0 shadow">
 
-                  <?php if($array_c_a->configs->nfe == 1): ?>
-                    <li><a id="11.1" href="/configs/nfe" class="dropdown-item">NFe</a></li>
-                  <?php endif; ?>
-
-                  <?php if($array_c_a->configs->nfce == 1): ?>
-                    <li><a id="11.2" href="/configs/nfce" class="dropdown-item">NFCe</a></li>
-                  <?php endif; ?>
-
-                  <?php if((int) ($array_c_a->configs->nfe ?? 0) === 1 || (int) ($array_c_a->configs->nfce ?? 0) === 1): ?>
-                    <li><a id="11.8" href="/controleFiscal" class="dropdown-item">Gestao Fiscal</a></li>
-                  <?php endif; ?>
-
                   <?php if($array_c_a->configs->empresa == 1): ?>
                     <li><a id="11.3" href="/configs/empresa" class="dropdown-item"><?= esc(lang('App.menu.company')) ?></a></li>
                   <?php endif; ?>
@@ -319,7 +285,12 @@
                   <?php endif; ?>
 
                   <?php if($array_c_a->configs->backup_de_dados == 1): ?>
-                    <li><a id="11.6" href="/configs/backupDataBase" class="dropdown-item"><?= esc(lang('App.menu.dataBackup')) ?></a></li>
+                    <li>
+                      <form action="/configs/backupDataBase" method="post" class="m-0">
+                        <?= csrf_field() ?>
+                        <button id="11.6" type="submit" class="dropdown-item"><?= esc(lang('App.menu.dataBackup')) ?></button>
+                      </form>
+                    </li>
                   <?php endif; ?>
 
                 </ul>
@@ -331,8 +302,11 @@
           ?>
 
         <li class="nav-item">
-          <a class="nav-link" href="/login/logout"><?= esc(lang('App.menu.logout')) ?> <i
-              class="fas fa-sign-out-alt"></i></a>
+          <form action="/login/logout" method="post" class="m-0">
+            <?= csrf_field() ?>
+            <button type="submit" class="nav-link btn btn-link"><?= esc(lang('App.menu.logout')) ?> <i
+                class="fas fa-sign-out-alt"></i></button>
+          </form>
         </li>
       </ul>
     </div>

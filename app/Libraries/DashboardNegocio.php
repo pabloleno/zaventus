@@ -25,10 +25,7 @@ class DashboardNegocio
     {
         $inicio = sprintf('%04d-%02d-01', $ano, $mes);
         $final = date('Y-m-t', strtotime($inicio));
-        $faturamentoProdutos = $this->faturamento->totalProdutos($inicio, $final);
         $faturamentoServicos = $this->faturamento->totalServicos($inicio, $final);
-        $totalFaturamento = $faturamentoProdutos + $faturamentoServicos;
-        $quantidadeProdutos = $this->quantidadeVendasProdutos($inicio, $final);
         $quantidadeServicos = $this->quantidadeServicos($inicio, $final);
         $contasPendentes = $this->contasPendentes();
 
@@ -40,19 +37,14 @@ class DashboardNegocio
                 'final' => $final,
             ],
             'faturamento' => [
-                'produtos' => $faturamentoProdutos,
                 'servicos' => $faturamentoServicos,
-                'total' => $totalFaturamento,
-                'percentual_produtos' => $this->percentual($faturamentoProdutos, $totalFaturamento),
-                'percentual_servicos' => $this->percentual($faturamentoServicos, $totalFaturamento),
+                'total' => $faturamentoServicos,
             ],
             'operacao' => [
-                'vendas_produtos' => $quantidadeProdutos,
                 'os_concretizadas' => $quantidadeServicos,
-                'ticket_produtos' => $this->media($faturamentoProdutos, $quantidadeProdutos),
                 'ticket_servicos' => $this->media($faturamentoServicos, $quantidadeServicos),
-                'pedidos_abertos' => $this->quantidadePedidosAbertos(),
                 'os_abertas' => $this->quantidadeOsAbertas(),
+                'atendimento' => $this->atendimentoAtual(),
             ],
             'mensal' => $this->faturamentoMensal($ano),
             'financeiro' => $this->financeiroPorTipo($contasPendentes),
@@ -63,36 +55,15 @@ class DashboardNegocio
     }
 
     /**
-     * Calcula a quantidade de vendas produtos.
-     */
-    private function quantidadeVendasProdutos(string $inicio, string $final): int
-    {
-        return $this->db->table('vendas')
-            ->where('deleted_at', null)
-            ->where('data >=', $inicio)
-            ->where('data <=', $final)
-            ->countAllResults();
-    }
-
-    /**
      * Calcula a quantidade de servicos.
      */
     private function quantidadeServicos(string $inicio, string $final): int
     {
         return $this->db->table('ordens_de_servicos')
             ->where('situacao', 'Concretizada')
+            ->groupStart()->where('deleted_at', null)->orWhere("CAST(deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
             ->where('data_de_saida >=', $inicio)
             ->where('data_de_saida <=', $final)
-            ->countAllResults();
-    }
-
-    /**
-     * Calcula a quantidade de pedidos abertos.
-     */
-    private function quantidadePedidosAbertos(): int
-    {
-        return $this->db->table('pedidos')
-            ->where('situacao !=', 'Pago - Finalizado')
             ->countAllResults();
     }
 
@@ -103,11 +74,33 @@ class DashboardNegocio
     {
         return $this->db->table('ordens_de_servicos')
             ->whereIn('situacao', ['Em aberto', 'Em andamento', 'Aberto'])
+            ->groupStart()->where('deleted_at', null)->orWhere("CAST(deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
             ->countAllResults();
     }
 
+    private function atendimentoAtual(): ?array
+    {
+        if (! $this->db->fieldExists('status_operacional', 'ordens_de_servicos')) {
+            return null;
+        }
+        $resumo = ['status' => array_fill_keys(array_keys(AtendimentoGrafica::STATUS), 0), 'instalacoes_hoje' => 0, 'atrasados' => 0];
+        $hoje = date('Y-m-d');
+        foreach ($this->db->table('ordens_de_servicos')->where('deleted_at', null)->get()->getResultArray() as $ordem) {
+            $status = AtendimentoGrafica::status($ordem);
+            $resumo['status'][$status]++;
+            if (! in_array($status, ['concluido', 'cancelado'], true)
+                && ! empty($ordem['previsao_conclusao']) && $ordem['previsao_conclusao'] < $hoje) {
+                $resumo['atrasados']++;
+            }
+            if ($status === 'instalacao_agendada' && substr((string) ($ordem['execucao_prevista'] ?? ''), 0, 10) === $hoje) {
+                $resumo['instalacoes_hoje']++;
+            }
+        }
+        return $resumo;
+    }
+
     /**
-     * Agrupa o faturamento de produtos e servicos por mes.
+     * Agrupa o faturamento de servicos por mes.
      */
     private function faturamentoMensal(int $ano): array
     {
@@ -116,22 +109,8 @@ class DashboardNegocio
         for ($mes = 1; $mes <= 12; $mes++) {
             $mensal[$mes] = [
                 'mes' => $mes,
-                'produtos' => 0.0,
                 'servicos' => 0.0,
             ];
-        }
-
-        $produtos = $this->db->table('vendas')
-            ->select('MONTH(data) AS mes, SUM(valor_a_pagar) AS total', false)
-            ->where('deleted_at', null)
-            ->where('data >=', sprintf('%04d-01-01', $ano))
-            ->where('data <=', sprintf('%04d-12-31', $ano))
-            ->groupBy('MONTH(data)')
-            ->get()
-            ->getResultArray();
-
-        foreach ($produtos as $produto) {
-            $mensal[(int) $produto['mes']]['produtos'] = (float) $produto['total'];
         }
 
         foreach ($this->faturamento->ordensServicos(sprintf('%04d-01-01', $ano), sprintf('%04d-12-31', $ano)) as $ordem) {
@@ -156,6 +135,7 @@ class DashboardNegocio
             $registros = $this->db->table($tabela)
                 ->select('id_conta, status, tipo_negocio, nome, data_de_vencimento, valor')
                 ->whereIn('status', ['Aberta', 'Vencida'])
+                ->groupStart()->where('deleted_at', null)->orWhere("CAST(deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
                 ->get()
                 ->getResultArray();
 
@@ -233,11 +213,13 @@ class DashboardNegocio
             'lancamentos' => 'lancamentos',
             'despesas' => 'despesas',
         ] as $tabela => $campo) {
-            $resultados = $this->db->table($tabela)
-                ->select('tipo_negocio, SUM(valor) AS total', false)
-                ->where('data >=', $inicio)
-                ->where('data <=', $final)
-                ->groupBy('tipo_negocio')
+            $prefixo = $tabela === 'lancamentos' ? 'l.' : '';
+            $consulta = $tabela === 'lancamentos' ? $this->faturamento->consultaLancamentos(true) : $this->db->table($tabela);
+            $resultados = $consulta
+                ->select("{$prefixo}tipo_negocio, SUM({$prefixo}valor) AS total", false)
+                ->where("{$prefixo}data >=", $inicio)
+                ->where("{$prefixo}data <=", $final)
+                ->groupBy("{$prefixo}tipo_negocio")
                 ->get()
                 ->getResultArray();
 
@@ -272,14 +254,6 @@ class DashboardNegocio
         }
 
         return 'Aberta';
-    }
-
-    /**
-     * Calcula um percentual protegendo a divisao por zero.
-     */
-    private function percentual(float $valor, float $total): float
-    {
-        return $total > 0 ? round(($valor / $total) * 100, 1) : 0.0;
     }
 
     /**

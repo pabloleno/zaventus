@@ -1,103 +1,17 @@
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-    <!-- Main content -->
-    <div class="content">
-        <div class="container-fluid">
-            <div class="row" style="margin-bottom: 15px">
-                <div class="col-sm-6">
-                    <h6 class="m-0 text-dark"><i class="<?= $titulo['icone'] ?>"></i> <?= $titulo['modulo'] ?></h6>
-                </div><!-- /.col -->
-                <div class="col-sm-6 no-print">
-                    <ol class="breadcrumb float-sm-right">
-                        <?php foreach ($caminhos as $caminho) : ?>
-                            <?php if (!$caminho['active']) : ?>
-                                <li class="breadcrumb-item"><a href="<?= $caminho['rota'] ?>"><?= $caminho['titulo'] ?></a></li>
-                            <?php else : ?>
-                                <li class="breadcrumb-item active"><?= $caminho['titulo'] ?></li>
-                            <?php endif; ?>
-                        <?php endforeach; ?>
-                    </ol>
-                </div><!-- /.col -->
-            </div>
-            <div class="card">
-                <div class="card-header">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <a href="/saidaDeMercadorias/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nova Saída</a>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.card-header -->
-            </div>
-            <!-- /.card -->
-            <div class="card">
-                <div class="card-body">
-                    <table id="example1" class="table table-bordered table-striped">
-                        <thead>
-                            <tr>
-                                <th style="width: 35px">Cód.</th>
-                                <th>Produto</th>
-                                <th>Qtd</th>
-                                <th>Data</th>
-                                <th>Hora</th>
-                                <th>Observações</th>
-                                <th style="width: 110px">Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if (!empty($saida_de_mercadorias)) : ?>
-                                <?php foreach ($saida_de_mercadorias as $saida) : ?>
-                                    <tr>
-                                        <td><?= $saida['id_saida'] ?></td>
-                                        <td><?= $saida['nome'] ?></td>
-                                        <td><?= $saida['qtd_da_saida'] ?></td>
-                                        <td><?= date('d-m-Y', strtotime($saida['data'])) ?></td>
-                                        <td><?= $saida['hora'] ?></td>
-                                        <td><?= $saida['observacoes'] ?></td>
-                                        <td>
-                                            <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir essa saíad? Ao excluir a saída, sua quantidade voltará para o produto.', '/saidaDeMercadorias/delete/<?= $saida['id_saida'] ?>')"><i class="fa fa-trash"></i></button>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-                <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
-        </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
-
-<script>
-    $(function() {
-        const Toast = Swal.mixin({
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 5000
-        });
-
-        <?php
-        $session = session();
-        $alert = $session->getFlashdata('alert');
-
-        if (isset($alert)) :
-        ?>
-            <?php if ($alert == "success_create") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Saída cadastrada com sucesso!'
-                })
-            <?php elseif ($alert == "success_delete") : ?>
-                Toast.fire({
-                    type: 'success',
-                    title: 'Saída excluida com sucesso!'
-                })
-            <?php endif; ?>
-        <?php endif; ?>
-    });
-</script>
+<?php $alerta = session()->getFlashdata('alert'); ?>
+<div class="content-wrapper"><div class="content"><div class="container-fluid">
+    <div class="mb-3"><h6 class="m-0">Saídas de materiais</h6></div>
+    <?php if (in_array($alerta, ['success_create', 'success_estorno', 'success_reposicao_por_xml'], true)): ?><div class="alert alert-success" role="status"><?= $alerta === 'success_estorno' ? 'Movimentação estornada; histórico preservado.' : 'Movimentação registrada com sucesso.' ?></div><?php endif; ?>
+    <?php foreach ((array) (session()->getFlashdata('erros_estoque') ?? []) as $erro): ?><div class="alert alert-danger" role="alert"><?= esc((string) $erro) ?></div><?php endforeach; ?>
+    <div class="card"><div class="card-header"><a href="/saidaDeMercadorias/create" class="btn btn-primary"><i class="fa fa-plus mr-1"></i> Nova saída</a></div><div class="card-body table-responsive">
+        <table id="example1" class="table table-bordered table-striped"><thead><tr><th>Cód.</th><th>Matéria-prima</th><th>Quantidade</th><th>Data / hora</th><th>Observações</th><th>Situação</th><th>Ações</th></tr></thead><tbody>
+        <?php foreach ($saida_de_mercadorias ?? [] as $movimento): ?>
+            <?php $id = (int) $movimento['id_saida']; $estornado = !empty($movimento['estornado_at']) || (!empty($movimento['deleted_at']) && $movimento['deleted_at'] !== '0000-00-00 00:00:00'); ?>
+            <tr><td><?= $id ?></td><td><?= esc($movimento['nome']) ?></td><td><?= esc($movimento['qtd_da_saida']) ?> <?= esc($movimento['unidade']) ?></td><td><?= esc($movimento['data']) ?><small class="d-block"><?= esc($movimento['hora']) ?></small></td><td><?= esc($movimento['observacoes']) ?><?php if ($estornado): ?><small class="d-block text-muted"><?= esc($movimento['estorno_motivo'] ?? '') ?></small><?php endif; ?></td><td><span class="badge badge-<?= $estornado ? 'secondary' : 'success' ?>"><?= $estornado ? 'Estornada' : 'Registrada' ?></span></td><td>
+                <?php if (!empty($movimento['id_ordem'])): ?><a href="/ordensDeServicos/show/<?= (int) $movimento['id_ordem'] ?>" class="btn btn-info btn-sm">Ver atendimento</a>
+                <?php elseif (!$estornado): ?><details><summary class="text-primary">Estornar</summary><form action="/saidaDeMercadorias/delete/<?= $id ?>" method="post" class="mt-2"><?= csrf_field() ?><input class="form-control form-control-sm mb-2" name="motivo" maxlength="512" placeholder="Motivo do estorno" aria-label="Motivo do estorno" required><button type="submit" class="btn btn-outline-danger btn-sm">Confirmar estorno</button></form></details><?php endif; ?>
+            </td></tr>
+        <?php endforeach; ?>
+        </tbody></table>
+    </div></div>
+</div></div></div>

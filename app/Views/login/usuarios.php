@@ -1,3 +1,4 @@
+<?php use App\Libraries\ImagemCadastro; ?>
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
@@ -44,6 +45,7 @@
                         <thead>
                             <tr>
                                 <th style="width: 35px">Cód.</th>
+                                <th style="width: 130px">Foto</th>
                                 <th>Primeiro Nome</th>
                                 <th>Usuário</th>
                                 <th>Senha</th>
@@ -55,8 +57,9 @@
                                 <?php foreach ($usuarios as $usuario) : ?>
                                     <tr>
                                         <td><?= $usuario['id_login'] ?></td>
-                                        <td><?= $usuario['primeiro_nome'] ?></td>
-                                        <td><?= $usuario['usuario'] ?></td>
+                                        <td class="text-center"><img src="<?= esc(ImagemCadastro::url($usuario['foto'] ?? '')) ?>" alt="Foto" class="foto-cadastro-miniatura"></td>
+                                        <td><?= esc($usuario['primeiro_nome']) ?></td>
+                                        <td><?= esc($usuario['usuario']) ?></td>
                                         <td>********</td>
                                         <td class="no-print">
                                             <a href="/login/edit/<?= $usuario['id_login'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
@@ -66,7 +69,7 @@
                                 <?php endforeach; ?>
                             <?php else : ?>
                                 <tr>
-                                    <td colspan="7">Nenhum registro!</td>
+                                    <td colspan="6">Nenhum registro!</td>
                                 </tr>
                             <?php endif; ?>
                         </tbody>

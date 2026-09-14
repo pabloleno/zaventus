@@ -256,14 +256,18 @@
                                                 <?php foreach($pagamentos as $pagamento): ?>
                                                     <tr>
                                                         <td><?= $pagamento['id_pagamento'] ?></td>
-                                                        <td><?= $pagamento['descricao'] ?></td>
+                                                        <td><?= esc($pagamento['descricao']) ?><?php if (! empty($pagamento['estornado_at'])) : ?> <span class="badge badge-secondary">Estornado</span><?php endif; ?></td>
                                                         <td><?= moeda($pagamento['valor']) ?></td>
                                                         <td><?= $pagamento['data'] ?></td>
                                                         <td><?= $pagamento['hora'] ?></td>
-                                                        <td><?= $pagamento['observacoes'] ?></td>
+                                                        <td><?= esc($pagamento['observacoes']) ?></td>
                                                         <td>
+                                                            <?php if (! empty($pagamento['id_ordem'])) : ?>
+                                                                <a href="/ordensDeServicos/show/<?= (int) $pagamento['id_ordem'] ?>" class="btn btn-info btn-sm">Atendimento</a>
+                                                            <?php else : ?>
                                                             <a href="/pagamentosDoCliente/edit/<?= $pagamento['id_pagamento'] ?>/<?= $pagamento['id_cliente'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
                                                             <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse pagamento?', '/pagamentosDoCliente/delete/<?= $pagamento['id_pagamento'] ?>/<?= $pagamento['id_cliente'] ?>')"><i class="fa fa-trash"></i></button>
+                                                            <?php endif; ?>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -333,11 +337,11 @@
                                     <table class="table table-bordered table-striped">
                                         <thead>
                                             <tr>
-                                                <th>Cód.</th>
+                                                <th>Número</th>
                                                 <th>Data</th>
                                                 <th>Hora</th>
-                                                <th>Cód. Cliente</th>
-                                                <th>Cód. Caixa</th>
+                                                <th>Situação</th>
+                                                <th>Total</th>
                                                 <th>Ações</th>
                                             </tr>
                                         </thead>
@@ -345,13 +349,13 @@
                                             <?php if(!empty($orcamentos)): ?>
                                                 <?php foreach($orcamentos as $orcamento): ?>
                                                     <tr>
-                                                        <td><?= $orcamento['id_orcamento'] ?></td>
-                                                        <td><?= $orcamento['data'] ?></td>
-                                                        <td><?= $orcamento['hora'] ?></td>
-                                                        <td><?= $orcamento['id_cliente'] ?></td>
-                                                        <td><?= $orcamento['id_caixa'] ?></td>
+                                                        <td><?= esc($orcamento['numero'] ?? $orcamento['id_ordem']) ?></td>
+                                                        <td><?= esc($orcamento['data_de_entrada']) ?></td>
+                                                        <td><?= esc($orcamento['hora_de_entrada']) ?></td>
+                                                        <td><?= esc($orcamento['status_rotulo']) ?></td>
+                                                        <td><?= moeda($orcamento['valor_total']) ?></td>
                                                         <td>
-                                                            <a href="/orcamentos/show/<?= $orcamento['id_orcamento'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
+                                                            <a href="/ordensDeServicos/show/<?= (int) $orcamento['id_ordem'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -390,7 +394,7 @@
                                                         <td><?= $pedido['id_cliente'] ?></td>
                                                         <td><?= $pedido['id_caixa'] ?></td>
                                                         <td>
-                                                            <a href="/pedidos/show/<?= $pedido['id_pedido'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
+                                                            <span class="text-muted">Registro legado</span>
                                                         </td>
                                                     </tr>
                                                 <?php endforeach; ?>
@@ -427,7 +431,7 @@
                                                         <td><?= $ordem['nome_do_cliente'] ?></td>
                                                         <td><?= $ordem['data_de_entrada'] ?> às <?= $ordem['hora_de_entrada'] ?></td>
                                                         <td><?= $ordem['data_de_saida'] ?> às <?= $ordem['hora_de_saida'] ?></td>
-                                                        <td><?= $ordem['situacao'] ?></td>
+                                                        <td><?= esc($ordem['status_rotulo']) ?></td>
                                                         <td>
                                                             <a href="/ordensDeServicos/show/<?= $ordem['id_ordem'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                                         </td>

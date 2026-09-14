@@ -1,7 +1,7 @@
 <?php
     $session = session();
     $usuario = $session->get('usuario');
-    $favicon = trim((string) $session->get('favicon')) ?: 'favicon.ico';
+    $favicon = trim((string) $session->get('favicon')) ?: 'assets/img/favicon-cmy-7f5ab7a5892e.png';
     $security = config('Security');
     $controle_alertas = json_decode((string) $session->get('controle_de_acesso'), true);
     $pode_alertas_cobrancas = is_array($controle_alertas)
@@ -28,7 +28,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="csrf-token-value" content="<?= esc(csrf_hash()) ?>">
     <meta name="csrf-header-name" content="<?= esc($security->headerName) ?>">
 
-    <title><?= esc(lang('App.appName')) ?><?= $session->get('nome_fantasia') ? ' | ' . esc($session->get('nome_fantasia')) : '' ?></title>
+    <title><?= esc(lang('App.appName')) ?></title>
 
     <link rel="icon" href="<?= esc(base_url($favicon)) ?>" sizes="any">
 

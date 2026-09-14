@@ -41,8 +41,8 @@ class Database extends \CodeIgniter\Database\Config
 		'DBDebug'  => (ENVIRONMENT !== 'production'),
 		'cacheOn'  => false,
 		'cacheDir' => '',
-		'charset'  => 'utf8',
-		'DBCollat' => 'utf8_general_ci',
+		'charset'  => 'utf8mb4',
+		'DBCollat' => 'utf8mb4_unicode_ci',
 		'swapPre'  => '',
 		'encrypt'  => false,
 		'compress' => false,
@@ -59,18 +59,18 @@ class Database extends \CodeIgniter\Database\Config
 	 */
 	public $tests = [
 		'DSN'      => '',
-		'hostname' => '127.0.0.1',
-		'username' => '',
+		'hostname' => 'localhost',
+		'username' => 'root',
 		'password' => '',
-		'database' => ':memory:',
-		'DBDriver' => 'SQLite3',
-		'DBPrefix' => 'db_',  // Needed to ensure we're working correctly with prefixes live. DO NOT REMOVE FOR CI DEVS
+		'database' => 'zaventus_test',
+		'DBDriver' => 'MySQLi',
+		'DBPrefix' => '',
 		'pConnect' => false,
 		'DBDebug'  => (ENVIRONMENT !== 'production'),
 		'cacheOn'  => false,
 		'cacheDir' => '',
-		'charset'  => 'utf8',
-		'DBCollat' => 'utf8_general_ci',
+		'charset'  => 'utf8mb4',
+		'DBCollat' => 'utf8mb4_unicode_ci',
 		'swapPre'  => '',
 		'encrypt'  => false,
 		'compress' => false,
@@ -94,6 +94,13 @@ class Database extends \CodeIgniter\Database\Config
 		if (ENVIRONMENT === 'testing')
 		{
 			$this->defaultGroup = 'tests';
+
+			if (
+				trim((string) $this->tests['database']) === ''
+				|| $this->tests['database'] === $this->default['database']
+			) {
+				throw new \LogicException('O banco de testes deve ser exclusivo e diferente do banco principal.');
+			}
 
 			// Under Travis-CI, we can set an ENV var named 'DB_GROUP'
 			// so that we can test against multiple databases.

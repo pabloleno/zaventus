@@ -7,6 +7,10 @@ use App\Models\InventarioDoEstoqueModel;
 use App\Models\ProdutoDoInventarioModel;
 use App\Models\ProdutoModel;
 use CodeIgniter\Controller;
+use App\Libraries\OrcamentoCalculo;
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
 
 class InventarioDoEstoque extends Controller
 {
@@ -280,22 +284,42 @@ class InventarioDoEstoque extends Controller
     /**
      * Valida e persiste o produto vinculado ao inventario.
      */
-    public function store_produto() // Store para create e edit do produto
+    public function store_produto()
     {
-        $dados = $this->request->getvar();
-
-        $this->produto_do_inventario_model->save($dados);
-
-        $session = session();
-
-        if(isset($dados['id_produto_do_inventario']))
-        {
-            $session->setFlashdata('alert', 'success_edit');
-            return redirect()->to("/inventarioDoEstoque/listaProdutos/{$dados['id_inventario']}");
+        $entrada = $this->request->getPost();
+        try {
+            $idInventario = filter_var($entrada['id_inventario'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+            if ($idInventario === false || ! $this->inventario_do_estoque_model->find($idInventario)) {
+                throw new InvalidArgumentException('Inventário não encontrado.');
+            }
+            $dados = ['id_inventario' => $idInventario];
+            foreach (['discriminacao' => 512, 'unidade' => 16] as $campo => $limite) {
+                $valor = $entrada[$campo] ?? '';
+                if (! is_string($valor) || trim($valor) === '' || mb_strlen(trim($valor)) > $limite) {
+                    throw new InvalidArgumentException('Preencha ' . $campo . ' com até ' . $limite . ' caracteres.');
+                }
+                $dados[$campo] = trim($valor);
+            }
+            $dados['quantidade'] = OrcamentoCalculo::decimal($entrada['quantidade'] ?? '');
+            $dados['valor_unitario'] = OrcamentoCalculo::decimal($entrada['valor_unitario'] ?? '', 2);
+            if (! empty($entrada['id_produto_do_inventario'])) {
+                $idProduto = filter_var($entrada['id_produto_do_inventario'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+                $atual = $idProduto === false ? null : $this->produto_do_inventario_model->find($idProduto);
+                if ($atual === null || (int) $atual['id_inventario'] !== $idInventario) {
+                    throw new InvalidArgumentException('O item não pertence a este inventário.');
+                }
+                $dados['id_produto_do_inventario'] = $idProduto;
+            }
+            if (! $this->produto_do_inventario_model->save($dados)) {
+                throw new RuntimeException('Não foi possível salvar o item.');
+            }
+        } catch (Throwable $exception) {
+            if (! $exception instanceof InvalidArgumentException) {
+                log_message('error', 'Erro ao salvar item do inventário: ' . $exception->getMessage());
+            }
+            return redirect()->back()->withInput()->with('erros_inventario', [$exception instanceof InvalidArgumentException ? $exception->getMessage() : 'Não foi possível salvar o item do inventário.']);
         }
-
-        $session->setFlashdata('alert', 'success_add');
-        return redirect()->to("/inventarioDoEstoque/show/{$dados['id_inventario']}");
+        return redirect()->to('/inventarioDoEstoque/listaProdutos/' . $idInventario)->with('alert', isset($dados['id_produto_do_inventario']) ? 'success_edit' : 'success_add');
     }
 
     /**

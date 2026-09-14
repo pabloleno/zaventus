@@ -1,0 +1,66 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+
+    services:
+      mariadb:
+        image: mariadb:10.11
+        env:
+          MARIADB_DATABASE: zaventus_restore_ci_test
+          MARIADB_ROOT_PASSWORD: root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mariadb-admin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+          extensions: bcmath, fileinfo, intl, mbstring, mysqli
+          coverage: none
+
+      - name: Validate Composer manifest
+        run: composer validate --strict
+
+      - name: Install locked dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Lint application and tests
+        run: composer lint
+
+      - name: Rebuild schema in the isolated test database
+        env:
+          ZAVENTUS_TEST_DATABASE: zaventus_restore_ci_test
+          ZAVENTUS_TEST_HOSTNAME: 127.0.0.1
+          ZAVENTUS_TEST_USERNAME: root
+          ZAVENTUS_TEST_PASSWORD: root
+          ZAVENTUS_TEST_PORT: '3306'
+        run: php tools/spark-test-db.php migrate -n App
+
+      - name: Application tests against the prepared isolated database
+        # BaseConfig accepts underscores for nested keys (database.tests.*).
+        # Configure only the tests group; keep it distinct from default.
+        env:
+          database_tests_database: zaventus_restore_ci_test
+          database_tests_hostname: 127.0.0.1
+          database_tests_username: root
+          database_tests_password: root
+          database_tests_port: '3306'
+        run: composer test

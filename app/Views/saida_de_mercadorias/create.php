@@ -1,83 +1,19 @@
-<!-- Content Wrapper. Contains page content -->
-<div class="content-wrapper">
-    <!-- Main content -->
-    <div class="content">
-        <div class="container-fluid">
-            <form action="/saidaDeMercadorias/store" method="post">
-                <div class="card">
-                    <div class="card-header">
-                        <div class="row">
-                            <div class="col-sm-6">
-                                <h6 class="m-0 text-dark"><i class="<?= $titulo['icone'] ?>"></i> <?= $titulo['modulo'] ?></h6>
-                            </div><!-- /.col -->
-                            <div class="col-sm-6">
-                                <ol class="breadcrumb float-sm-right">
-                                    <a href="/saidaDeMercadorias" class="btn btn-success button-voltar"><i class="fa fa-arrow-alt-circle-left"></i> Voltar</a>
-                                    <?php foreach ($caminhos as $caminho) : ?>
-                                        <?php if (!$caminho['active']) : ?>
-                                            <li class="breadcrumb-item"><a href="<?= $caminho['rota'] ?>"><?= $caminho['titulo'] ?></a></li>
-                                        <?php else : ?>
-                                            <li class="breadcrumb-item active"><?= $caminho['titulo'] ?></li>
-                                        <?php endif; ?>
-                                    <?php endforeach; ?>
-                                </ol>
-                            </div><!-- /.col -->
-                        </div>
-                    </div>
-                    <!-- /.card-header -->
-                    <div class="card-body">
-                        <div class="row">
-                            <div class="col-lg-8">
-                                <div class="form-group">
-                                    <label>Produto</label>
-                                    <select class="form-control select2" name="id_produto" style="width: 100%;" required="">
-                                        <?php if (!empty($produtos)) : ?>
-                                            <?php foreach ($produtos as $produto) : ?>
-                                                <option value="<?= $produto['id_produto'] ?>"><?= $produto['nome'] ?></option>
-                                            <?php endforeach; ?>
-                                        <?php endif; ?>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="form-group">
-                                    <label for="">Quantidade</label>
-                                    <input type="text" class="form-control" name="quantidade" required="">
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="form-group">
-                                    <label for="">Data</label>
-                                    <input type="date" class="form-control" name="data" value="<?= date('Y-m-d') ?>" required="">
-                                </div>
-                            </div>
-                            <div class="col-lg-4">
-                                <div class="form-group">
-                                    <label for="">Hora</label>
-                                    <input type="text" class="form-control" name="hora" value="<?= date('H:i:s') ?>" required="">
-                                </div>
-                            </div>
-                            <div class="col-lg-12">
-                                <div class="form-group">
-                                    <label for="">Observações</label>
-                                    <textarea class="form-control" rows="5" name="observacoes"></textarea>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- /.card-body -->
-                    <div class="card-footer">
-                        <div class="row">
-                            <div class="col-lg-12" style="text-align: right">
-                                <button type="submit" class="btn btn-primary">Cadastrar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- /.card -->
-            </form>
-        </div><!-- /.container-fluid -->
-    </div>
-    <!-- /.content -->
-</div>
-<!-- /.content-wrapper -->
+<?php
+$campo = static function (string $nome, $padrao = ''): string { $v = old($nome, $padrao, false); return is_scalar($v) ? (string) $v : ''; };
+?>
+<div class="content-wrapper"><div class="content"><div class="container-fluid">
+<form action="/saidaDeMercadorias/store" method="post">
+    <?= csrf_field() ?><input type="hidden" name="chave_operacao" value="<?= esc($campo('chave_operacao', bin2hex(random_bytes(16)))) ?>">
+    <div class="card"><div class="card-header"><a href="/saidaDeMercadorias" class="btn btn-success btn-sm float-right">Voltar</a><h6 class="m-0 pt-1">Nova saída</h6></div><div class="card-body">
+        <?php foreach ((array) (session()->getFlashdata('erros_estoque') ?? []) as $erro): ?><div class="alert alert-danger" role="alert"><?= esc((string) $erro) ?></div><?php endforeach; ?>
+        <div class="row"><div class="col-md-8 form-group"><label for="movimento-produto">Matéria-prima</label>
+            <select id="movimento-produto" class="form-control select2" name="id_produto" required>
+                <option value="">Selecione um material</option>
+                <?php foreach ($produtos ?? [] as $produto): ?><option value="<?= (int) $produto['id_produto'] ?>" <?= $campo('id_produto') === (string) $produto['id_produto'] ? 'selected' : '' ?>><?= esc($produto['nome']) ?> — saldo <?= esc($produto['quantidade']) ?> <?= esc($produto['unidade']) ?></option><?php endforeach; ?>
+            </select>
+        </div><div class="col-md-4 form-group"><label for="movimento-quantidade">Quantidade</label><input id="movimento-quantidade" class="form-control" name="quantidade" inputmode="decimal" maxlength="32" value="<?= esc($campo('quantidade')) ?>" required><small class="text-muted">Use a unidade cadastrada no material. Até quatro casas decimais.</small></div></div>
+        <div class="form-group"><label for="movimento-observacoes">Observações</label><textarea id="movimento-observacoes" class="form-control" name="observacoes" rows="3" maxlength="512"><?= esc($campo('observacoes')) ?></textarea></div>
+        <p class="small text-muted">Data, hora e responsável são registrados ao salvar.</p>
+    </div><div class="card-footer text-right"><button class="btn btn-primary" type="submit">Registrar saída</button></div></div>
+</form>
+</div></div></div>

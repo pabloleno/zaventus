@@ -1,6 +1,9 @@
 <?php
+    use App\Libraries\ImagemCadastro;
+
     $controle_de_acesso = $session->get('controle_de_acesso');
     $array_c_a = json_decode($controle_de_acesso);
+    $foto_usuario = ImagemCadastro::url($session->get('foto') ?? '');
     $pode_cobrancas = (int) ($array_c_a->controle_geral->cobrancas ?? $array_c_a->controle_geral->clientes ?? 0) === 1;
 
     $menu_visivel = static function ($modulo, array $permissoes): bool {
@@ -20,16 +23,12 @@
     $exibe_orcamentos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->orcamentos)
         && (int) $array_c_a->financeiro->modulo === 1
         && (int) $array_c_a->financeiro->orcamentos === 1;
-    $exibe_pedidos = isset($array_c_a->financeiro->modulo, $array_c_a->financeiro->pedidos)
-        && (int) $array_c_a->financeiro->modulo === 1
-        && (int) $array_c_a->financeiro->pedidos === 1;
-
-    $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['venda_rapida', 'pdv', 'pesq_produto', 'hist_de_vendas']) || $exibe_orcamentos || $exibe_pedidos;
+    $exibe_menu_vendas = $menu_visivel($array_c_a->vendas ?? null, ['hist_de_vendas']) || $exibe_orcamentos;
     $exibe_menu_controle_geral = $menu_visivel($array_c_a->controle_geral ?? null, ['clientes', 'fornecedores', 'funcionarios', 'vendedores']);
     $exibe_menu_estoque = $menu_visivel($array_c_a->estoque ?? null, ['produtos', 'reposicoes', 'saida_de_mercadorias', 'categorias_do_produto']);
-    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque', 'controle_fiscal']) || $pode_cobrancas;
+    $exibe_menu_financeiro = $menu_visivel($array_c_a->financeiro ?? null, ['caixas', 'lancamentos', 'retiradas_do_caixa', 'despesas', 'contas_a_pagar', 'contas_a_receber', 'relatorio_dre', 'inventario_do_estoque']) || $pode_cobrancas;
     $exibe_menu_relatorios = $menu_visivel($array_c_a->relatorios ?? null, ['vendas', 'estoque', 'financeiro', 'geral']);
-    $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['nfe', 'nfce', 'empresa', 'sistema', 'desenvolvedor', 'usuarios', 'backup_de_dados']);
+    $exibe_menu_configs = $menu_visivel($array_c_a->configs ?? null, ['empresa', 'sistema', 'desenvolvedor', 'usuarios', 'backup_de_dados']);
 ?>
 
 <!-- Main Sidebar Container -->
@@ -42,10 +41,10 @@
     <div class="sidebar">
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
             <div class="image">
-                <img src="<?= base_url('assets/img/user.png') ?>" class="img-circle elevation-2" alt="User Image">
+                <img src="<?= esc($foto_usuario) ?>" class="img-circle elevation-2" alt="Foto do usuario">
             </div>
             <div class="info">
-                <a href="#" class="d-block"><?= $session->get('primeiro_nome') ?></a>
+                <a href="/login/edit/<?= (int) $session->get('id_login') ?>" class="d-block"><?= esc($session->get('primeiro_nome')) ?></a>
             </div>
         </div>
 
@@ -66,31 +65,7 @@
                             <p><?= esc(lang('App.menu.salesOs')) ?><i class="right fas fa-angle-left"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <?php if($array_c_a->vendas->venda_rapida == 1): ?>
-                                <li class="nav-item">
-                                    <a id="2.2" href="/vendaRapida" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p><?= esc(lang('App.menu.quickSale')) ?></p>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->vendas->pdv == 1): ?>
-                                <li class="nav-item">
-                                    <a id="2.1" href="/pdv" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p><?= esc(lang('App.menu.pdv')) ?></p>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->vendas->pesq_produto == 1): ?>
-                                <li class="nav-item">
-                                    <a id="2.3" href="/produtos/pesquisar" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p><?= esc(lang('App.menu.productSearch')) ?></p>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->vendas->hist_de_vendas == 1): ?>
+                            <?php if((int) ($array_c_a->vendas->hist_de_vendas ?? 0) === 1): ?>
                                 <li class="nav-item">
                                     <a id="2.4" href="/vendas" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
@@ -109,14 +84,6 @@
                                     <a id="2.7" href="/ordensDeServicos/orcamentos" class="nav-link">
                                         <i class="far fa-circle nav-icon"></i>
                                         <p><?= esc(lang('App.menu.quotes')) ?></p>
-                                    </a>
-                                </li>
-                            <?php endif; ?>
-                            <?php if($exibe_pedidos): ?>
-                                <li class="nav-item">
-                                    <a id="2.8" href="/pedidos" class="nav-link">
-                                        <i class="far fa-circle nav-icon"></i>
-                                        <p><?= esc(lang('App.menu.orders')) ?></p>
                                     </a>
                                 </li>
                             <?php endif; ?>
@@ -256,9 +223,6 @@
                             <?php if($array_c_a->financeiro->inventario_do_estoque == 1): ?>
                                 <li class="nav-item"><a id="5.11" href="/inventarioDoEstoque" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.stockInventory')) ?></p></a></li>
                             <?php endif; ?>
-                            <?php if($array_c_a->financeiro->controle_fiscal == 1): ?>
-                                <li class="nav-item"><a id="5.12" href="/controleFiscal" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Gestao Fiscal</p></a></li>
-                            <?php endif; ?>
                         </ul>
                     </li>
                 <?php endif; ?>
@@ -306,15 +270,6 @@
                             <p><?= esc(lang('App.menu.settings')) ?><i class="fas fa-angle-left right"></i></p>
                         </a>
                         <ul class="nav nav-treeview">
-                            <?php if($array_c_a->configs->nfe == 1): ?>
-                                <li class="nav-item"><a id="11.1" href="/configs/nfe" class="nav-link"><i class="far fa-circle nav-icon"></i><p>NFe</p></a></li>
-                            <?php endif; ?>
-                            <?php if($array_c_a->configs->nfce == 1): ?>
-                                <li class="nav-item"><a id="11.2" href="/configs/nfce" class="nav-link"><i class="far fa-circle nav-icon"></i><p>NFCe</p></a></li>
-                            <?php endif; ?>
-                            <?php if((int) ($array_c_a->configs->nfe ?? 0) === 1 || (int) ($array_c_a->configs->nfce ?? 0) === 1): ?>
-                                <li class="nav-item"><a id="11.8" href="/controleFiscal" class="nav-link"><i class="far fa-circle nav-icon"></i><p>Gestao Fiscal</p></a></li>
-                            <?php endif; ?>
                             <?php if($array_c_a->configs->empresa == 1): ?>
                                 <li class="nav-item"><a id="11.3" href="/configs/empresa" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.company')) ?></p></a></li>
                             <?php endif; ?>
@@ -328,17 +283,27 @@
                                 <li class="nav-item"><a id="11.5" href="/login/usuarios" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.users')) ?></p></a></li>
                             <?php endif; ?>
                             <?php if($array_c_a->configs->backup_de_dados == 1): ?>
-                                <li class="nav-item"><a id="11.6" href="/configs/backupDataBase" class="nav-link"><i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.dataBackup')) ?></p></a></li>
+                                <li class="nav-item">
+                                    <form action="/configs/backupDataBase" method="post" class="m-0">
+                                        <?= csrf_field() ?>
+                                        <button id="11.6" type="submit" class="nav-link btn btn-link text-left w-100">
+                                            <i class="far fa-circle nav-icon"></i><p><?= esc(lang('App.menu.dataBackup')) ?></p>
+                                        </button>
+                                    </form>
+                                </li>
                             <?php endif; ?>
                         </ul>
                     </li>
                 <?php endif; ?>
 
                 <li class="nav-item">
-                    <a href="/login/logout" class="nav-link">
-                        <i class="nav-icon fas fa-sign-out-alt"></i>
-                        <p><?= esc(lang('App.menu.logout')) ?></p>
-                    </a>
+                    <form action="/login/logout" method="post" class="m-0">
+                        <?= csrf_field() ?>
+                        <button type="submit" class="nav-link btn btn-link text-left w-100">
+                            <i class="nav-icon fas fa-sign-out-alt"></i>
+                            <p><?= esc(lang('App.menu.logout')) ?></p>
+                        </button>
+                    </form>
                 </li>
             </ul>
         </nav>

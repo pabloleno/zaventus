@@ -12,7 +12,10 @@
                                 <a href="/caixas/edit/<?= $caixa['id_caixa'] ?>" class="btn btn-warning"><i class="fa fa-edit"></i> Editar</a>
                                 <button type="button" class="btn btn-danger" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse caixa? Essa ação não poderá ser desfeita!', '/caixas/delete/<?= $caixa['id_caixa'] ?>')"><i class="fa fa-trash"></i> Excluir</button>
                             <?php else : ?>
-                                <a href="/caixas/reabrir/<?= $caixa['id_caixa'] ?>" class="btn btn-primary">Reabrir Caixa</a>
+                                <form action="/caixas/reabrir/<?= (int) $caixa['id_caixa'] ?>" method="post" class="d-inline">
+                                    <?= csrf_field() ?>
+                                    <button type="submit" class="btn btn-primary">Reabrir Caixa</button>
+                                </form>
                             <?php endif; ?>
                         </div>
                     </div>
@@ -82,8 +85,9 @@
                             </div>
                             <div class="col-lg-4">
                                 <div class="form-group">
-                                    <label for="">Valor Total</label>
+                                    <label for="">Saldo esperado</label>
                                     <input type="text" class="form-control" value="<?= number_format($somatorio, 2, ',', '.') ?>" disabled="">
+                                    <small class="text-muted">Valor inicial + entradas válidas − retiradas. Recebimentos estornados não entram no saldo.</small>
                                 </div>
                             </div>
                             <div class="col-lg-4">

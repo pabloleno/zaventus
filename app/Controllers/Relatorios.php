@@ -522,13 +522,13 @@ class Relatorios extends Controller
         $data['ordens_servicos'] = in_array($data['tipo_negocio'], [TipoNegocio::TODOS, TipoNegocio::SERVICOS], true)
             ? $this->faturamento_negocio->ordensServicos($dados['data_inicio'], $dados['data_final'])
             : [];
-        $lancamentos = $this->lancamento_model
-            ->where('data >=', $dados['data_inicio'])
-            ->where('data <=', $dados['data_final']);
+        $lancamentos = $this->faturamento_negocio->consultaLancamentos(true)->select('l.*')
+            ->where('l.data >=', $dados['data_inicio'])
+            ->where('l.data <=', $dados['data_final']);
         if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
-            $lancamentos->where('tipo_negocio', $data['tipo_negocio']);
+            $lancamentos->where('l.tipo_negocio', $data['tipo_negocio']);
         }
-        $data['lancamentos'] = $lancamentos->find();
+        $data['lancamentos'] = $lancamentos->get()->getResultArray();
         $data['resumo_faturamento'] = $this->faturamento_negocio->resumo(
             $dados['data_inicio'],
             $dados['data_final'],
@@ -578,11 +578,12 @@ class Relatorios extends Controller
         $data['tipos_negocio'] = TipoNegocio::opcoes(true);
 
         $data['empresa']     = $this->config_empresa_model->where('id_config', 1)->first();
-        $lancamentos = $this->lancamento_model->where('data >=', $dados['data_inicio'])->where('data <=', $dados['data_final']);
+        $lancamentos = $this->faturamento_negocio->consultaLancamentos(true)->select('l.*')
+            ->where('l.data >=', $dados['data_inicio'])->where('l.data <=', $dados['data_final']);
         if ($data['tipo_negocio'] !== TipoNegocio::TODOS) {
-            $lancamentos->where('tipo_negocio', $data['tipo_negocio']);
+            $lancamentos->where('l.tipo_negocio', $data['tipo_negocio']);
         }
-        $data['lancamentos'] = $lancamentos->find();
+        $data['lancamentos'] = $lancamentos->get()->getResultArray();
 
         $session = session();
         $session->setFlashdata('alert', 'success_gerar_relatorio');

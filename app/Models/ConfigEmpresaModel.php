@@ -16,6 +16,8 @@ class ConfigEmpresaModel extends PadraoModel
         'whatsapp',
         'telefone_fixo',
         'telefone',
+        'email',
+        'condicoes_orcamento',
         'cep',
         'logradouro',
         'numero',

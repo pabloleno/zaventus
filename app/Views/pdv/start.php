@@ -1,7 +1,7 @@
 <?php
 $nomeEmpresa = trim((string) ($empresa['nome_fantasia'] ?? '')) ?: 'PDV';
-$logoPdv = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-login-marca.png';
-$faviconPdv = trim((string) ($empresa['favicon'] ?? '')) ?: 'favicon.ico';
+$logoPdv = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-logo-completa-353079a01cd5.png';
+$faviconPdv = trim((string) ($empresa['favicon'] ?? '')) ?: 'assets/img/favicon-cmy-7f5ab7a5892e.png';
 $fusoHorarioPdv = trim((string) ($empresa['fuso_horario'] ?? '')) ?: 'America/Manaus';
 $finalizarComNfce = ($empresa['finalizacao_pdv'] ?? 'cupom_nao_fiscal') === 'nfce';
 $totalPdv = (float) ($valor_a_pagar['valor_final'] ?? 0);

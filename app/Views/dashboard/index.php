@@ -26,19 +26,6 @@
     $moeda = static fn ($valor): string => 'R$ ' . number_format((float) $valor, 2, ',', '.');
     $segmentos = [
         [
-            'tipo' => \App\Libraries\TipoNegocio::PRODUTOS,
-            'slug' => 'produtos',
-            'titulo' => 'Produtos',
-            'subtitulo' => 'Vendas de produtos, inclusive peças vendidas em OS',
-            'icone' => 'fas fa-boxes',
-            'cor' => '#0f766e',
-            'cor_clara' => '#ccfbf1',
-            'faturamento' => $faturamento['produtos'],
-            'quantidade' => $operacao['vendas_produtos'],
-            'rotulo_quantidade' => 'vendas no período',
-            'ticket' => $operacao['ticket_produtos'],
-        ],
-        [
             'tipo' => \App\Libraries\TipoNegocio::SERVICOS,
             'slug' => 'servicos',
             'titulo' => 'Serviços',
@@ -52,8 +39,8 @@
             'ticket' => $operacao['ticket_servicos'],
         ],
     ];
-    $financeiroOperacionalReceber = $financeiro['Produtos']['total_receber'] + $financeiro['Servicos']['total_receber'];
-    $financeiroOperacionalPagar = $financeiro['Produtos']['total_pagar'] + $financeiro['Servicos']['total_pagar'];
+    $financeiroOperacionalReceber = array_sum(array_column($financeiro, 'total_receber'));
+    $financeiroOperacionalPagar = array_sum(array_column($financeiro, 'total_pagar'));
 ?>
 
 <div class="content-wrapper dashboard-profissional">
@@ -64,7 +51,7 @@
                     <span class="dashboard-eyebrow">Visão executiva</span>
                     <h1>Olá, <?= esc($session->get('primeiro_nome')) ?>.</h1>
                     <p>
-                        Produtos e serviços analisados separadamente em
+                        Orçamentos, serviços e financeiro acompanhados em
                         <strong><?= esc($meses[$periodo['mes']]) ?> de <?= esc($periodo['ano']) ?></strong>.
                     </p>
                     <div class="dashboard-periodo-contexto">
@@ -127,25 +114,25 @@
                 <div class="col-xl-3 col-md-6">
                     <div class="dashboard-kpi dashboard-kpi-total">
                         <span class="dashboard-kpi-icon"><i class="fas fa-chart-line"></i></span>
-                        <span class="dashboard-kpi-label">Faturamento do período</span>
-                        <strong><?= $moeda($faturamento['total']) ?></strong>
-                        <small>Produtos + serviços concretizados</small>
+                        <span class="dashboard-kpi-label">Faturamento de serviços</span>
+                        <strong><?= $moeda($faturamento['servicos']) ?></strong>
+                        <small>Somente serviços concretizados no período</small>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <div class="dashboard-kpi dashboard-kpi-produtos">
-                        <span class="dashboard-kpi-icon"><i class="fas fa-boxes"></i></span>
-                        <span class="dashboard-kpi-label">Vendas de produtos</span>
-                        <strong><?= $moeda($faturamento['produtos']) ?></strong>
-                        <small><?= $operacao['vendas_produtos'] ?> vendas · Ticket <?= $moeda($operacao['ticket_produtos']) ?></small>
+                        <span class="dashboard-kpi-icon"><i class="fas fa-file-invoice-dollar"></i></span>
+                        <span class="dashboard-kpi-label">Orçamentos em espera</span>
+                        <strong><?= (int) $operacao['os_abertas'] ?></strong>
+                        <small>Em aberto ou em andamento</small>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
                     <div class="dashboard-kpi dashboard-kpi-servicos">
                         <span class="dashboard-kpi-icon"><i class="fas fa-tools"></i></span>
-                        <span class="dashboard-kpi-label">Vendas de serviços</span>
-                        <strong><?= $moeda($faturamento['servicos']) ?></strong>
-                        <small><?= $operacao['os_concretizadas'] ?> OS · Ticket <?= $moeda($operacao['ticket_servicos']) ?></small>
+                        <span class="dashboard-kpi-label">Serviços efetivados</span>
+                        <strong><?= (int) $operacao['os_concretizadas'] ?></strong>
+                        <small>Ticket médio <?= $moeda($operacao['ticket_servicos']) ?></small>
                     </div>
                 </div>
                 <div class="col-xl-3 col-md-6">
@@ -159,12 +146,12 @@
             </div>
 
             <div class="row">
-                <div class="col-xl-8">
+                <div class="col-12">
                     <div class="card dashboard-card">
                         <div class="card-header">
                             <div>
                                 <span class="dashboard-card-kicker">Evolução anual</span>
-                                <h3 class="card-title">Faturamento mensal por tipo de venda</h3>
+                                <h3 class="card-title">Faturamento mensal de serviços</h3>
                             </div>
                             <span class="dashboard-card-note"><?= esc($periodo['ano']) ?></span>
                         </div>
@@ -173,29 +160,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-xl-4">
-                    <div class="card dashboard-card">
-                        <div class="card-header">
-                            <div>
-                                <span class="dashboard-card-kicker">Composição do período</span>
-                                <h3 class="card-title">Participação no faturamento</h3>
-                            </div>
-                        </div>
-                        <div class="card-body dashboard-chart-lg dashboard-chart-center">
-                            <canvas id="dashboard-composicao"></canvas>
-                            <div class="dashboard-chart-summary">
-                                <span><i class="dashboard-dot dashboard-dot-produtos"></i> Produtos <?= number_format($faturamento['percentual_produtos'], 1, ',', '.') ?>%</span>
-                                <span><i class="dashboard-dot dashboard-dot-servicos"></i> Serviços <?= number_format($faturamento['percentual_servicos'], 1, ',', '.') ?>%</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </div>
 
             <div class="dashboard-section-heading">
                 <div>
-                    <span class="dashboard-eyebrow">Leitura por segmento</span>
-                    <h2>Produtos e serviços sem mistura</h2>
+                    <span class="dashboard-eyebrow">Resultado operacional</span>
+                    <h2>Vendas e financeiro de serviços</h2>
                 </div>
                 <p>Contas a receber e a pagar consideram todos os vencimentos ainda não liquidados.</p>
             </div>
@@ -206,7 +176,7 @@
                         $dadosFinanceiros = $financeiro[$segmento['tipo']];
                         $dadosMovimentacao = $movimentacao[$segmento['tipo']];
                     ?>
-                    <div class="col-xl-6">
+                    <div class="col-12">
                         <div class="card dashboard-segment-card dashboard-segment-<?= esc($segmento['slug']) ?>">
                             <div class="card-header">
                                 <div class="dashboard-segment-title">
@@ -285,8 +255,8 @@
                         </div>
                         <div class="card-body">
                             <p>
-                                <strong>Geral</strong> reúne valores administrativos que não pertencem exclusivamente
-                                a Produtos ou Serviços.
+                                <strong>Geral</strong> reúne valores administrativos que não pertencem diretamente
+                                a uma ordem de serviço. Compromissos legados continuam visíveis na agenda.
                             </p>
                             <div class="dashboard-general-grid">
                                 <div><span>A receber</span><strong><?= $moeda($financeiro['Geral']['total_receber']) ?></strong></div>
@@ -305,17 +275,23 @@
                             </div>
                         </div>
                         <div class="card-body">
-                            <a href="/pedidos">
-                                <i class="fas fa-shopping-bag"></i>
-                                <span><strong><?= $operacao['pedidos_abertos'] ?></strong> pedidos em andamento</span>
-                            </a>
                             <a href="/ordensDeServicos">
                                 <i class="fas fa-clipboard-list"></i>
                                 <span><strong><?= $operacao['os_abertas'] ?></strong> ordens de serviço abertas</span>
                             </a>
+                            <?php if (! empty($operacao['atendimento'])) :
+                                $atendimentoAtual = $operacao['atendimento'];
+                                $statusAtuais = $atendimentoAtual['status'];
+                            ?>
+                                <a href="/ordensDeServicos/orcamentos?todos=1&amp;status=aguardando_aprovacao"><i class="fas fa-hourglass-half"></i><span><strong><?= (int) $statusAtuais['aguardando_aprovacao'] ?></strong> aguardando aprovação</span></a>
+                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-palette"></i><span><strong><?= (int) ($statusAtuais['falta_arte'] + $statusAtuais['arte_aprovacao']) ?></strong> em criação ou aprovação de arte</span></a>
+                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-print"></i><span><strong><?= (int) ($statusAtuais['aguardando_producao'] + $statusAtuais['em_producao']) ?></strong> aguardando ou em produção</span></a>
+                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-box-open"></i><span><strong><?= (int) ($statusAtuais['pronto'] + $statusAtuais['aguardando_retirada']) ?></strong> prontos ou aguardando retirada</span></a>
+                                <a href="/ordensDeServicos/orcamentos?todos=1&amp;status=instalacao_agendada"><i class="fas fa-calendar-day"></i><span><strong><?= (int) $atendimentoAtual['instalacoes_hoje'] ?></strong> instalações agendadas para hoje</span></a>
+                            <?php endif; ?>
                             <a href="/produtos">
                                 <i class="fas fa-exclamation-triangle"></i>
-                                <span><strong><?= count($produtos_estoque_baixo) ?></strong> produtos no estoque mínimo</span>
+                                <span><strong><?= count($produtos_estoque_baixo) ?></strong> matérias-primas no estoque mínimo</span>
                             </a>
                             <a href="/caixas">
                                 <i class="fas fa-cash-register"></i>
@@ -336,7 +312,7 @@
                                 <span class="dashboard-card-kicker">Agenda financeira</span>
                                 <h3 class="card-title">Próximas contas e valores vencidos</h3>
                             </div>
-                            <span class="dashboard-card-note">Produtos, Serviços e Geral identificados</span>
+                            <span class="dashboard-card-note">Serviços e compromissos gerais identificados</span>
                         </div>
                         <div class="card-body table-responsive p-0">
                             <table class="table dashboard-agenda-table">
@@ -361,8 +337,17 @@
                                                     </span>
                                                 </td>
                                                 <td>
-                                                    <span class="dashboard-badge dashboard-badge-<?= strtolower(esc($conta['tipo_negocio'])) ?>">
-                                                        <?= esc(\App\Libraries\TipoNegocio::rotulo($conta['tipo_negocio'])) ?>
+                                                    <?php
+                                                        $tipoConta = $conta['tipo_negocio'];
+                                                        $areaConta = $tipoConta === \App\Libraries\TipoNegocio::PRODUTOS
+                                                            ? 'Materiais / legado'
+                                                            : \App\Libraries\TipoNegocio::rotulo($tipoConta);
+                                                        $classeAreaConta = $tipoConta === \App\Libraries\TipoNegocio::PRODUTOS
+                                                            ? 'materiais'
+                                                            : strtolower($tipoConta);
+                                                    ?>
+                                                    <span class="dashboard-badge dashboard-badge-<?= esc($classeAreaConta) ?>">
+                                                        <?= esc($areaConta) ?>
                                                     </span>
                                                 </td>
                                                 <td><?= esc($conta['nome']) ?></td>
@@ -514,7 +499,6 @@
         var labelsMeses = <?= json_encode($mesesCurtos, JSON_UNESCAPED_UNICODE) ?>;
         var faturamentoMensal = <?= json_encode($dashboard['mensal'], JSON_NUMERIC_CHECK | JSON_UNESCAPED_UNICODE) ?>;
         var chartColors = {
-            produtos: '#0f766e',
             servicos: '#6d28d9',
             receberAberta: '#14b8a6',
             receberVencida: '#f59e0b',
@@ -623,11 +607,6 @@
             data: {
                 labels: labelsMeses,
                 datasets: [{
-                    label: 'Produtos',
-                    data: faturamentoMensal.map(function(item) { return item.produtos; }),
-                    backgroundColor: chartColors.produtos,
-                    borderWidth: 0
-                }, {
                     label: 'Serviços',
                     data: faturamentoMensal.map(function(item) { return item.servicos; }),
                     backgroundColor: chartColors.servicos,
@@ -662,40 +641,6 @@
                 }
             }
         }));
-
-        registraGraficoDashboard(new Chart(document.getElementById('dashboard-composicao'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Produtos', 'Serviços'],
-                datasets: [{
-                    label: 'Faturamento',
-                    data: <?= json_encode([$faturamento['produtos'], $faturamento['servicos']], JSON_NUMERIC_CHECK) ?>,
-                    backgroundColor: [chartColors.produtos, chartColors.servicos],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                cutoutPercentage: 72,
-                maintainAspectRatio: false,
-                legend: {
-                    display: false
-                },
-                tooltips: {
-                    callbacks: {
-                        label: function(tooltipItem, data) {
-                            return data.labels[tooltipItem.index] + ': ' + moeda.format(data.datasets[0].data[tooltipItem.index] || 0);
-                        }
-                    }
-                }
-            }
-        }));
-
-        doughnutFinanceiro('dashboard-financeiro-produtos', <?= json_encode([
-            $financeiro['Produtos']['receber_aberta'],
-            $financeiro['Produtos']['receber_vencida'],
-            $financeiro['Produtos']['pagar_aberta'],
-            $financeiro['Produtos']['pagar_vencida'],
-        ], JSON_NUMERIC_CHECK) ?>);
 
         doughnutFinanceiro('dashboard-financeiro-servicos', <?= json_encode([
             $financeiro['Servicos']['receber_aberta'],

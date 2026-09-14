@@ -12,7 +12,12 @@ class ReposicaoModel extends PadraoModel
         'hora',
         'quantidade',
         'observacoes',
-        'id_produto'
+        'id_produto',
+        'created_by',
+        'estornado_at',
+        'estornado_by',
+        'estorno_motivo',
+        'chave_operacao',
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

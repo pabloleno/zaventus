@@ -2,11 +2,13 @@
 
 namespace App\Controllers;
 
+use App\Libraries\ImagemCadastro;
 use App\Libraries\LoginAttemptLimiter;
 use App\Models\ConfigEmpresaModel;
 use App\Models\LoginModel;
 use CodeIgniter\Controller;
 use Config\SystemOptions;
+use InvalidArgumentException;
 
 class Login extends Controller
 {
@@ -131,9 +133,9 @@ class Login extends Controller
         $dados['controle_de_acesso'] = json_encode([
             'vendas' => [
                 'modulo'          => isset($dados['modulo_vendas']) ? 1 : 0,
-                'venda_rapida'    => $permitir($dados, 'modulo_vendas', 'venda_rapida'),
-                'pdv'             => $permitir($dados, 'modulo_vendas', 'pdv'),
-                'pesq_produto'    => $permitir($dados, 'modulo_vendas', 'pesq_produto'),
+                'venda_rapida'    => 0,
+                'pdv'             => 0,
+                'pesq_produto'    => 0,
                 'hist_de_vendas'  => $permitir($dados, 'modulo_vendas', 'hist_de_vendas'),
             ],
             'controle_geral' => [
@@ -159,11 +161,11 @@ class Login extends Controller
                 'despesas'              => $permitir($dados, 'modulo_financeiro', 'despesas'),
                 'contas_a_pagar'        => $permitir($dados, 'modulo_financeiro', 'contas_a_pagar'),
                 'contas_a_receber'      => $permitir($dados, 'modulo_financeiro', 'contas_a_receber'),
-                'orcamentos'            => $permitir($dados, 'modulo_financeiro', 'orcamentos'),
-                'pedidos'               => $permitir($dados, 'modulo_financeiro', 'pedidos'),
+                'orcamentos'            => 0,
+                'pedidos'               => 0,
                 'relatorio_dre'         => $permitir($dados, 'modulo_financeiro', 'relatorio_dre'),
                 'inventario_do_estoque' => $permitir($dados, 'modulo_financeiro', 'inventario_do_estoque'),
-                'controle_fiscal'       => $permitir($dados, 'modulo_financeiro', 'controle_fiscal'),
+                'controle_fiscal'       => 0,
             ],
             'relatorios' => [
                 'modulo'     => isset($dados['modulo_relatorios']) ? 1 : 0,
@@ -174,8 +176,8 @@ class Login extends Controller
             ],
             'configs' => [
                 'modulo'          => isset($dados['modulo_configs']) ? 1 : 0,
-                'nfe'             => $permitir($dados, 'modulo_configs', 'nfe'),
-                'nfce'            => $permitir($dados, 'modulo_configs', 'nfce'),
+                'nfe'             => 0,
+                'nfce'            => 0,
                 'empresa'         => $permitir($dados, 'modulo_configs', 'empresa'),
                 'sistema'         => $permitir($dados, 'modulo_configs', 'sistema'),
                 'desenvolvedor'   => $permitir($dados, 'modulo_configs', 'desenvolvedor'),
@@ -184,6 +186,9 @@ class Login extends Controller
             ],
         ]);
         $editando = isset($dados['id_login']) && $dados['id_login'] !== '';
+        $usuarioAnterior = $editando
+            ? $this->login_model->where('id_login', $dados['id_login'])->first()
+            : [];
 
         if (!empty($dados['senha'])) {
             $dados['senha'] = password_hash((string) $dados['senha'], PASSWORD_BCRYPT);
@@ -201,19 +206,44 @@ class Login extends Controller
             unset($dados['tema']);
         }
 
+        try {
+            $fotoNova = ImagemCadastro::salvar($this->request->getFile('foto'), 'usuarios');
+        } catch (InvalidArgumentException $e) {
+            return redirect()->back()->withInput()->with('erro_foto', $e->getMessage());
+        }
+
+        if ($fotoNova !== null) {
+            $dados['foto'] = $fotoNova;
+        } elseif (! empty($usuarioAnterior['foto'])) {
+            $dados['foto'] = $usuarioAnterior['foto'];
+        }
+
         $dados = array_intersect_key($dados, array_flip([
             'id_login',
             'usuario',
             'senha',
             'primeiro_nome',
+            'foto',
             'ultimo_acesso',
             'tema',
             'controle_de_acesso',
         ]));
 
         $this->login_model->save($dados);
+        $idLoginSalvo = (int) ($dados['id_login'] ?? $this->login_model->getInsertID());
+
+        if ($fotoNova !== null) {
+            ImagemCadastro::remover($usuarioAnterior['foto'] ?? '');
+        }
 
         $session = session();
+
+        if ((int) $session->get('id_login') === $idLoginSalvo) {
+            $session->set('usuario', $dados['usuario'] ?? $session->get('usuario'));
+            $session->set('primeiro_nome', $dados['primeiro_nome'] ?? $session->get('primeiro_nome'));
+            $session->set('foto', $dados['foto'] ?? '');
+            $session->set('controle_de_acesso', $dados['controle_de_acesso'] ?? $session->get('controle_de_acesso'));
+        }
 
         // Se o usuário estiver editando
         if($editando)
@@ -271,13 +301,14 @@ class Login extends Controller
             $session->set('id_login', $login['id_login']);
             $session->set('usuario', $login['usuario']);
             $session->set('primeiro_nome', $login['primeiro_nome']);
+            $session->set('foto', $login['foto'] ?? '');
             $session->set('nome_fantasia', $empresa['nome_fantasia']);
             $session->set('tema', ((int) ($login['tema'] ?? 0) === 1) ? 1 : 0);
             $session->set('controle_de_acesso', $login['controle_de_acesso']);
             $session->set('idioma', $empresa['idioma'] ?? config(SystemOptions::class)->defaultLanguage);
             $session->set('fuso_horario', $empresa['fuso_horario'] ?? config(SystemOptions::class)->defaultTimezone);
-            $session->set('favicon', $empresa['favicon'] ?? 'favicon.ico');
-            $session->set('logo_login', $empresa['logo_login'] ?? 'assets/img/zaventus-login-marca.png');
+            $session->set('favicon', trim((string) ($empresa['favicon'] ?? '')) ?: 'assets/img/favicon-cmy-7f5ab7a5892e.png');
+            $session->set('logo_login', trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-logo-completa-353079a01cd5.png');
 
             if ($this->senhaPrecisaAtualizar((string) $login['senha'])) {
                 $this->login_model->update($login['id_login'], [
@@ -318,7 +349,9 @@ class Login extends Controller
      */
     public function delete($id_login)
     {
+        $usuario = $this->login_model->where('id_login', $id_login)->first();
         $this->login_model->where('id_login', $id_login)->delete();
+        ImagemCadastro::remover($usuario['foto'] ?? '');
 
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

@@ -1,7 +1,7 @@
 <?php
 
 return array_replace_recursive(require __DIR__ . '/../en/App.php', [
-    'appName' => 'Zaventus Gestione',
+    'appName' => 'Zaventus | Gráfica Rápida e Comunicação Visual',
     'common' => [
         'apply' => 'Applica',
         'save' => 'Salva',

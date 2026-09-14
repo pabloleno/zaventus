@@ -21,6 +21,7 @@
                 </button>
             </div>
             <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'addEquipamentoEdit' : 'addEquipamento' ?>" method="post">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6">
@@ -201,6 +202,7 @@
                 </button>
             </div>
             <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'addServicoMaoDeObraEdit' : 'addServicoMaoDeObra' ?>" method="post">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
@@ -249,6 +251,7 @@
                 </button>
             </div>
             <form action="/ordensDeServicos/<?= (isset($acao_user)) ? 'alteraDadosServicoMaoDeObraEdit' : 'alteraDadosServicoMaoDeObra' ?>" method="post" onsubmit="formataCampoDecimalOs('altera_dados_servico_mao_de_obra_valor')">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-6">
@@ -517,6 +520,7 @@
                                     <strong>Pagamento à vista</strong>
                                 </div>
                                 <form action="/ordensDeServicos/<?= $rota_pagamento_a_vista ?>" method="post">
+                                    <?= csrf_field() ?>
                                     <div class="card-body">
                                         <div class="form-group">
                                             <label>Forma de pagamento</label>
@@ -546,6 +550,7 @@
                                     <strong>Pagamento parcelado</strong>
                                 </div>
                                 <form action="/ordensDeServicos/<?= $rota_pagamento_parcelado ?>" method="post">
+                                    <?= csrf_field() ?>
                                     <div class="card-body">
                                         <div class="row">
                                             <div class="col-md-6">
@@ -684,6 +689,7 @@
             </div> -->
 
             <form id="form-finaliza-ou-edita-ordem-de-servico" action="/ordensDeServicos/<?= (isset($acao_user)) ? 'editDadosResponsaveis_e_DadosFinaisOrdemDeServico' : 'finalizaOrdemDeServico' ?>" method="post">
+                <?= csrf_field() ?>
                 <div class="card">
                     <div class="card-header">
                         <div class="row">

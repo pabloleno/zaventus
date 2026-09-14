@@ -116,9 +116,9 @@
                 <div class="card-body no-print">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/vendaRapida" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nova Venda</a>
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-filtrar"><i class="fa fa-filter"></i> Filtrar</button>
                             <button type="button" class="btn btn-info" onclick="print()"><i class="fas fa-print"></i> Imprimir</button>
+                            <span class="ml-2 text-muted">Consulta histórica; novas vendas nascerão de orçamentos de serviços aprovados.</span>
                         </div>
                     </div>
                 </div>
@@ -144,7 +144,7 @@
                                 <th>Hora</th>
                                 <th>Cliente</th>
                                 <th>Cod. Caixa</th>
-                                <th class="no-print" style="width: 110px">Ações</th>
+                                <th class="no-print" style="width: 60px">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -159,8 +159,6 @@
                                         <td><?= $venda['id_caixa'] ?></td>
                                         <td class="no-print">
                                             <a href="/vendas/show/<?= $venda['id_venda'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
-                                            <!-- <a href="/vendas/edit/<?= $venda['id_venda'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a> -->
-                                            <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir essa venda?', '/vendas/delete/<?= $venda['id_venda'] ?>')"><i class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

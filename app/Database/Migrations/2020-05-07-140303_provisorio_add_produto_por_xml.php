@@ -10,10 +10,10 @@ class ProvisorioAddProdutoPorXml extends Migration
 	public function up()
 	{
 		$this->forge->addField([
-			'id_produto_provisorio' => [
+			'id_produto' => [
 				'type'           => 'INT',
 				'constraint'     => 9,
-				'usigned'        => TRUE,
+				'unsigned'       => TRUE,
 				'auto_increment' => TRUE
 			],
 

@@ -124,6 +124,19 @@
                                     <input type="text" class="form-control" id="telefone_fixo" name="telefone_fixo" value="<?= esc($telefoneFixo) ?>">
                                 </div>
                             </div>
+                            <?php if (array_key_exists('email', $empresa)) : ?>
+                                <div class="col-lg-6"><div class="form-group">
+                                    <label for="email">E-mail da empresa</label>
+                                    <input type="email" class="form-control" id="email" name="email" maxlength="128" value="<?= esc(old('email', $empresa['email'] ?? '')) ?>">
+                                </div></div>
+                            <?php endif; ?>
+                            <?php if (array_key_exists('condicoes_orcamento', $empresa)) : ?>
+                                <div class="col-12"><div class="form-group">
+                                    <label for="condicoes_orcamento">Condições gerais do orçamento</label>
+                                    <textarea class="form-control" id="condicoes_orcamento" name="condicoes_orcamento" rows="5" maxlength="8000"><?= esc(old('condicoes_orcamento', $empresa['condicoes_orcamento'] ?? '')) ?></textarea>
+                                    <small class="text-muted">Texto exibido na via do cliente: validade, prazo e orientações gerais.</small>
+                                </div></div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

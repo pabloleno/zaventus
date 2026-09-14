@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'appName' => 'Zaventus Management',
+    'appName' => 'Zaventus | Gráfica Rápida e Comunicação Visual',
     'common' => [
         'apply' => 'Apply',
         'save' => 'Save',

@@ -37,6 +37,10 @@ class AuthGuard implements FilterInterface
         'reposicoes'             => ['estoque', 'reposicoes'],
         'retiradas'              => ['financeiro', 'retiradas_do_caixa'],
         'saidademercadorias'     => ['estoque', 'saida_de_mercadorias'],
+        'servicosmaodeobra'      => ['financeiro', 'orcamentos'],
+        'ordensdeservicos'       => ['financeiro', 'orcamentos'],
+        'formasdepagamento'      => ['configs', 'sistema'],
+        'tecnicos'               => ['controle_geral', 'funcionarios'],
         'vendarapida'            => ['vendas', 'venda_rapida'],
         'vendas'                 => ['vendas', 'hist_de_vendas'],
         'vendedores'             => ['controle_geral', 'vendedores'],
@@ -80,6 +84,18 @@ class AuthGuard implements FilterInterface
         }
 
         $permission = $this->requiredPermission($controller, $method);
+
+        if ($permission === null && ! $this->isAuthenticatedOnlyRoute($controller, $method)) {
+            $session->setFlashdata('alert', 'access_denied');
+
+            if ($request->isAJAX()) {
+                return service('response')
+                    ->setStatusCode(403)
+                    ->setJSON(['error' => 'access_denied']);
+            }
+
+            return redirect()->to('/inicio');
+        }
 
         if (
             $permission !== null
@@ -221,6 +237,15 @@ class AuthGuard implements FilterInterface
     }
 
     /**
+     * Rotas que exigem login, mas nao possuem permissao granular no RBAC legado.
+     */
+    private function isAuthenticatedOnlyRoute(string $controller, string $method): bool
+    {
+        return ($controller === 'inicio' && $method === 'index')
+            || ($controller === 'configs' && $method === 'alteratema');
+    }
+
+    /**
      * Define a permissao exigida para uma acao de configuracao.
      * @return array{0:string, 1:string}|null
      */
@@ -255,10 +280,6 @@ class AuthGuard implements FilterInterface
      */
     private function productPermission(string $method): array
     {
-        if ($method === 'pesquisar') {
-            return ['vendas', 'pesq_produto'];
-        }
-
         if (str_contains($method, 'reposicao') || str_contains($method, 'repoe')) {
             return ['estoque', 'reposicoes'];
         }
@@ -315,6 +336,10 @@ class AuthGuard implements FilterInterface
      */
     private function hasAlternativePermission(string $controller, $accessControl): bool
     {
+        if ($controller === 'ordensdeservicos' || $controller === 'servicosmaodeobra') {
+            return $this->hasPermission($accessControl, 'vendas', 'hist_de_vendas');
+        }
+
         if ($controller !== 'controlefiscal') {
             return false;
         }

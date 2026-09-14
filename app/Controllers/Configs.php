@@ -14,6 +14,7 @@ use App\Models\FormaDePagamentoModel;
 use App\Models\IntegracaoPagamentoModel;
 use App\Models\TabelaMunicipiosIBGEModel;
 use App\Libraries\EnderecoPadrao;
+use App\Libraries\ProvedoresPagamento;
 use App\Libraries\UploadSecurityPolicy;
 use CodeIgniter\Controller;
 use CodeIgniter\HTTP\Files\UploadedFile;
@@ -22,8 +23,8 @@ use Config\SystemOptions;
 class Configs extends Controller
 {
     private const DIRETORIO_PERSONALIZACAO = 'uploads/personalizacao';
-    private const FAVICON_PADRAO = 'favicon.ico';
-    private const LOGO_LOGIN_PADRAO = 'assets/img/zaventus-login-marca.png';
+    private const FAVICON_PADRAO = 'assets/img/favicon-cmy-7f5ab7a5892e.png';
+    private const LOGO_LOGIN_PADRAO = 'assets/img/zaventus-logo-completa-353079a01cd5.png';
 
     private $config_nfe_nfce_model;
     private $config_nfce_model;
@@ -238,7 +239,10 @@ class Configs extends Controller
         $id_login     = $session->get('id_login');
         $data['tema'] = $this->login_model->where('id_login', $id_login)->first()['tema'];
 
-        $data['formas_de_pagamento'] = $this->forma_de_pagamento_model->comIntegracao();
+        $formasPagamento = $this->prepararFormasPagamentoSistema($this->forma_de_pagamento_model->comIntegracao());
+        $data['formas_de_pagamento'] = $formasPagamento;
+        $data['resumo_formas_pagamento'] = $this->resumoFormasPagamento($formasPagamento);
+        $data['integracoes_pagamento'] = $this->prepararIntegracoesPagamentoSistema($formasPagamento);
         $data['config_sistema'] = $this->configSistema();
         $data['idiomas'] = config(SystemOptions::class)->languages;
         $data['fusos_horarios'] = $this->fusosHorarios();
@@ -249,13 +253,223 @@ class Configs extends Controller
     }
 
     /**
+     * Adiciona metadados de leitura para a tela operacional de pagamentos.
+     */
+    private function prepararFormasPagamentoSistema(array $formasPagamento): array
+    {
+        return array_map(function (array $forma): array {
+            $tipo = $this->classificarFormaPagamento((string) ($forma['nome'] ?? ''));
+            $status = $this->statusFormaPagamentoIntegracao($forma);
+
+            $forma['tipo_pagamento_rotulo'] = $tipo['rotulo'];
+            $forma['tipo_pagamento_icone'] = $tipo['icone'];
+            $forma['tipo_pagamento_classe'] = $tipo['classe'];
+            $forma['status_integracao_rotulo'] = $status['rotulo'];
+            $forma['status_integracao_classe'] = $status['classe'];
+            $forma['disponivel_produtos'] = 0;
+            $forma['disponivel_servicos'] = 1;
+
+            return $forma;
+        }, $formasPagamento);
+    }
+
+    /**
+     * Resume as formas cadastradas para destacar o que esta manual ou integrado.
+     */
+    private function resumoFormasPagamento(array $formasPagamento): array
+    {
+        $resumo = [
+            'total' => count($formasPagamento),
+            'manuais' => 0,
+            'vinculadas' => 0,
+            'ativas' => 0,
+            'pendentes' => 0,
+        ];
+
+        foreach ($formasPagamento as $forma) {
+            $temIntegracao = ! empty($forma['id_integracao']);
+
+            if (! $temIntegracao) {
+                $resumo['manuais']++;
+                continue;
+            }
+
+            $resumo['vinculadas']++;
+
+            if (($forma['status_integracao_classe'] ?? '') === 'success') {
+                $resumo['ativas']++;
+            } else {
+                $resumo['pendentes']++;
+            }
+        }
+
+        return $resumo;
+    }
+
+    /**
+     * Lista provedores com status e contagem de formas vinculadas.
+     */
+    private function prepararIntegracoesPagamentoSistema(array $formasPagamento): array
+    {
+        return array_map(function (array $integracao) use ($formasPagamento): array {
+            $detalhes = ProvedoresPagamento::detalhes((string) ($integracao['provedor'] ?? ''));
+            $formasVinculadas = array_values(array_filter(
+                $formasPagamento,
+                static fn (array $forma): bool => (int) ($forma['id_integracao'] ?? 0) === (int) $integracao['id_integracao']
+            ));
+
+            $integracao['detalhes'] = $detalhes;
+            $integracao['formas_vinculadas'] = count($formasVinculadas);
+            $integracao['formas_servicos'] = count($formasVinculadas);
+            $status = $this->statusIntegracaoPagamento($integracao, $detalhes);
+            $integracao['status_integracao'] = $status['rotulo'];
+            $integracao['status_classe'] = $status['classe'];
+
+            return $integracao;
+        }, $this->integracao_pagamento_model->orderBy('nome')->findAll());
+    }
+
+    /**
+     * Prepara as opcoes do select de integracao usado no cadastro da forma.
+     */
+    private function prepararIntegracoesPagamentoFormulario(): array
+    {
+        return array_map(function (array $integracao): array {
+            $detalhes = ProvedoresPagamento::detalhes((string) ($integracao['provedor'] ?? ''));
+            $status = $this->statusIntegracaoPagamento($integracao, $detalhes);
+
+            $integracao['detalhes'] = $detalhes;
+            $integracao['status_integracao'] = $status['rotulo'];
+            $integracao['status_classe'] = $status['classe'];
+
+            return $integracao;
+        }, $this->integracao_pagamento_model->orderBy('nome')->findAll());
+    }
+
+    /**
+     * Classifica uma forma em uma familia visual esperada pelo usuario.
+     */
+    private function classificarFormaPagamento(string $nome): array
+    {
+        $normalizado = $this->normalizarTextoBusca($nome);
+
+        if (str_contains($normalizado, 'pix')) {
+            return ['rotulo' => 'PIX', 'icone' => 'fas fa-qrcode', 'classe' => 'info'];
+        }
+
+        if (str_contains($normalizado, 'boleto')) {
+            return ['rotulo' => 'Boleto', 'icone' => 'fas fa-barcode', 'classe' => 'primary'];
+        }
+
+        if (str_contains($normalizado, 'credito') || str_contains($normalizado, 'debito') || str_contains($normalizado, 'cartao')) {
+            return ['rotulo' => 'Cartao', 'icone' => 'fas fa-credit-card', 'classe' => 'success'];
+        }
+
+        if (str_contains($normalizado, 'dinheiro')) {
+            return ['rotulo' => 'Dinheiro', 'icone' => 'fas fa-money-bill-wave', 'classe' => 'secondary'];
+        }
+
+        if (str_contains($normalizado, 'paypal') || str_contains($normalizado, 'carteira')) {
+            return ['rotulo' => 'Carteira', 'icone' => 'fas fa-wallet', 'classe' => 'warning'];
+        }
+
+        return ['rotulo' => 'Outros', 'icone' => 'fas fa-receipt', 'classe' => 'dark'];
+    }
+
+    /**
+     * Define como a forma deve apresentar sua relacao com a integracao.
+     */
+    private function statusFormaPagamentoIntegracao(array $forma): array
+    {
+        if (empty($forma['id_integracao'])) {
+            return ['rotulo' => 'Manual / sem API', 'classe' => 'secondary'];
+        }
+
+        if (empty($forma['integracao_nome'])) {
+            return ['rotulo' => 'Vinculo sem provedor', 'classe' => 'danger'];
+        }
+
+        if ((int) ($forma['integracao_api_publica'] ?? 0) !== 1) {
+            return ['rotulo' => 'Recebimento manual', 'classe' => 'secondary'];
+        }
+
+        if ((int) ($forma['integracao_ativo'] ?? 0) === 1 && ($forma['integracao_ultimo_teste_status'] ?? '') === 'sucesso') {
+            return ['rotulo' => 'Integracao ativa', 'classe' => 'success'];
+        }
+
+        if ((int) ($forma['integracao_ativo'] ?? 0) === 1) {
+            return ['rotulo' => 'Teste pendente', 'classe' => 'warning'];
+        }
+
+        return ['rotulo' => 'Integracao inativa', 'classe' => 'warning'];
+    }
+
+    /**
+     * Define o status geral de um provedor de pagamento.
+     */
+    private function statusIntegracaoPagamento(array $integracao, array $detalhes): array
+    {
+        if ((int) ($integracao['api_publica'] ?? 0) !== 1) {
+            return ['rotulo' => 'Manual sem API', 'classe' => 'secondary'];
+        }
+
+        if (! ($detalhes['ativacao_suportada'] ?? false)) {
+            return ['rotulo' => 'Conector pendente', 'classe' => 'warning'];
+        }
+
+        if ((int) ($integracao['ativo'] ?? 0) !== 1) {
+            return ['rotulo' => 'Inativa', 'classe' => 'secondary'];
+        }
+
+        if (($integracao['ultimo_teste_status'] ?? '') === 'sucesso') {
+            return ['rotulo' => 'Ativa e validada', 'classe' => 'success'];
+        }
+
+        return ['rotulo' => 'Teste pendente', 'classe' => 'warning'];
+    }
+
+    /**
+     * Normaliza texto apenas para busca por termos conhecidos.
+     */
+    private function normalizarTextoBusca(string $texto): string
+    {
+        $texto = trim($texto);
+        $texto = function_exists('mb_strtolower') ? mb_strtolower($texto, 'UTF-8') : strtolower($texto);
+
+        return strtr($texto, [
+            'á' => 'a',
+            'à' => 'a',
+            'ã' => 'a',
+            'â' => 'a',
+            'ä' => 'a',
+            'é' => 'e',
+            'è' => 'e',
+            'ê' => 'e',
+            'ë' => 'e',
+            'í' => 'i',
+            'ì' => 'i',
+            'î' => 'i',
+            'ï' => 'i',
+            'ó' => 'o',
+            'ò' => 'o',
+            'õ' => 'o',
+            'ô' => 'o',
+            'ö' => 'o',
+            'ú' => 'u',
+            'ù' => 'u',
+            'û' => 'u',
+            'ü' => 'u',
+            'ç' => 'c',
+        ]);
+    }
+
+    /**
      * Valida e persiste sistema.
      */
     public function store_sistema()
     {
         $idioma = trim((string) $this->request->getPost('idioma'));
         $fuso_horario = trim((string) $this->request->getPost('fuso_horario'));
-        $finalizacao_pdv = trim((string) $this->request->getPost('finalizacao_pdv'));
         $erros = [];
 
         if (! $this->idiomaValido($idioma)) {
@@ -264,10 +478,6 @@ class Configs extends Controller
 
         if (! $this->fusoHorarioValido($fuso_horario)) {
             $erros[] = 'Selecione um fuso horario valido.';
-        }
-
-        if (! in_array($finalizacao_pdv, ['cupom_nao_fiscal', 'nfce'], true)) {
-            $erros[] = 'Selecione uma forma valida para finalizar o PDV.';
         }
 
         if (! empty($erros)) {
@@ -281,7 +491,6 @@ class Configs extends Controller
             ->set([
                 'idioma'       => $idioma,
                 'fuso_horario' => $fuso_horario,
-                'finalizacao_pdv' => $finalizacao_pdv,
             ])
             ->where('id_config', 1)
             ->update();
@@ -386,6 +595,15 @@ class Configs extends Controller
     public function store_empresa()
     {
         $dados = $this->request->getvar();
+        $email = $this->request->getPost('email') ?? '';
+        $condicoes = $this->request->getPost('condicoes_orcamento') ?? '';
+        unset($dados['email'], $dados['condicoes_orcamento']);
+        if (! is_string($email) || ! is_string($condicoes)
+            || mb_strlen($email) > 128 || ($email !== '' && filter_var(trim($email), FILTER_VALIDATE_EMAIL) === false)
+            || mb_strlen($condicoes) > 8000) {
+            session()->setFlashdata('errors', ['Informe um e-mail valido e condicoes do orcamento com ate 8000 caracteres.']);
+            return redirect()->to('/configs/empresa')->withInput();
+        }
         $preparo = prepara_campos_padrao($dados);
 
         if (! empty($preparo['erros'])) {
@@ -397,6 +615,15 @@ class Configs extends Controller
         $dados['endereco'] = $this->enderecoCompleto($dados);
         $dados = $this->prepararEmpresaContatos($dados);
         $dados['id_config'] = 1; // Só tem uma configuração para a Empresa
+        foreach (['email' => trim($email), 'condicoes_orcamento' => trim($condicoes)] as $campo => $valor) {
+            if (db_connect()->fieldExists($campo, 'config_empresa')) {
+                if ($this->request->getPost($campo) !== null) {
+                    $dados[$campo] = $valor;
+                }
+            } else {
+                unset($dados[$campo]);
+            }
+        }
 
         $this->config_empresa_model->save($dados);
 
@@ -466,9 +693,6 @@ class Configs extends Controller
             'fuso_horario' => $this->fusoHorarioValido($fuso_horario) ? $fuso_horario : $options->defaultTimezone,
             'favicon'       => trim((string) ($empresa['favicon'] ?? '')) ?: self::FAVICON_PADRAO,
             'logo_login'    => trim((string) ($empresa['logo_login'] ?? '')) ?: self::LOGO_LOGIN_PADRAO,
-            'finalizacao_pdv' => in_array(($empresa['finalizacao_pdv'] ?? ''), ['cupom_nao_fiscal', 'nfce'], true)
-                ? $empresa['finalizacao_pdv']
-                : 'cupom_nao_fiscal',
         ];
     }
 
@@ -679,7 +903,7 @@ class Configs extends Controller
             ['titulo' => lang('App.menu.system'), 'rota' => "/configs/sistema", 'active' => false],
             ['titulo' => lang('App.system.newPayment'), 'rota'   => "", 'active' => true]
         ];
-        $data['integracoes_pagamento'] = $this->integracao_pagamento_model->orderBy('nome')->findAll();
+        $data['integracoes_pagamento'] = $this->prepararIntegracoesPagamentoFormulario();
 
         echo view('templates/header');
         echo view('configs/form_forma_de_pagamento', $data);
@@ -709,7 +933,7 @@ class Configs extends Controller
         ];
 
         $data['forma_de_pagamento'] = $this->forma_de_pagamento_model->where('id_forma', $id_forma)->first();
-        $data['integracoes_pagamento'] = $this->integracao_pagamento_model->orderBy('nome')->findAll();
+        $data['integracoes_pagamento'] = $this->prepararIntegracoesPagamentoFormulario();
 
         echo view('templates/header');
         echo view('configs/form_forma_de_pagamento', $data);
@@ -730,19 +954,14 @@ class Configs extends Controller
 
         $dados = $preparo['dados'];
         $dados['nome'] = trim((string) ($dados['nome'] ?? ''));
-        $dados['codigo_nfce'] = str_pad(trim((string) ($dados['codigo_nfce'] ?? '99')), 2, '0', STR_PAD_LEFT);
+        // Campos legados permanecem apenas por compatibilidade com o schema.
+        $dados['codigo_nfce'] = '99';
         $dados['id_integracao'] = ! empty($dados['id_integracao']) ? (int) $dados['id_integracao'] : null;
-        $dados['disponivel_produtos'] = isset($dados['disponivel_produtos']) ? 1 : 0;
-        $dados['disponivel_servicos'] = isset($dados['disponivel_servicos']) ? 1 : 0;
+        $dados['disponivel_produtos'] = 0;
+        $dados['disponivel_servicos'] = 1;
 
-        if ($dados['nome'] === '' || ! preg_match('/^\d{2}$/', $dados['codigo_nfce'])) {
-            session()->setFlashdata('errors', ['Informe um nome e um codigo fiscal tPag com dois digitos.']);
-
-            return redirect()->back()->withInput();
-        }
-
-        if ($dados['disponivel_produtos'] !== 1 && $dados['disponivel_servicos'] !== 1) {
-            session()->setFlashdata('errors', ['A forma de pagamento deve atender produtos, servicos ou ambos.']);
+        if ($dados['nome'] === '') {
+            session()->setFlashdata('errors', ['Informe o nome da forma de pagamento.']);
 
             return redirect()->back()->withInput();
         }

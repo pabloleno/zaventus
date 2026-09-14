@@ -9,6 +9,13 @@ class EnderecoPadraoControleGeral extends Migration
      */
     public function up()
     {
+        $this->adicionarCampo('clientes', 'UF', [
+            'type'       => 'VARCHAR',
+            'constraint' => 2,
+            'null'       => true,
+            'after'      => 'municipio',
+        ]);
+
         $this->adicionarCampo('fornecedores', 'UF', [
             'type'       => 'VARCHAR',
             'constraint' => 2,
@@ -44,6 +51,7 @@ class EnderecoPadraoControleGeral extends Migration
     public function down()
     {
         foreach ([
+            'clientes' => ['UF'],
             'fornecedores' => ['UF'],
             'funcionarios' => ['UF', 'codigo_do_municipio'],
             'tecnicos' => ['codigo_do_municipio'],

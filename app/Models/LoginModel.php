@@ -11,6 +11,7 @@ class LoginModel extends PadraoModel
         'usuario',
         'senha',
         'primeiro_nome',
+        'foto',
         'ultimo_acesso',
         'tema',
         'controle_de_acesso'

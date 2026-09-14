@@ -58,6 +58,9 @@ class PagamentosDoCliente extends Controller
      */
     public function edit($id_pagamento, $id_cliente)
     {
+        if ($redirecionamento = $this->protegeVinculado($id_pagamento)) {
+            return $redirecionamento;
+        }
         $data['links'] = $this->links;
 
         $data['titulo'] = [
@@ -85,6 +88,9 @@ class PagamentosDoCliente extends Controller
     public function store()
     {
         $dados = $this->request->getvar();
+        if (! empty($dados['id_pagamento']) && ($redirecionamento = $this->protegeVinculado($dados['id_pagamento']))) {
+            return $redirecionamento;
+        }
         $this->pagamento_do_cliente_model->save($dados);
 
         $session = session();
@@ -107,11 +113,24 @@ class PagamentosDoCliente extends Controller
      */
     public function delete($id_pagamento, $id_cliente)
     {
+        if ($redirecionamento = $this->protegeVinculado($id_pagamento)) {
+            return $redirecionamento;
+        }
         $this->pagamento_do_cliente_model->where('id_pagamento', $id_pagamento)->delete();
 
         $session = session();
         $session->setFlashdata('alert', 'success_delete_pagamento');
 
         return redirect()->to("/clientes/show/$id_cliente");
+    }
+
+    private function protegeVinculado($id)
+    {
+        $recebimento = $this->pagamento_do_cliente_model->find($id);
+        if (empty($recebimento['id_ordem'])) {
+            return null;
+        }
+        session()->setFlashdata('errors', ['Este recebimento pertence a um atendimento. Use a ficha do orcamento para consultar ou estornar.']);
+        return redirect()->to('/ordensDeServicos/show/' . (int) $recebimento['id_ordem']);
     }
 }

@@ -1518,8 +1518,10 @@ html.sistema-dark-mode .login-card-body{
     color: #dbe5f1;
 }
 
-html.sistema-dark-mode .login-page .zaventus-login-title{
-    color: #f8fafc !important;
+html.sistema-dark-mode .login-page .zaventus-login-logo{
+    background: #f8fafc;
+    border-radius: 8px;
+    padding: 16px;
 }
 
 html.sistema-dark-mode .sistema-theme-toggle-login,
@@ -1564,6 +1566,205 @@ html.sistema-dark-mode .cupom-nao-fiscal-conteudo div{
 
 html.sistema-dark-mode .pedido-cliente-link{
     color: #5eead4 !important;
+}
+
+.sistema-pagamentos-header,
+.sistema-pagamentos-acoes,
+.sistema-pagamentos-subtitulo,
+.sistema-pagamentos-integracao-topo,
+.sistema-pagamentos-integracao-acoes,
+.sistema-pagamentos-integracao-linha{
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.sistema-pagamentos-header,
+.sistema-pagamentos-subtitulo,
+.sistema-pagamentos-integracao-topo{
+    justify-content: space-between;
+}
+
+.sistema-pagamentos-acoes{
+    justify-content: flex-end;
+    margin-left: auto;
+}
+
+.sistema-pagamentos-resumo{
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    margin-bottom: 12px;
+}
+
+.sistema-pagamentos-resumo div,
+.sistema-pagamentos-integracao-card{
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    background: #ffffff;
+}
+
+.sistema-pagamentos-resumo div{
+    padding: 10px 12px;
+}
+
+.sistema-pagamentos-resumo span,
+.sistema-pagamentos-integracao-resumo small{
+    color: #6c757d;
+    display: block;
+    font-size: .78rem;
+    line-height: 1.2;
+}
+
+.sistema-pagamentos-resumo strong{
+    color: #1f2937;
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1.1;
+}
+
+.sistema-pagamentos-alerta{
+    align-items: center;
+    border-color: #dbe4ef;
+    color: #42526b;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.sistema-pagamentos-tabela td{
+    vertical-align: middle;
+}
+
+.sistema-pagamento-chip,
+.sistema-pagamentos-badges,
+.sistema-pagamento-form-integracoes{
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.sistema-pagamento-chip{
+    justify-content: center;
+    white-space: normal;
+}
+
+.sistema-pagamento-tpag{
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    color: #334155;
+    display: inline-block;
+    font-weight: 700;
+    min-width: 36px;
+    padding: 4px 8px;
+    text-align: center;
+}
+
+.sistema-pagamentos-integracao-linha{
+    justify-content: flex-start;
+}
+
+.sistema-pagamentos-subtitulo{
+    border-top: 1px solid #e5e7eb;
+    margin-top: 18px;
+    padding-top: 16px;
+}
+
+.sistema-pagamentos-subtitulo h6{
+    margin: 0;
+}
+
+.sistema-pagamentos-integracoes-grid{
+    display: grid;
+    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.sistema-pagamentos-integracao-card{
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    min-height: 100%;
+    padding: 12px;
+}
+
+.sistema-pagamentos-integracao-card p{
+    color: #4b5563;
+    margin: 0;
+}
+
+.sistema-pagamentos-integracao-resumo{
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.sistema-pagamentos-integracao-resumo span{
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    padding: 6px;
+    text-align: center;
+}
+
+.sistema-pagamentos-integracao-resumo strong{
+    display: block;
+}
+
+.sistema-pagamentos-integracao-acoes{
+    margin-top: auto;
+}
+
+.sistema-pagamento-form-integracoes{
+    margin-bottom: 14px;
+}
+
+.sistema-pagamento-form-secao{
+    border-top: 1px solid #e5e7eb;
+    margin: 6px 0 14px;
+    padding-top: 14px;
+}
+
+.sistema-pagamento-form-secao strong,
+.sistema-pagamento-form-secao span{
+    display: block;
+}
+
+.sistema-pagamento-form-secao span{
+    color: #6c757d;
+    font-size: .88rem;
+}
+
+html.sistema-dark-mode .sistema-pagamentos-resumo div,
+html.sistema-dark-mode .sistema-pagamentos-integracao-card,
+html.sistema-dark-mode .sistema-pagamento-tpag,
+html.sistema-dark-mode .sistema-pagamentos-integracao-resumo span{
+    background: #1f2a3a;
+    border-color: #475569;
+    color: #e5edf7;
+}
+
+html.sistema-dark-mode .sistema-pagamentos-resumo span,
+html.sistema-dark-mode .sistema-pagamentos-integracao-resumo small,
+html.sistema-dark-mode .sistema-pagamentos-integracao-card p,
+html.sistema-dark-mode .sistema-pagamento-form-secao span{
+    color: #a8b6c8;
+}
+
+html.sistema-dark-mode .sistema-pagamentos-resumo strong{
+    color: #f8fafc;
+}
+
+html.sistema-dark-mode .sistema-pagamentos-alerta{
+    background: #263449;
+    border-color: #475569;
+    color: #e5edf7;
+}
+
+html.sistema-dark-mode .sistema-pagamentos-subtitulo,
+html.sistema-dark-mode .sistema-pagamento-form-secao{
+    border-color: #475569;
 }
 
 .integracao-pagamento-card{
@@ -1699,6 +1900,10 @@ html.sistema-dark-mode .integracao-pagamento-form-header + .card-body .alert-sec
     .dashboard-section-heading{
         gap: 4px;
     }
+
+    .sistema-pagamentos-resumo{
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
 }
 
 @media (max-width: 575px){
@@ -1733,6 +1938,25 @@ html.sistema-dark-mode .integracao-pagamento-form-header + .card-body .alert-sec
         align-items: stretch;
         flex-direction: column;
         justify-content: flex-start;
+    }
+
+    .sistema-pagamentos-header,
+    .sistema-pagamentos-acoes,
+    .sistema-pagamentos-subtitulo,
+    .sistema-pagamentos-integracao-acoes{
+        align-items: stretch;
+        flex-direction: column;
+        justify-content: flex-start;
+    }
+
+    .sistema-pagamentos-resumo,
+    .sistema-pagamentos-integracao-resumo{
+        grid-template-columns: 1fr;
+    }
+
+    .sistema-pagamentos-acoes .btn,
+    .sistema-pagamentos-integracao-acoes .btn{
+        width: 100%;
     }
 
     .integracao-pagamento-acoes .btn,

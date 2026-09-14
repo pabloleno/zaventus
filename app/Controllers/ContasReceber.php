@@ -72,6 +72,9 @@ class ContasReceber extends Controller
      */
     public function edit($id_conta)
     {
+        if ($redirecionamento = $this->protegeVinculada($id_conta)) {
+            return $redirecionamento;
+        }
         $data = $this->dadosFormulario('Editar Conta a Receber', 'fa fa-edit');
         $data['conta'] = $this->conta_a_receber_model->where('id_conta', $id_conta)->first();
 
@@ -86,6 +89,9 @@ class ContasReceber extends Controller
     public function store()
     {
         $dados = $this->request->getVar();
+        if (! empty($dados['id_conta']) && ($redirecionamento = $this->protegeVinculada($dados['id_conta']))) {
+            return $redirecionamento;
+        }
         $dados['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? null);
         $this->conta_a_receber_model->save($dados);
 
@@ -99,6 +105,9 @@ class ContasReceber extends Controller
      */
     public function delete($id_conta)
     {
+        if ($redirecionamento = $this->protegeVinculada($id_conta)) {
+            return $redirecionamento;
+        }
         $this->conta_a_receber_model->where('id_conta', $id_conta)->delete();
         session()->setFlashdata('alert', 'success_delete');
 
@@ -136,6 +145,16 @@ class ContasReceber extends Controller
             'data_inicio' => trim((string) ($dados['data_inicio'] ?? '')),
             'data_final' => trim((string) ($dados['data_final'] ?? '')),
         ];
+    }
+
+    private function protegeVinculada($id)
+    {
+        $conta = $this->conta_a_receber_model->find($id);
+        if (empty($conta['id_ordem'])) {
+            return null;
+        }
+        session()->setFlashdata('errors', ['O saldo desta conta e calculado pelo atendimento. Registre o recebimento na ficha do orcamento.']);
+        return redirect()->to('/ordensDeServicos/show/' . (int) $conta['id_ordem']);
     }
 
     /**

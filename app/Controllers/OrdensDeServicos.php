@@ -30,6 +30,7 @@ use CodeIgniter\Controller;
 
 class OrdensDeServicos extends Controller
 {
+    use \App\Controllers\Concerns\AtendimentoWeb;
     private $links;
     private $pagamento_os_provisorio_model;
     private $parcelas_do_pagamento_os_provisorio_model;

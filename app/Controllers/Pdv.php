@@ -492,7 +492,7 @@ class Pdv extends Controller
         $hora = date('H:i:s', strtotime($venda['hora']));
         $endereco = $this->enderecoEmpresaParaCupom($empresa);
         $telefone = $this->telefoneEmpresaParaCupom($empresa);
-        $logo = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-login-marca.png';
+        $logo = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-logo-completa-353079a01cd5.png';
         $logoHtml = "<img class='cupom-logo' src='{$this->escapaCupom(base_url($logo))}' alt='Logo'>";
         $descontoGeral = $this->normalizaValor($venda['desconto'] ?? 0);
         $descontoTotal = $descontoItens + $descontoGeral;

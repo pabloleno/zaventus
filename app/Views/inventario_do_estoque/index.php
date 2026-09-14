@@ -73,7 +73,10 @@
                 <div class="card-body no-print">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/inventarioDoEstoque/create_1" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Gerar Inventário Do Estoque Atual</a>
+                            <form action="/inventarioDoEstoque/create_1" method="post" class="d-inline">
+                                <?= csrf_field() ?>
+                                <button type="submit" class="btn btn-primary"><i class="fas fa-plus-circle"></i> Gerar Inventário Do Estoque Atual</button>
+                            </form>
                             <button type="button" class="btn btn-success" data-toggle="modal" data-target="#modal-filtrar"><i class="fa fa-filter"></i> Filtrar</button>
                             <button type="button" class="btn btn-info" onclick="print()"><i class="fas fa-print"></i> Imprimir</button>
                         </div>

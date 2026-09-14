@@ -4,7 +4,10 @@ namespace App\Controllers;
 
 use App\Models\ProdutoModel;
 use App\Models\ReposicaoModel;
+use App\Libraries\ConsumoAtendimento;
 use CodeIgniter\Controller;
+use InvalidArgumentException;
+use Throwable;
 
 class Reposicoes extends Controller
 {
@@ -44,7 +47,7 @@ class Reposicoes extends Controller
             ['titulo' => "Reposições", 'rota'   => "", 'active' => true]
         ];
 
-        $data['reposicoes'] = $this->reposicao_model->select('id_reposicao, nome, reposicoes.quantidade as qtd_da_reposicao, data, hora, observacoes')->join('produtos', 'produtos.id_produto = reposicoes.id_produto')->findAll();
+        $data['reposicoes'] = $this->reposicao_model->select('reposicoes.*, produtos.nome, produtos.unidade, reposicoes.quantidade as qtd_da_reposicao')->join('produtos', 'produtos.id_produto = reposicoes.id_produto')->findAll();
 
         echo view('templates/header');
         echo view('reposicoes/index', $data);
@@ -69,7 +72,7 @@ class Reposicoes extends Controller
             ['titulo' => "Nova", 'rota'   => "", 'active' => true]
         ];
 
-        $data['produtos'] = $this->produto_model->findAll();
+        $data['produtos'] = $this->produto_model->where('ativo', 1)->findAll();
 
         echo view('templates/header');
         echo view('reposicoes/create', $data);
@@ -81,57 +84,31 @@ class Reposicoes extends Controller
      */
     public function store()
     {
-        $dados = $this->request->getvar();
-        $this->reposicao_model->save($dados);
+        $dados = $this->request->getPost();
 
-        // --------------------------- ATUALIZA A QUANTIDADE DO PRODUTO ------------------------------- //
-        $qtd_reposicao = $dados['quantidade'];
-        $id_produto = $dados['id_produto'];
-
-        // Pega o produto pelo seu ID
-        $produto = $this->produto_model->select('quantidade')->where('id_produto', $id_produto)->first();
-
-        // Atribui a quantidade da reposição a quantidade do produto
-        $qtd = $qtd_reposicao + $produto['quantidade'];
-
-        // Atualiza a quantidade do produto com a nova quantidade
-        $this->produto_model->set('quantidade', $qtd)->where('id_produto', $id_produto)->update();
-        // ------------------------------------------------------------------------------------------ //
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_create');
-
-        return redirect()->to('/reposicoes');
+        try {
+            (new ConsumoAtendimento())->registrarManual($dados, (int) session()->get('id_login'), true);
+        } catch (InvalidArgumentException $exception) {
+            return redirect()->back()->withInput()->with('erros_estoque', [$exception->getMessage()]);
+        } catch (Throwable $exception) {
+            log_message('error', 'Falha ao registrar movimentação: ' . $exception->getMessage());
+            return redirect()->back()->withInput()->with('erros_estoque', ['Não foi possível registrar a movimentação.']);
+        }
+        return redirect()->to('/reposicoes')->with('alert', 'success_create');
     }
 
-    /**
-     * Remove o registro solicitado e retorna para a listagem.
-     */
     public function delete($id_reposicao)
     {
-        // ---------- RETIRA A QUANTIDADE DA REPOSIÇÃO DA QUANTIDADE DO PRODUTO ------------- // 
-        // Pega a reposição e sua quantidade
-        $reposicao = $this->reposicao_model->where('id_reposicao', $id_reposicao)->first();
-        $qtd_da_reposicao = $reposicao['quantidade'];
 
-        // Pega o produto e sua quantidade e seu ID
-        $produto = $this->produto_model->where('id_produto', $reposicao['id_produto'])->first();
-        $id_produto = $produto['id_produto'];
-        $qtd_do_produto = $produto['quantidade'];
-
-        // Tira da quantidade do produto a quantidade da reposição
-        $qtd = $qtd_do_produto - $qtd_da_reposicao;
-        
-        // Atualiza o produto com a nova quantidae
-        $this->produto_model->set('quantidade', $qtd)->where('id_produto', $id_produto)->update();
-        // --------------------------------------------------------------------------------- //
-
-        // Remove a reposição
-        $this->reposicao_model->where('id_reposicao', $id_reposicao)->delete();
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_delete');
-
-        return redirect()->to('/reposicoes');
+        try {
+            $motivo = $this->request->getPost('motivo');
+            (new ConsumoAtendimento())->estornarManual((int) $id_reposicao, (int) session()->get('id_login'), is_string($motivo) ? $motivo : '', true);
+        } catch (InvalidArgumentException $exception) {
+            return redirect()->to('/reposicoes')->with('erros_estoque', [$exception->getMessage()]);
+        } catch (Throwable $exception) {
+            log_message('error', 'Falha ao estornar movimentação: ' . $exception->getMessage());
+            return redirect()->to('/reposicoes')->with('erros_estoque', ['Não foi possível estornar a movimentação.']);
+        }
+        return redirect()->to('/reposicoes')->with('alert', 'success_estorno');
     }
 }

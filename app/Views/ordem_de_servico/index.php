@@ -9,6 +9,7 @@
                 </button>
             </div>
             <form action="/ordensDeServicos/alteraSituacaoDaOrdemDeServicos" method="post">
+                <?= csrf_field() ?>
                 <div class="modal-body">
                     <div class="row">
                         <div class="col-lg-12">
@@ -158,7 +159,7 @@
                                 <th>Entrada</th>
                                 <th>Saída</th>
                                 <th>Situação</th>
-                                <th class="no-print" style="width: 160px">Ações</th>
+                                <th class="no-print" style="width: 120px">Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -186,7 +187,6 @@
                                             <a href="/ordensDeServicos/show/<?= $ordem['id_ordem'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                             <button type="button" class="btn btn-success style-action" onclick="alteraSituacaoDaOS(<?= $ordem['id_ordem'] ?>)" data-toggle="modal" data-target="#modal-altera-situacao"><i class="fas fa-check-circle"></i></button>
                                             <a href="/ordensDeServicos/edit/<?= $ordem['id_ordem'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
-                                            <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir essa ordem de serviço?', '/ordensDeServicos/delete/<?= $ordem['id_ordem'] ?>')"><i class="fa fa-trash"></i></button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

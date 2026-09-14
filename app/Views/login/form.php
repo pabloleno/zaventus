@@ -3,7 +3,7 @@
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
-            <form action="/login/store" method="post">
+            <form action="/login/store" method="post" enctype="multipart/form-data">
                 <?= csrf_field() ?>
                 <div class="card">
                     <div class="card-header">
@@ -28,6 +28,7 @@
                     <!-- /.card-header -->
                     <div class="card-body">
                         <div class="row">
+                            <?= view('components/foto_cadastro', ['foto' => $usuario['foto'] ?? '', 'editavel' => true]) ?>
                             <div class="col-lg-4">
                                 <div class="form-group">
                                     <label for="">Primeiro Nome</label>
@@ -85,54 +86,12 @@
                         <?php if(isset($usuario)): ?>
                             <div class="row">
                                 <div class="col-lg-3" style="border: 1px solid lightgrey;">
-                                    <label style="margin-top: 10px">VENDAS</label>
+                                    <label style="margin-top: 10px">COMERCIAL E SERVIÇOS</label>
                                     <input type="checkbox" id="modulo_de_vendas" name="modulo_vendas" <?= ($controle_de_acesso->vendas->modulo == 1) ? "checked" : "" ?> onclick="desabilitaModuloVendas()">
 
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Venda Rápida</label>
-                                            <select class="form-control" id="venda_rapida" name="venda_rapida" <?= (!$controle_de_acesso->vendas->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->vendas->venda_rapida == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">PDV</label>
-                                            <select class="form-control" id="pdv" name="pdv" <?= (!$controle_de_acesso->vendas->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->vendas->pdv == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Pesq. Produto</label>
-                                            <select class="form-control" id="pesq_produto" name="pesq_produto" <?= (!$controle_de_acesso->vendas->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->vendas->pesq_produto == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Hist. de Vendas</label>
+                                            <label for="">Orçamentos, OS e histórico</label>
                                             <select class="form-control" id="hist_de_vendas" name="hist_de_vendas" <?= (!$controle_de_acesso->vendas->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->vendas->hist_de_vendas == 1): ?>
                                                     <option value="1" selected>Sim</option>
@@ -224,7 +183,7 @@
 
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Produtos</label>
+                                            <label for="">Matérias-primas</label>
                                             <select class="form-control" id="produtos" name="produtos" <?= (!$controle_de_acesso->estoque->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->estoque->produtos == 1): ?>
                                                     <option value="1" selected>Sim</option>
@@ -252,7 +211,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Saída de Mercadorias</label>
+                                            <label for="">Saída de materiais</label>
                                             <select class="form-control" id="saida_de_mercadorias" name="saida_de_mercadorias" <?= (!$controle_de_acesso->estoque->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->estoque->saida_de_mercadorias == 1): ?>
                                                     <option value="1" selected>Sim</option>
@@ -266,7 +225,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Categorias do Produto</label>
+                                            <label for="">Categorias de materiais</label>
                                             <select class="form-control" id="categorias_do_produto" name="categorias_do_produto" <?= (!$controle_de_acesso->estoque->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->estoque->categorias_do_produto == 1): ?>
                                                     <option value="1" selected>Sim</option>
@@ -433,34 +392,6 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Orçamentos</label>
-                                            <select class="form-control" id="orcamentos" name="orcamentos" <?= (!$controle_de_acesso->financeiro->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->financeiro->orcamentos == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Pedidos</label>
-                                            <select class="form-control" id="pedidos" name="pedidos" <?= (!$controle_de_acesso->financeiro->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->financeiro->pedidos == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
                                             <label for="">Relatório DRE</label>
                                             <select class="form-control" id="relatorio_dre" name="relatorio_dre" <?= (!$controle_de_acesso->financeiro->modulo == 1) ? "disabled" : "" ?>>
                                                 <?php if($controle_de_acesso->financeiro->relatorio_dre == 1): ?>
@@ -487,54 +418,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Controle Fiscal</label>
-                                            <select class="form-control" id="controle_fiscal" name="controle_fiscal" <?= (!$controle_de_acesso->financeiro->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->financeiro->controle_fiscal == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div class="col-lg-3" style="border: 1px solid lightgrey;">
                                     <label style="margin-top: 10px">CONFIGS</label>
                                     <input type="checkbox" id="modulo_configs" name="modulo_configs" <?= ($controle_de_acesso->configs->modulo == 1) ? "checked" : "" ?> onclick="AcoesModuloConfigs()">
 
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">NFe</label>
-                                            <select class="form-control" id="nfe" name="nfe" <?= (!$controle_de_acesso->configs->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->configs->nfe == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">NFCe</label>
-                                            <select class="form-control" id="nfce" name="nfce" <?= (!$controle_de_acesso->configs->modulo == 1) ? "disabled" : "" ?>>
-                                                <?php if($controle_de_acesso->configs->nfce == 1): ?>
-                                                    <option value="1" selected>Sim</option>
-                                                    <option value="0">Não</option>
-                                                <?php else: ?>
-                                                    <option value="1">Sim</option>
-                                                    <option value="0" selected>Não</option>
-                                                <?php endif; ?>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="">Empresa</label>
@@ -610,39 +499,12 @@
                         <?php else: ?>
                             <div class="row">
                                 <div class="col-lg-3" style="border: 1px solid lightgrey;">
-                                    <label style="margin-top: 10px">VENDAS</label>
+                                    <label style="margin-top: 10px">COMERCIAL E SERVIÇOS</label>
                                     <input type="checkbox" id="modulo_de_vendas" name="modulo_vendas" checked onclick="desabilitaModuloVendas()">
 
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Venda Rápida</label>
-                                            <select class="form-control" id="venda_rapida" name="venda_rapida">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">PDV</label>
-                                            <select class="form-control" id="pdv" name="pdv">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Pesq. Produto</label>
-                                            <select class="form-control" id="pesq_produto" name="pesq_produto">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Hist. de Vendas</label>
+                                            <label for="">Orçamentos, OS e histórico</label>
                                             <select class="form-control" id="hist_de_vendas" name="hist_de_vendas">
                                                 <option value="1">Sim</option>
                                                 <option value="0">Não</option>
@@ -708,7 +570,7 @@
 
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Produtos</label>
+                                            <label for="">Matérias-primas</label>
                                             <select class="form-control" id="produtos" name="produtos">
                                                 <option value="1">Sim</option>
                                                 <option value="0">Não</option>
@@ -726,7 +588,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Saída de Mercadorias</label>
+                                            <label for="">Saída de materiais</label>
                                             <select class="form-control" id="saida_de_mercadorias" name="saida_de_mercadorias">
                                                 <option value="1">Sim</option>
                                                 <option value="0">Não</option>
@@ -735,7 +597,7 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Categorias do Produto</label>
+                                            <label for="">Categorias de materiais</label>
                                             <select class="form-control" id="categorias_do_produto" name="categorias_do_produto">
                                                 <option value="1">Sim</option>
                                                 <option value="0">Não</option>
@@ -847,24 +709,6 @@
                                     </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
-                                            <label for="">Orçamentos</label>
-                                            <select class="form-control" id="orcamentos" name="orcamentos">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Pedidos</label>
-                                            <select class="form-control" id="pedidos" name="pedidos">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
                                             <label for="">Relatório DRE</label>
                                             <select class="form-control" id="relatorio_dre" name="relatorio_dre">
                                                 <option value="1">Sim</option>
@@ -881,39 +725,12 @@
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">Controle Fiscal</label>
-                                            <select class="form-control" id="controle_fiscal" name="controle_fiscal">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                 </div>
 
                                 <div class="col-lg-3" style="border: 1px solid lightgrey;">
                                     <label style="margin-top: 10px">CONFIGS</label>
                                     <input type="checkbox" id="modulo_configs" name="modulo_configs" checked onclick="AcoesModuloConfigs()">
 
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">NFe</label>
-                                            <select class="form-control" id="nfe" name="nfe">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-12">
-                                        <div class="form-group">
-                                            <label for="">NFCe</label>
-                                            <select class="form-control" id="nfce" name="nfce">
-                                                <option value="1">Sim</option>
-                                                <option value="0">Não</option>
-                                            </select>
-                                        </div>
-                                    </div>
                                     <div class="col-lg-12">
                                         <div class="form-group">
                                             <label for="">Empresa</label>
@@ -988,16 +805,10 @@
     {
         if(document.getElementById('modulo_de_vendas').checked)
         {
-            document.getElementById('venda_rapida').disabled = false;
-            document.getElementById('pdv').disabled = false;
-            document.getElementById('pesq_produto').disabled = false;
             document.getElementById('hist_de_vendas').disabled = false;
         }
         else
         {
-            document.getElementById('venda_rapida').disabled = true;
-            document.getElementById('pdv').disabled = true;
-            document.getElementById('pesq_produto').disabled = true;
             document.getElementById('hist_de_vendas').disabled = true;
         }
     }
@@ -1060,11 +871,8 @@
 
             document.getElementById('contas_a_pagar').disabled = false;
             document.getElementById('contas_a_receber').disabled = false;
-            document.getElementById('orcamentos').disabled = false;
-            document.getElementById('pedidos').disabled = false;
             document.getElementById('relatorio_dre').disabled = false;
             document.getElementById('inventario_do_estoque').disabled = false;
-            document.getElementById('controle_fiscal').disabled = false;
         }
         else
         {
@@ -1075,11 +883,8 @@
 
             document.getElementById('contas_a_pagar').disabled = true;
             document.getElementById('contas_a_receber').disabled = true;
-            document.getElementById('orcamentos').disabled = true;
-            document.getElementById('pedidos').disabled = true;
             document.getElementById('relatorio_dre').disabled = true;
             document.getElementById('inventario_do_estoque').disabled = true;
-            document.getElementById('controle_fiscal').disabled = true;
         }
     }
 
@@ -1111,8 +916,6 @@
     {
         if(document.getElementById('modulo_configs').checked)
         {
-            document.getElementById('nfe').disabled = false;
-            document.getElementById('nfce').disabled = false;
             document.getElementById('empresa').disabled = false;
             document.getElementById('sistema').disabled = false;
             document.getElementById('desenvolvedor').disabled = false;
@@ -1121,8 +924,6 @@
         }
         else
         {
-            document.getElementById('nfe').disabled = true;
-            document.getElementById('nfce').disabled = true;
             document.getElementById('empresa').disabled = true;
             document.getElementById('sistema').disabled = true;
             document.getElementById('desenvolvedor').disabled = true;

@@ -61,8 +61,8 @@ class SystemSettings implements FilterInterface
         $defaults = [
             'idioma'       => $options->defaultLanguage,
             'fuso_horario' => $options->defaultTimezone,
-            'favicon'       => 'favicon.ico',
-            'logo_login'    => 'assets/img/zaventus-login-marca.png',
+            'favicon'       => 'assets/img/favicon-cmy-7f5ab7a5892e.png',
+            'logo_login'    => 'assets/img/zaventus-logo-completa-353079a01cd5.png',
             'finalizacao_pdv' => 'cupom_nao_fiscal',
         ];
 

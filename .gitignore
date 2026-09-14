@@ -56,15 +56,20 @@ writable/logs/*
 
 writable/session/*
 !writable/session/index.html
+writable/session-qa/
 
 writable/uploads/*
 !writable/uploads/index.html
+writable/backup_mysql/*
+!writable/backup_mysql/.gitkeep
 public/assets/temp_baixar_xmls/*
 !public/assets/temp_baixar_xmls/.gitkeep
 public/uploads/personalizacao/*
 !public/uploads/personalizacao/.gitkeep
 public/uploads/cadastros/*
 !public/uploads/cadastros/.gitkeep
+# Imagens cadastradas sao dados operacionais. Mantemos apenas o placeholder.
+public/assets/img/produtos/[0-9]*
 
 writable/debugbar/*
 
@@ -82,6 +87,7 @@ user_guide_src/cilexer/pycilexer.egg-info/*
 # Test Files
 #-------------------------
 tests/coverage*
+.phpunit.cache/
 
 # Don't save phpunit under version control.
 phpunit
@@ -90,7 +96,6 @@ phpunit
 # Composer
 #-------------------------
 vendor/
-composer.lock
 
 #-------------------------
 # IDE / Development Files

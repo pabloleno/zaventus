@@ -40,9 +40,9 @@
                                 <tbody>
                                     <?php foreach ($produtos_do_inventario as $produto) : ?>
                                         <tr>
-                                            <td><?= $produto['discriminacao'] ?></td>
-                                            <td><?= $produto['unidade'] ?></td>
-                                            <td><?= $produto['quantidade'] ?></td>
+                                            <td><?= esc($produto['discriminacao']) ?></td>
+                                            <td><?= esc($produto['unidade']) ?></td>
+                                            <td><?= esc($produto['quantidade']) ?></td>
                                             <td><?= number_format($produto['valor_unitario'], 2, ',', '.') ?></td>
                                             <td>
                                                 <a href="/inventarioDoEstoque/editProduto/<?= $id_inventario ?>/<?= $produto['id_produto_do_inventario'] ?>" class="btn btn-warning style-action"><i class="fas fa-edit"></i></a>

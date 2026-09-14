@@ -2,12 +2,8 @@
 
 namespace App\Controllers;
 
-use App\Models\ConfigEmpresaModel;
 use App\Models\VendedorModel;
 use App\Models\ClienteModel;
-use App\Models\ConfigNFeNFCeModel;
-use App\Models\NFeModel;
-use App\Models\NFCeModel;
 use App\Models\ProdutoDaVendaModel;
 use App\Models\VendaModel;
 use CodeIgniter\Controller;
@@ -16,13 +12,9 @@ class Vendas extends Controller
 {
     private $links;
 
-    private $config_empresa_model;
     private $vendedor_model;
     private $venda_model;
     private $produtos_da_venda;
-    private $nfe_model;
-    private $nfce_model;
-    private $config_nfe_nfce_model;
     private $cliente_model;
 
     /**
@@ -36,13 +28,9 @@ class Vendas extends Controller
             'subItem' => '2.4'
         ];
 
-        $this->config_empresa_model  = new ConfigEmpresaModel();
         $this->vendedor_model        = new VendedorModel();
         $this->venda_model           = new VendaModel();
         $this->produtos_da_venda     = new ProdutoDaVendaModel();
-        $this->nfe_model             = new NFeModel();
-        $this->nfce_model            = new NFCeModel();
-        $this->config_nfe_nfce_model = new ConfigNFeNFCeModel();
         $this->cliente_model         = new ClienteModel();
     }
 
@@ -158,8 +146,6 @@ class Vendas extends Controller
             ['titulo' => "Dados", 'rota'   => "", 'active' => true]
         ];
 
-        $data['empresa'] = $this->config_empresa_model->where('id_config', 1)->first();
-
         $data['venda'] = $this->venda_model->where('id_venda', $id_venda)->first();
 
         // Adiciona um elemento 'nome_do_cliente' e 'nome_do_vendedor' ao array associativo vendas
@@ -167,11 +153,6 @@ class Vendas extends Controller
         $data['venda']['nome_do_vendedor'] = $this->vendedor_model->where('id_vendedor', $data['venda']['id_vendedor'])->first()['nome'];
         
         $data['produtos_da_venda'] = $this->produtos_da_venda->where('id_venda', $id_venda)->findAll();
-
-        $data['config_nfe_nfce'] = $this->config_nfe_nfce_model->where('id_config', 1)->first();
-
-        $data['nfe_da_venda'] = $this->nfe_model->where('id_venda', $id_venda)->first();
-        $data['nfce_da_venda'] = $this->nfce_model->where('id_venda', $id_venda)->first();
 
         echo view('templates/header');
         echo view('vendas/show', $data);

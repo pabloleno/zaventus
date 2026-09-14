@@ -4,7 +4,10 @@ namespace App\Controllers;
 
 use App\Models\ProdutoModel;
 use App\Models\SaidaDeMercadoriaModel;
+use App\Libraries\ConsumoAtendimento;
 use CodeIgniter\Controller;
+use InvalidArgumentException;
+use Throwable;
 
 class SaidaDeMercadorias extends Controller
 {
@@ -44,7 +47,7 @@ class SaidaDeMercadorias extends Controller
             ['titulo' => "Saída de Mercadorias", 'rota'   => "", 'active' => true]
         ];
 
-        $data['saida_de_mercadorias'] = $this->saida_de_mercadoria_model->select('id_saida, nome, saida_de_mercadorias.quantidade as qtd_da_saida, data, hora, observacoes')->join('produtos', 'produtos.id_produto = saida_de_mercadorias.id_produto')->findAll();
+        $data['saida_de_mercadorias'] = $this->saida_de_mercadoria_model->select('saida_de_mercadorias.*, produtos.nome, produtos.unidade, saida_de_mercadorias.quantidade as qtd_da_saida')->join('produtos', 'produtos.id_produto = saida_de_mercadorias.id_produto')->findAll();
 
         echo view('templates/header');
         echo view('saida_de_mercadorias/index', $data);
@@ -69,7 +72,7 @@ class SaidaDeMercadorias extends Controller
             ['titulo' => "Nova", 'rota'   => "", 'active' => true]
         ];
 
-        $data['produtos'] = $this->produto_model->findAll();
+        $data['produtos'] = $this->produto_model->where('ativo', 1)->findAll();
 
         echo view('templates/header');
         echo view('saida_de_mercadorias/create', $data);
@@ -81,57 +84,40 @@ class SaidaDeMercadorias extends Controller
      */
     public function store()
     {
-        $dados = $this->request->getvar();
-        $this->saida_de_mercadoria_model->save($dados);
-
-        // --------------------------- ATUALIZA A QUANTIDADE DO PRODUTO ------------------------------- //
-        $qtd_saida = $dados['quantidade'];
-        $id_produto = $dados['id_produto'];
-
-        // Pega o produto pelo seu ID
-        $produto = $this->produto_model->select('quantidade')->where('id_produto', $id_produto)->first();
-
-        // Tira da quantidade do produto a quantidade da saída
-        $qtd = $produto['quantidade'] - $qtd_saida;
-
-        // Atualiza a quantidade do produto com a nova quantidade
-        $this->produto_model->set('quantidade', $qtd)->where('id_produto', $id_produto)->update();
-        // ------------------------------------------------------------------------------------------ //
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_create');
-
-        return redirect()->to('/saidaDeMercadorias');
+        $dados = $this->request->getPost();
+        if (! empty($dados['id_saida'])) {
+            $saida = is_scalar($dados['id_saida']) ? $this->saida_de_mercadoria_model->find($dados['id_saida']) : null;
+            if (! empty($saida['id_ordem'])) {
+                return redirect()->to('/ordensDeServicos/show/' . (int) $saida['id_ordem']);
+            }
+            return redirect()->to('/saidaDeMercadorias')->with('erros_estoque', ['Para corrigir uma saída, estorne o registro e cadastre uma nova saída.']);
+        }
+        try {
+            (new ConsumoAtendimento())->registrarManual($dados, (int) session()->get('id_login'), false);
+        } catch (InvalidArgumentException $exception) {
+            return redirect()->back()->withInput()->with('erros_estoque', [$exception->getMessage()]);
+        } catch (Throwable $exception) {
+            log_message('error', 'Falha ao registrar movimentação: ' . $exception->getMessage());
+            return redirect()->back()->withInput()->with('erros_estoque', ['Não foi possível registrar a movimentação.']);
+        }
+        return redirect()->to('/saidaDeMercadorias')->with('alert', 'success_create');
     }
 
-    /**
-     * Remove o registro solicitado e retorna para a listagem.
-     */
     public function delete($id_saida)
     {
-        // ----------------- DEVOLTE A QUANTIDADE DA SAÍDA PARA O PRODUTO -------------------- // 
-        // Pega a reposição e sua quantidade
-        $saida = $this->saida_de_mercadoria_model->where('id_saida', $id_saida)->first();
-        $qtd_da_saida = $saida['quantidade'];
-
-        // Pega o produto e sua quantidade e seu ID
-        $produto = $this->produto_model->where('id_produto', $saida['id_produto'])->first();
-        $id_produto = $produto['id_produto'];
-        $qtd_do_produto = $produto['quantidade'];
-
-        // Adiciona a quantidade da saída a quantidade do produto
-        $qtd = $qtd_do_produto + $qtd_da_saida;
-
-        // Atualiza o produto com a nova quantidae
-        $this->produto_model->set('quantidade', $qtd)->where('id_produto', $id_produto)->update();
-        // --------------------------------------------------------------------------------- //
-
-        // Remove a saída
-        $this->saida_de_mercadoria_model->where('id_saida', $id_saida)->delete();
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_delete');
-
-        return redirect()->to('/saidaDeMercadorias');
+        $saida = $this->saida_de_mercadoria_model->find($id_saida);
+        if (! empty($saida['id_ordem'])) {
+            return redirect()->to('/ordensDeServicos/show/' . (int) $saida['id_ordem']);
+        }
+        try {
+            $motivo = $this->request->getPost('motivo');
+            (new ConsumoAtendimento())->estornarManual((int) $id_saida, (int) session()->get('id_login'), is_string($motivo) ? $motivo : '', false);
+        } catch (InvalidArgumentException $exception) {
+            return redirect()->to('/saidaDeMercadorias')->with('erros_estoque', [$exception->getMessage()]);
+        } catch (Throwable $exception) {
+            log_message('error', 'Falha ao estornar movimentação: ' . $exception->getMessage());
+            return redirect()->to('/saidaDeMercadorias')->with('erros_estoque', ['Não foi possível estornar a movimentação.']);
+        }
+        return redirect()->to('/saidaDeMercadorias')->with('alert', 'success_estorno');
     }
 }

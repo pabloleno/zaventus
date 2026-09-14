@@ -1,6 +1,6 @@
 <?php
-$favicon = trim((string) ($empresa['favicon'] ?? '')) ?: 'favicon.ico';
-$logo_login = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-login-marca.png';
+$favicon = trim((string) ($empresa['favicon'] ?? '')) ?: 'assets/img/favicon-cmy-7f5ab7a5892e.png';
+$logo_login = trim((string) ($empresa['logo_login'] ?? '')) ?: 'assets/img/zaventus-logo-completa-353079a01cd5.png';
 $nome_sistema = lang('App.appName');
 ?>
 <!DOCTYPE html>
@@ -37,7 +37,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="<?= base_url('assets/js/tema-cor.js?v=' . filemtime(FCPATH . 'assets/js/tema-cor.js')) ?>"></script>
     <style>
         .login-page .zaventus-login-logo{
-            margin-bottom: 18px;
+            margin-bottom: 24px;
             text-align: center;
             width: 100%;
         }
@@ -46,18 +46,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
             display: block;
             height: auto;
             margin: 0 auto;
-            max-width: 150px;
-            width: 42%;
-        }
-
-        .login-page .zaventus-login-logo .zaventus-login-title{
-            color: #1f2937;
-            display: block;
-            font-size: 24px;
-            font-weight: 700;
-            line-height: 1.2;
-            margin-top: 10px;
-            text-align: center;
+            max-width: 360px;
+            width: 100%;
         }
     </style>
     <!-- Google Font: Source Sans Pro -->
@@ -77,7 +67,6 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <div class="login-box">
         <div class="login-logo zaventus-login-logo">
             <img class="zaventus-login-mark" src="<?= esc(base_url($logo_login)) ?>" alt="<?= esc($nome_sistema) ?>">
-            <strong class="zaventus-login-title"><?= esc($nome_sistema) ?></strong>
         </div>
         <!-- /.login-logo -->
         <div class="card">

@@ -11,8 +11,15 @@ class SaidaDeMercadoriaModel extends PadraoModel
         'data',
         'hora',
         'quantidade',
-        'obervacoes',
-        'id_produto'
+        'observacoes',
+        'id_produto',
+        'id_ordem',
+        'id_servico_os',
+        'created_by',
+        'estornado_at',
+        'estornado_by',
+        'estorno_motivo',
+        'chave_operacao',
     ];
     protected $useTimestamps = true;
     protected $createdField  = 'created_at';

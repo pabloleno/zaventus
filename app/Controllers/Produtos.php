@@ -3,6 +3,13 @@
 namespace App\Controllers;
 
 use App\Libraries\UploadSecurityPolicy;
+use App\Libraries\ConsumoAtendimento;
+use App\Libraries\OrcamentoCalculo;
+use CodeIgniter\Exceptions\PageNotFoundException;
+use DateTimeImmutable;
+use InvalidArgumentException;
+use RuntimeException;
+use Throwable;
 use App\Models\ReposicaoModel;
 use App\Models\ProvisorioReposicaoProdutosPorXmlModel;
 use App\Models\ProvisorioAddProdutoPorXmlModel;
@@ -52,7 +59,7 @@ class Produtos extends Controller
         $data['links'] = $this->links;
 
         $data['titulo'] = [
-            'modulo' => 'Produtos',
+            'modulo' => 'Matérias-primas',
             'icone'  => 'fa fa-box-open'
         ];
 
@@ -156,15 +163,16 @@ class Produtos extends Controller
                 valor_de_custo,
                 valor_de_venda,
                 lucro, arquivo,
-                NCM,
-                CSOSN,
-                CFOP,
-                validade
+                validade, produtos.ativo, produtos.observacoes
             ')
             ->join('categorias_dos_produtos', 'categorias_dos_produtos.id_categoria = produtos.id_categoria')
             ->join('fornecedores', 'fornecedores.id_fornecedor = produtos.id_fornecedor')
             ->where('produtos.id_produto', $id_produto)
             ->first();
+
+        if (empty($data['produto'])) {
+            throw PageNotFoundException::forPageNotFound('Matéria-prima não encontrada.');
+        }
 
         echo view('templates/header');
         echo view('produtos/show', $data);
@@ -216,6 +224,9 @@ class Produtos extends Controller
         ];
 
         $data['produto'] = $this->produto_model->where('id_produto', $id_produto)->first();
+        if (empty($data['produto'])) {
+            throw PageNotFoundException::forPageNotFound('Matéria-prima não encontrada.');
+        }
         $data['categorias'] = $this->categoria_model->findAll();
         $data['fornecedores'] = $this->fornecedor_model->findAll();
 
@@ -229,58 +240,83 @@ class Produtos extends Controller
      */
     public function store()
     {
-        $file = $this->request->getFile('arquivo');
-        $dados = $this->request->getvar();
-        $preparo = prepara_campos_padrao($dados);
-
-        if (! empty($preparo['erros'])) {
-            return redireciona_erros_campos_padrao($preparo['erros']);
+        $entrada = $this->request->getPost();
+        $db = db_connect();
+        $arquivoNovo = null;
+        $anterior = null;
+        if (! $db->transBegin()) {
+            return redirect()->back()->withInput()->with('erros_material', ['Não foi possível iniciar o cadastro.']);
         }
-
-        $dados = $preparo['dados'];
-
-        if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE)
-        {
-            $errosUpload = $this->upload_policy->validateProductImage($file);
-
-            if (! empty($errosUpload)) {
-                session()->setFlashdata('errors', $errosUpload);
-
-                return redirect()->back()->withInput();
-            }
-
-            if(isset($dados['id_produto'])) // Se a ação for editar, e se foi selecionado uma foto para trocar, então remove a que já existe e cadastra a nova
-            {
-                $produto = $this->produto_model->where('id_produto', $dados['id_produto'])->first();
-                if($produto['arquivo'] != "")
-                {
-                    $arquivo_antigo = FCPATH . 'assets/img/produtos/' . basename((string) $produto['arquivo']);
-
-                    if(is_file($arquivo_antigo))
-                    {
-                        unlink($arquivo_antigo);
-                    }
+        try {
+            $id = $entrada['id_produto'] ?? '';
+            if ($id !== '') {
+                $id = $this->idMaterial($id);
+                $sql = $db->table('produtos')->where('id_produto', $id)->getCompiledSelect();
+                $anterior = $db->query($sql . ' FOR UPDATE')->getRowArray();
+                if ($anterior === null) {
+                    throw new InvalidArgumentException('Matéria-prima não encontrada.');
                 }
             }
-
-            $name = $file->getRandomName();
-            $file->move(FCPATH . 'assets/img/produtos', $name);
-
-            $dados['arquivo'] = $name;
+            $dados = $this->dadosMaterial($entrada, $anterior);
+            $saldoAtual = $anterior === null ? '0.0000' : OrcamentoCalculo::decimal($anterior['quantidade']);
+            $saldoDesejado = $dados['quantidade'];
+            if ($anterior !== null && bccomp(OrcamentoCalculo::decimal($entrada['quantidade_original'] ?? ''), $saldoAtual, 4) !== 0) {
+                throw new InvalidArgumentException('O saldo mudou desde a abertura do formulário. Reabra o material antes de salvar.');
+            }
+            if ($anterior !== null && $dados['unidade'] !== $anterior['unidade'] && bccomp($saldoAtual, '0', 4) !== 0) {
+                throw new InvalidArgumentException('A unidade de um material com saldo não pode ser alterada sem ajustar o estoque antes.');
+            }
+            $ativoFinal = (int) $dados['ativo'];
+            $dados['ativo'] = max($ativoFinal, (int) ($anterior['ativo'] ?? 0));
+            $dados['quantidade'] = $saldoAtual;
+            $dados['arquivo'] = $anterior['arquivo'] ?? '';
+            foreach (['NCM', 'CSOSN', 'CFOP'] as $fiscal) {
+                $dados[$fiscal] = $anterior[$fiscal] ?? '';
+            }
+            if ($anterior !== null) {
+                $dados['id_produto'] = $anterior['id_produto'];
+            }
+            $file = $this->request->getFile('arquivo');
+            if ($file instanceof UploadedFile && $file->getError() !== UPLOAD_ERR_NO_FILE) {
+                $erros = $this->upload_policy->validateProductImage($file);
+                if ($erros !== []) {
+                    throw new InvalidArgumentException(implode(' ', $erros));
+                }
+                $arquivoNovo = $file->getRandomName();
+                $file->move(FCPATH . 'assets/img/produtos', $arquivoNovo);
+                $dados['arquivo'] = $arquivoNovo;
+            }
+            if (! $this->produto_model->save($dados)) {
+                throw new RuntimeException('Não foi possível salvar o material.');
+            }
+            $idProduto = (int) ($anterior['id_produto'] ?? $this->produto_model->getInsertID());
+            $diferenca = bcsub($saldoDesejado, $saldoAtual, 4);
+            if (bccomp($diferenca, '0', 4) !== 0) {
+                $reposicao = bccomp($diferenca, '0', 4) > 0;
+                (new ConsumoAtendimento($db))->registrarManual([
+                    'id_produto' => $idProduto, 'quantidade' => ltrim($diferenca, '-'),
+                    'observacoes' => $anterior === null ? 'Saldo inicial do cadastro do material.' : 'Ajuste de saldo no cadastro do material.',
+                    'chave_operacao' => bin2hex(random_bytes(16)),
+                ], (int) session()->get('id_login'), $reposicao);
+            }
+            if (! $this->produto_model->update($idProduto, ['ativo' => $ativoFinal]) || ! $db->transStatus() || ! $db->transCommit()) {
+                throw new RuntimeException('Não foi possível concluir o cadastro do material.');
+            }
+        } catch (Throwable $exception) {
+            $db->transRollback();
+            $this->apagarImagemMaterial($arquivoNovo);
+            if (! $exception instanceof InvalidArgumentException) {
+                log_message('error', 'Falha ao salvar matéria-prima: ' . $exception->getMessage());
+            }
+            return redirect()->back()->withInput()->with('erros_material', [
+                $exception instanceof InvalidArgumentException ? $exception->getMessage() : 'Não foi possível salvar o material. Tente novamente.',
+            ]);
         }
-
-        $this->produto_model->save($dados);
-
-        $session = session();
-        // Caso a ação seja editar
-        if(isset($dados['id_produto']))
-        {
-            $session->setFlashdata('alert', 'success_edit');
-            return redirect()->to("/produtos/edit/{$dados['id_produto']}");
+        if ($arquivoNovo !== null) {
+            $this->apagarImagemMaterial($anterior['arquivo'] ?? null);
         }
-
-        $session->setFlashdata('alert', 'success_create');
-        return redirect()->to('/produtos');
+        return redirect()->to($anterior === null ? '/produtos' : '/produtos/edit/' . $idProduto)
+            ->with('alert', $anterior === null ? 'success_create' : 'success_edit');
     }
 
     // -------------------------- CADASTRO DE PRODUTOS POR XML ------------------------------------ //
@@ -576,34 +612,95 @@ class Produtos extends Controller
      */
     public function delete($id_produto)
     {
-        $this->produto_model->where('id_produto', $id_produto)->delete();
-
-        $session = session();
-        $session->setFlashdata('alert', 'success_delete');
-
-        return redirect()->to('/produtos');
+        if (! $this->produto_model->find($id_produto)) {
+            throw PageNotFoundException::forPageNotFound('Matéria-prima não encontrada.');
+        }
+        if (! $this->produto_model->update($id_produto, ['ativo' => 0])) {
+            return redirect()->to('/produtos')->with('erros_material', ['Não foi possível inativar o material.']);
+        }
+        return redirect()->to('/produtos')->with('alert', 'success_inactivate');
     }
 
-    /**
-     * Remove imagem.
-     */
     public function removerImagem($id_produto)
     {
-        $produto = $this->produto_model->where('id_produto', $id_produto)->first();
-        $foto = $produto['arquivo'];
-        $arquivo = FCPATH . "assets/img/produtos/$foto";
-
-        $session = session();
-        if($foto != "" && is_file($arquivo) && unlink($arquivo))
-        {
-            $this->produto_model->set('arquivo', "")->where('id_produto', $id_produto)->update();
-
-            $session->setFlashdata('alert', 'success_remove_image');
-            return redirect()->to("/produtos/edit/$id_produto");
+        $produto = $this->produto_model->find($id_produto);
+        if ($produto === null) {
+            throw PageNotFoundException::forPageNotFound('Matéria-prima não encontrada.');
         }
+        if (! $this->produto_model->update($id_produto, ['arquivo' => ''])) {
+            return redirect()->to('/produtos/edit/' . (int) $id_produto)->with('erros_material', ['Não foi possível remover a imagem.']);
+        }
+        $this->apagarImagemMaterial($produto['arquivo'] ?? null);
+        return redirect()->to('/produtos/edit/' . (int) $id_produto)->with('alert', 'success_remove_image');
+    }
 
-        $session->setFlashdata('alert', 'error_remove_image');
+    private function dadosMaterial(array $entrada, ?array $anterior): array
+    {
+        $dados = [];
+        foreach (['nome' => 512, 'codigo_de_barras' => 13, 'localizacao' => 128, 'observacoes' => 4096, 'unidade' => 16] as $campo => $limite) {
+            $valor = $entrada[$campo] ?? '';
+            if (! is_string($valor) || mb_strlen(trim($valor)) > $limite) {
+                throw new InvalidArgumentException('O campo ' . $campo . ' deve conter até ' . $limite . ' caracteres.');
+            }
+            $dados[$campo] = trim($valor);
+        }
+        if ($dados['nome'] === '') {
+            throw new InvalidArgumentException('Informe o nome da matéria-prima.');
+        }
+        $unidades = ['un', 'folha', 'm', 'm²', 'ml', 'L', 'g', 'kg', 'UN', 'PCT', 'FRD'];
+        if (! in_array($dados['unidade'], $unidades, true) && $dados['unidade'] !== ($anterior['unidade'] ?? null)) {
+            throw new InvalidArgumentException('Selecione uma unidade de medida válida.');
+        }
+        foreach (['quantidade', 'quantidade_minima'] as $campo) {
+            $dados[$campo] = OrcamentoCalculo::decimal($entrada[$campo] ?? '');
+        }
+        foreach (['valor_de_custo', 'valor_de_venda'] as $campo) {
+            $dados[$campo] = OrcamentoCalculo::decimal($entrada[$campo] ?? '0', 2);
+        }
+        $dados['lucro'] = bcsub($dados['valor_de_venda'], $dados['valor_de_custo'], 2);
+        $margem = bccomp($dados['valor_de_custo'], '0', 2) > 0
+            ? bcdiv(bcmul($dados['lucro'], '100', 2), $dados['valor_de_custo'], 4) : '0';
+        $dados['margem_de_lucro'] = (str_starts_with($margem, '-') ? '-' : '') . OrcamentoCalculo::decimal(ltrim($margem, '-'), 2);
+        $dados['ativo'] = $entrada['ativo'] ?? '1';
+        if (! in_array($dados['ativo'], ['0', '1'], true)) {
+            throw new InvalidArgumentException('Selecione uma situação válida para o material.');
+        }
+        foreach (['id_categoria' => ['categorias_dos_produtos', 'id_categoria'], 'id_fornecedor' => ['fornecedores', 'id_fornecedor']] as $campo => [$tabela, $chave]) {
+            $dados[$campo] = $this->idMaterial($entrada[$campo] ?? null);
+            if (! db_connect()->table($tabela)->where($chave, $dados[$campo])->get()->getRowArray()) {
+                throw new InvalidArgumentException('Categoria ou fornecedor não encontrado.');
+            }
+        }
+        $validade = $entrada['validade'] ?? '';
+        if (! is_string($validade)) {
+            throw new InvalidArgumentException('Informe uma data de validade válida.');
+        }
+        if ($validade !== '' && $validade !== '0000-00-00') {
+            $data = DateTimeImmutable::createFromFormat('!Y-m-d', $validade);
+            if ($data === false || $data->format('Y-m-d') !== $validade) {
+                throw new InvalidArgumentException('Informe uma data de validade válida.');
+            }
+        }
+        $dados['validade'] = $validade === '' ? '0000-00-00' : $validade;
+        return $dados;
+    }
 
-        return redirect()->to("/produtos/edit/$id_produto");
+    private function idMaterial($valor): int
+    {
+        if (filter_var($valor, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 2147483647]]) === false) {
+            throw new InvalidArgumentException('Identificador de material, categoria ou fornecedor inválido.');
+        }
+        return (int) $valor;
+    }
+
+    private function apagarImagemMaterial(?string $arquivo): void
+    {
+        if ($arquivo === null || $arquivo === '' || basename($arquivo) !== $arquivo) {
+            return;
+        }
+        $caminho = FCPATH . 'assets/img/produtos/' . $arquivo;
+        if (is_file($caminho)) {
+            @unlink($caminho);
+        }
     }
 }

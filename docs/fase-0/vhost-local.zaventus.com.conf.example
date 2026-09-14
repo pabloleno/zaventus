@@ -1,0 +1,41 @@
+# Exemplo para C:/xampp/apache/conf/extra/httpd-vhosts.conf
+# Escolha o esquema canonico no .env antes de habilitar redirecionamentos.
+
+<VirtualHost *:80>
+    ServerName local.zaventus.com
+    ServerAdmin webmaster@local.zaventus.com
+    DocumentRoot "C:/xampp/htdocs/zaventus/public"
+
+    <Directory "C:/xampp/htdocs/zaventus/public">
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog "logs/local.zaventus.com-error.log"
+    CustomLog "logs/local.zaventus.com-access.log" combined
+
+    # Habilite somente se HTTPS for o esquema canonico e o certificado estiver
+    # confiavel na maquina:
+    # Redirect permanent / https://local.zaventus.com/
+</VirtualHost>
+
+# Bloco opcional. Requer mod_ssl e certificado com SAN local.zaventus.com.
+<VirtualHost *:443>
+    ServerName local.zaventus.com
+    ServerAdmin webmaster@local.zaventus.com
+    DocumentRoot "C:/xampp/htdocs/zaventus/public"
+
+    SSLEngine on
+    SSLCertificateFile "conf/ssl.crt/local.zaventus.com.crt"
+    SSLCertificateKeyFile "conf/ssl.key/local.zaventus.com.key"
+
+    <Directory "C:/xampp/htdocs/zaventus/public">
+        Options -Indexes +FollowSymLinks
+        AllowOverride All
+        Require all granted
+    </Directory>
+
+    ErrorLog "logs/local.zaventus.com-ssl-error.log"
+    CustomLog "logs/local.zaventus.com-ssl-access.log" combined
+</VirtualHost>

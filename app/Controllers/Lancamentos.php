@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\TipoNegocio;
+use App\Libraries\FaturamentoNegocio;
 use App\Models\CaixaModel;
 use App\Models\LancamentoModel;
 use CodeIgniter\Controller;
@@ -46,22 +47,22 @@ class Lancamentos extends Controller
             'data_final' => trim((string) ($dados['data_final'] ?? '')),
         ];
         $temFiltro = count(array_filter($filtros, static fn ($valor) => $valor !== '')) > 0;
-        $query = $this->lancamento_model->orderBy('id_lancamento', 'DESC');
+        $query = (new FaturamentoNegocio())->consultaLancamentos()->select('l.*')->orderBy('l.id_lancamento', 'DESC');
 
         if ($filtros['id_lancamento'] !== '') {
-            $query->where('id_lancamento', $filtros['id_lancamento']);
+            $query->where('l.id_lancamento', $filtros['id_lancamento']);
         }
         if ($filtros['tipo_negocio'] !== '' && $filtros['tipo_negocio'] !== TipoNegocio::TODOS) {
-            $query->where('tipo_negocio', TipoNegocio::normalizar($filtros['tipo_negocio']));
+            $query->where('l.tipo_negocio', TipoNegocio::normalizar($filtros['tipo_negocio']));
         }
         if ($filtros['data_inicio'] !== '') {
-            $query->where('data >=', $filtros['data_inicio']);
+            $query->where('l.data >=', $filtros['data_inicio']);
         }
         if ($filtros['data_final'] !== '') {
-            $query->where('data <=', $filtros['data_final']);
+            $query->where('l.data <=', $filtros['data_final']);
         }
 
-        $data['lancamentos'] = $query->findAll();
+        $data['lancamentos'] = $query->get()->getResultArray();
 
         if ($temFiltro) {
             $data += array_filter($filtros, static fn ($valor) => $valor !== '');
@@ -91,6 +92,9 @@ class Lancamentos extends Controller
      */
     public function edit($id_lancamento)
     {
+        if ($redirecionamento = $this->protegeVinculado($id_lancamento)) {
+            return $redirecionamento;
+        }
         $data = $this->dadosFormulario('Editar Lancamento', 'fa fa-edit');
         $data['lancamento'] = $this->lancamento_model->where('id_lancamento', $id_lancamento)->first();
 
@@ -105,6 +109,9 @@ class Lancamentos extends Controller
     public function store()
     {
         $dados = $this->request->getVar();
+        if (! empty($dados['id_lancamento']) && ($redirecionamento = $this->protegeVinculado($dados['id_lancamento']))) {
+            return $redirecionamento;
+        }
         $dados['tipo_negocio'] = TipoNegocio::normalizar($dados['tipo_negocio'] ?? null);
         $this->lancamento_model->save($dados);
 
@@ -118,6 +125,9 @@ class Lancamentos extends Controller
      */
     public function delete($id_lancamento)
     {
+        if ($redirecionamento = $this->protegeVinculado($id_lancamento)) {
+            return $redirecionamento;
+        }
         $this->lancamento_model->where('id_lancamento', $id_lancamento)->delete();
         session()->setFlashdata('alert', 'success_delete');
 
@@ -139,5 +149,16 @@ class Lancamentos extends Controller
             ],
             'tipos_negocio' => TipoNegocio::opcoes(),
         ];
+    }
+
+    private function protegeVinculado($id)
+    {
+        $lancamento = $this->lancamento_model->find($id);
+        if (empty($lancamento['id_recebimento'])) {
+            return null;
+        }
+        $recebimento = db_connect()->table('pagamentos_do_cliente')->where('id_pagamento', $lancamento['id_recebimento'])->get()->getRowArray();
+        session()->setFlashdata('errors', ['Este lancamento pertence a um recebimento. Consulte ou estorne pela ficha do atendimento.']);
+        return redirect()->to(! empty($recebimento['id_ordem']) ? '/ordensDeServicos/show/' . (int) $recebimento['id_ordem'] : '/lancamentos');
     }
 }

@@ -4,7 +4,7 @@
             <div class="alert alert-info integracao-pagamento-aviso">
                 <i class="fas fa-shield-alt"></i>
                 <strong>Diagnóstico seguro:</strong> o teste valida somente a autenticação por uma consulta de leitura.
-                Nenhuma cobrança é criada. O vínculo com produtos e serviços continua manual até existir um conector transacional homologado.
+                Nenhuma cobrança é criada. O vínculo com as vendas de serviços continua manual até existir um conector transacional homologado.
             </div>
 
             <div class="row">
@@ -27,7 +27,6 @@
 
                                 <div class="integracao-pagamento-resumo">
                                     <div><span>Vínculos</span><strong><?= (int) $integracao['formas_vinculadas'] ?></strong></div>
-                                    <div><span>Produtos</span><strong><?= (int) $integracao['formas_produtos'] ?></strong></div>
                                     <div><span>Serviços</span><strong><?= (int) $integracao['formas_servicos'] ?></strong></div>
                                 </div>
 
@@ -76,8 +75,6 @@
                             <thead>
                                 <tr>
                                     <th>Forma</th>
-                                    <th>tPag</th>
-                                    <th>Produtos</th>
                                     <th>Serviços</th>
                                     <th>Provedor</th>
                                 </tr>
@@ -86,9 +83,7 @@
                                 <?php foreach ($formas_de_pagamento as $forma) : ?>
                                     <tr>
                                         <td><?= esc($forma['nome']) ?></td>
-                                        <td><?= esc($forma['codigo_nfce']) ?></td>
-                                        <td><?= (int) $forma['disponivel_produtos'] === 1 ? 'Sim' : 'Não' ?></td>
-                                        <td><?= (int) $forma['disponivel_servicos'] === 1 ? 'Sim' : 'Não' ?></td>
+                                        <td>Sim</td>
                                         <td><?= esc($forma['integracao_nome'] ?? 'Manual / sem API') ?></td>
                                     </tr>
                                 <?php endforeach; ?>

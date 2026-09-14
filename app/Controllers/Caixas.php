@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Libraries\FaturamentoNegocio;
 use App\Models\CaixaModel;
 use App\Models\LancamentoModel;
 use App\Models\RetiradaModel;
@@ -150,14 +151,18 @@ class Caixas extends Controller
         ];
 
         $data['caixa']       = $this->caixa_model->where('id_caixa', $id_caixa)->first();
-        $data['lancamentos'] = $this->lancamento_model->where('id_caixa', $id_caixa)->findAll();
+        if (empty($data['caixa'])) {
+            return redirect()->to('/caixas');
+        }
+        $data['lancamentos'] = (new FaturamentoNegocio())->consultaLancamentos()->select('l.*')->where('l.id_caixa', $id_caixa)->get()->getResultArray();
         $data['vendas']      = $this->venda_model->where('id_caixa', $id_caixa)->findAll();
         $data['retiradas']   = $this->retirada_model->where('id_caixa', $id_caixa)->findAll();
 
-        // Somatórios Receitas geradas pelo caixa
-        $sum_lancamentos = $this->lancamento_model->selectSum('valor')->where('id_caixa', $id_caixa)->first()['valor'];
-        $sum_vendas = $this->venda_model->selectSum('valor_a_pagar')->where('id_caixa', $id_caixa)->first()['valor_a_pagar'];
-        $data['somatorio'] = $sum_lancamentos + $sum_vendas;
+        // Recebimentos de OS ja estao nos lancamentos; nao somar a OS novamente.
+        $sum_lancamentos = array_sum(array_column($data['lancamentos'], 'valor'));
+        $sum_vendas = array_sum(array_column($data['vendas'], 'valor_a_pagar'));
+        $sum_retiradas = array_sum(array_column($data['retiradas'], 'valor'));
+        $data['somatorio'] = (float) $data['caixa']['valor_inicial'] + $sum_lancamentos + $sum_vendas - $sum_retiradas;
 
         echo view('templates/header');
         echo view('caixas/show', $data);
@@ -280,7 +285,29 @@ class Caixas extends Controller
      */
     public function delete($id_caixa)
     {
-        $this->caixa_model->where('id_caixa', $id_caixa)->delete();
+        $db = db_connect();
+        $db->transBegin();
+        try {
+            $db->query($db->table('caixas')->where('id_caixa', $id_caixa)->getCompiledSelect() . ' FOR UPDATE');
+            foreach (['lancamentos', 'retiradas', 'vendas'] as $tabela) {
+                if ($db->table($tabela)->where('id_caixa', $id_caixa)->countAllResults() > 0) {
+                    throw new \RuntimeException('Este caixa possui movimentacoes e deve ser preservado. Voce pode fecha-lo.');
+                }
+            }
+            if ($db->fieldExists('id_caixa', 'pagamentos_do_cliente')
+                && $db->table('pagamentos_do_cliente')->where('id_caixa', $id_caixa)->countAllResults() > 0) {
+                throw new \RuntimeException('Este caixa possui recebimentos vinculados e deve ser preservado.');
+            }
+            $this->caixa_model->where('id_caixa', $id_caixa)->delete();
+            if (! $db->transStatus()) {
+                throw new \RuntimeException('Nao foi possivel excluir o caixa.');
+            }
+            $db->transCommit();
+        } catch (\Throwable $exception) {
+            $db->transRollback();
+            session()->setFlashdata('errors', ['O caixa nao pode ser excluido enquanto possuir movimentacoes.']);
+            return redirect()->to('/caixas/show/' . (int) $id_caixa);
+        }
 
         $session = session();
         $session->setFlashdata('alert', 'success_delete');

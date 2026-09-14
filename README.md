@@ -1,136 +1,79 @@
-# Zaventus Gestao
+# Zaventus | Gráfica Rápida e Comunicação Visual
 
-ERP web para pequenas empresas, desenvolvido pela **Zaventus Tecnologia** em **PHP 8.2+**, **CodeIgniter 4.7.2** e **MySQL/MariaDB**. O sistema centraliza vendas, PDV, estoque, financeiro, cadastros, relatórios gerenciais, controle fiscal e permissões de usuários em uma única aplicação.
+Sistema web interno para administrar o fluxo comercial, operacional e
+financeiro da Zaventus. A aplicação é voltada à venda de serviços gráficos,
+orçamentos, ordens de serviço, produção, arte, instalação, clientes,
+fornecedores e matérias-primas.
 
-## Visão Geral
+Este projeto não emite NF-e, NFS-e, NFC-e, SAT nem cupom não fiscal. Os fluxos
+legados de PDV e emissão fiscal estão fora da lista de rotas permitidas e serão
+mantidos no código somente até a validação e aposentadoria segura dos dados
+históricos.
 
-O Zaventus Gestao foi pensado para operações comerciais que precisam controlar produtos, clientes, vendedores, fornecedores, caixa, contas, orçamento, pedidos, vendas e indicadores do negócio sem depender de planilhas separadas.
+## Estado da evolução
 
-Principais áreas do sistema:
+O sistema existente está sendo modernizado por módulos, sem reescrita total:
 
-- **Dashboard inicial** com indicadores, caixas abertos e resumo operacional.
-- **PDV** com seleção de caixa aberto, produtos, clientes, vendedores, descontos e formas de pagamento.
-- **Venda rápida** para operações simplificadas.
-- **Histórico de vendas** com detalhamento, impressão e emissão fiscal.
-- **Financeiro** com abertura/fechamento de caixa, lançamentos, retiradas, despesas, contas a pagar e contas a receber.
-- **DRE** com apuração de faturamento, impostos, despesas variáveis, despesas fixas, gastos com pessoas e pró-labore por período.
-- **Estoque** com produtos, categorias, fornecedores, reposições, saída de mercadorias, inventário e controle de validade.
-- **Orçamentos e pedidos** para registrar etapas antes da venda.
-- **Cadastros gerais** de clientes, fornecedores, funcionários, vendedores, técnicos e serviços/mão de obra.
-- **Ordens de serviço** com equipamentos, peças, serviços e pagamentos.
-- **Relatórios** de vendas, estoque, financeiro, contas, clientes, fornecedores, funcionários e vendedores.
-- **Controle fiscal** com configurações e registros de NFe/NFCe.
-- **Usuários e permissões** por módulo e funcionalidade.
-- **Backup de banco de dados** via tela de configurações.
+1. Fase 0: ambiente reproduzível, backup, rotas explícitas, testes e isolamento
+   da interface legada.
+2. Fase 1: autenticação, usuários e RBAC.
+3. Fases seguintes: clientes, catálogo/SKU, CRM, orçamentos, vendas, OS,
+   arte/produção, instalações, financeiro, dashboard e relatórios.
 
-## Funcionalidades
+Durante a transição:
 
-### Vendas, PDV e OS
+- telas legadas permanecem em AdminLTE 3 e Bootstrap 4;
+- telas novas usarão Bootstrap 5 em layout isolado;
+- módulos antigo e novo não devem gravar simultaneamente a mesma informação;
+- exclusões e mudanças estruturais só ocorrerão após backup e homologação.
 
-- PDV vinculado a um caixa aberto.
-- Inclusão de produtos por código de barras ou seleção por nome.
-- Ajuste de quantidade, valor unitário e desconto dos itens.
-- Associação da venda a cliente, vendedor e forma de pagamento.
-- Venda rápida para fluxo mais simples.
-- Histórico completo de vendas.
-- Emissão, impressão, cancelamento e reemissão fiscal quando configurado.
-- Ordens de serviço com técnicos, equipamentos, peças, serviços e pagamentos.
+Já implementado no atendimento da gráfica: orçamento e OS compartilham o
+mesmo registro, com preços por medida, cortesias, aprovação, produção,
+instalação, recebimentos e estornos, consumo de materiais, anexos privados,
+histórico e impressão. As telas atuais desse fluxo reutilizam AdminLTE 3 e
+Bootstrap 4. Consulte o [guia de uso](docs/atendimento-grafica.md).
 
-### Estoque e Produtos
+A identidade visual inclui a logo completa no login e o favicon colorido.
+A migration `2026-09-14-000001_atualiza_marca_padrao.php` atualiza a marca
+padrão em outros ambientes e preserva imagens personalizadas.
 
-- Cadastro de produtos com categoria, fornecedor, unidade, localização, código de barras, NCM, CSOSN, CFOP, validade e imagem.
-- Upload e troca de imagem do produto em `public/assets/img/produtos`.
-- Pesquisa de produto por nome ou código de barras.
-- Controle de quantidade e quantidade mínima.
-- Margem de lucro, valor de custo, valor de venda e lucro.
-- Reposição de estoque.
-- Saída de mercadorias.
-- Inventário de estoque.
-- Importação/apoio a cadastro e reposição de produtos via XML.
+## Stack
 
-### Financeiro
+- PHP 8.2+ com BCMath, Fileinfo, Intl, Mbstring e MySQLi
+- CodeIgniter 4.7.2
+- MariaDB/MySQL com driver MySQLi
+- Apache
+- Bootstrap 4/AdminLTE apenas nas telas legadas
+- Bootstrap 5 nas telas novas
+- JavaScript simples e `fetch` quando necessário
 
-- Abertura, fechamento e reabertura de caixas.
-- Lançamentos financeiros vinculados ao caixa.
-- Retiradas do caixa.
-- Despesas classificadas por tipo.
-- Contas a pagar.
-- Contas a receber.
-- Pagamentos de clientes.
-- Orçamentos e pedidos.
-- Relatório DRE por período.
+## Ambiente local
 
-### Relatórios e Indicadores
+O host de desenvolvimento é:
 
-O sistema possui relatórios operacionais e gerenciais, incluindo:
+```text
+local.zaventus.com
+```
 
-- Vendas: histórico completo, por cliente e por vendedor.
-- Estoque: produtos, estoque mínimo, inventário e validade dos produtos.
-- Financeiro: faturamento diário, faturamento detalhado, lançamentos, retiradas e despesas.
-- Administrativo: contas a pagar, contas a receber e DRE.
-- Geral: clientes, fornecedores, funcionários e vendedores.
-- Gráficos para análise, como o relatório de faturamento diário.
+O protocolo é definido por `app.baseURL` no `.env`. HTTP e HTTPS podem ser
+usados localmente, desde que Apache, certificado e a configuração da aplicação
+estejam alinhados.
 
-### Usuários e Permissões
+Passos resumidos:
 
-O controle de acesso é configurado por usuário em formato granular. É possível liberar ou bloquear módulos e funcionalidades como:
+1. Configure o VirtualHost para apontar exclusivamente para `public/`.
+2. Adicione `127.0.0.1 local.zaventus.com` ao arquivo `hosts` do Windows.
+3. Copie `.env.example` para `.env`.
+4. Crie o banco de desenvolvimento e um banco separado para testes.
+5. Instale as dependências do Composer.
+6. Execute as migrations e as verificações de qualidade.
 
-- Vendas: venda rápida, PDV, pesquisa de produtos e histórico de vendas.
-- Controle geral: clientes, fornecedores, funcionários e vendedores.
-- Estoque: produtos, reposições, saídas e categorias.
-- Financeiro: caixas, lançamentos, retiradas, despesas, contas, orçamentos, pedidos, DRE, inventário e fiscal.
-- Relatórios: vendas, estoque, financeiro e geral.
-- Configurações: NFe, NFCe, empresa, sistema, usuários e backup de dados.
-
-Os menus são exibidos conforme as permissões do usuário autenticado.
-
-### Fiscal
-
-- O cupom nao fiscal e o fluxo principal do PDV neste momento.
-- NFe e NFCe ficam preparadas para testes e uso futuro, com emissao a partir do historico de vendas quando configurado.
-- O ambiente padrao de homologacao foi preparado para Manaus/AM: `tpAmb=2`, `cUF=13`, `cMunFG=1302603`, `UF=AM`, `xMun=Manaus`.
-- Para NFCe em ambiente de desenvolvedor da SEFAZ-AM, o CSC padrao de teste e `0123456789` com `CSCid=000001`.
-- Antes de qualquer teste real, substitua CNPJ, IE, certificado digital `.pfx`, senha, CSC e dados fiscais dos produtos por dados validos.
-- Produtos precisam de NCM, CSOSN e CFOP revisados com o contador antes da autorizacao fiscal.
-- O sistema armazena chave, XML, protocolo, status e mensagens de erro quando a emissao fiscal e executada.
-
-## Tecnologias
-
-- PHP `^8.2`
-- CodeIgniter `4.7.2`
-- MySQL/MariaDB
-- MySQLi/PDO
-- Bootstrap/AdminLTE no painel
-- Chart.js em relatórios
-- Biblioteca `sped-nfe` para recursos fiscais
-- Biblioteca `mysqldump-php` para backup do banco
-
-## Requisitos
-
-Ambiente mínimo recomendado:
-
-- PHP 8.2 ou superior.
-- MySQL ou MariaDB.
-- Servidor web Apache/Nginx apontando para a pasta `public`.
-- Extensões PHP:
-  - `intl`
-  - `mbstring`
-  - `mysqli`
-  - `pdo_mysql`
-  - `curl`
-  - `xml`
-  - `simplexml`
-  - `openssl`
-  - `fileinfo`
-  - `json`
-
-Para hospedagem compartilhada, confirme se o plano permite configurar o document root para `public/` ou criar redirecionamento equivalente.
+O procedimento completo está em
+[`docs/fase-0/README.md`](docs/fase-0/README.md).
 
 ## Configuração
 
-As principais configurações ficam no arquivo `.env`. Use o `.env.example` como referência e mantenha a chave de criptografia real somente no ambiente local.
-
-Exemplo de banco local:
+Nunca versione o arquivo `.env`. Configuração mínima:
 
 ```ini
 CI_ENVIRONMENT = development
@@ -143,107 +86,128 @@ database.default.database = zaventus
 database.default.username = root
 database.default.password =
 database.default.DBDriver = MySQLi
+
+database.tests.hostname = localhost
+database.tests.database = zaventus_test
+database.tests.username = root
+database.tests.password =
+database.tests.DBDriver = MySQLi
 ```
 
-Depois de criar o `.env`, gere uma chave exclusiva para proteger credenciais sensíveis:
+Em produção, utilize HTTPS, credenciais próprias, `CI_ENVIRONMENT=production`
+e permissões restritas no filesystem.
+
+## Dependências e testes
+
+O `composer.lock` faz parte do projeto. Depois de instalar o Composer:
 
 ```bash
-php spark key:generate
+composer install
+php tools/spark-test-db.php migrate -n App
+composer quality
 ```
 
-Em produção, ajuste:
+Em um XAMPP onde PHP/Composer não estejam no `PATH`, execute os mesmos comandos
+informando os caminhos dos executáveis:
 
-```ini
-CI_ENVIRONMENT = production
-app.baseURL = 'https://seudominio.com'
+```powershell
+C:\xampp\php\php.exe C:\caminho\para\composer.phar install
+C:\xampp\php\php.exe tools\spark-test-db.php migrate -n App
+C:\xampp\php\php.exe C:\caminho\para\composer.phar quality
 ```
 
-## Instalação Local
-
-1. Clone o repositório:
+Comandos individuais:
 
 ```bash
-git clone https://github.com/plrbxx/zaventus.git
+composer lint
+composer test
+php tools/phase0_baseline.php
+php spark migrate:status
+php spark routes
+php tools/spark-test-db.php migrate:status -n App
 ```
 
-2. Configure o servidor web para apontar para:
+O script de baseline é somente leitura e não exibe credenciais.
+Crie e configure previamente o banco exclusivo de testes. As suítes precisam
+do schema migrado antes de executar; não execute seeds legados para prepará-lo.
+O invólucro `spark-test-db.php` força a conexão para um banco cujo nome termine
+em `_test` ou `_testing`; use-o para executar migrations descartáveis em vez de
+passar apenas `-g tests` ao Spark.
+
+## Banco e migrations
+
+- Alterações de schema devem ser feitas somente por migrations.
+- Tabelas novas usarão nomes consistentes em inglês.
+- Migrações de dados serão aditivas e reversíveis.
+- Registros críticos não devem ser apagados fisicamente.
+- Valores monetários usarão `DECIMAL`; quantidades de materiais poderão ser
+  fracionárias.
+- Conversões, pagamentos e movimentos de estoque devem usar transações.
+
+O banco local de testes nunca deve apontar para o banco de desenvolvimento ou
+produção.
+
+## Backups e uploads
+
+O Git não é mecanismo de backup de dados operacionais.
+
+Devem ficar fora do controle de versão:
+
+- dumps SQL;
+- `.env`;
+- certificados e chaves;
+- fotos e uploads de clientes;
+- imagens cadastradas de produtos/matérias-primas;
+- arquivos de arte e instalação.
+
+Antes de migrations ou deploys, gere um dump externo e valide a restauração em
+um banco temporário. O runbook contém os comandos seguros de backup e restore.
+
+## Rotas e módulos legados
+
+O auto-routing está desativado. Somente rotas declaradas em
+`app/Config/Routes.php` e `app/Config/Routes/legacy.php` são acessíveis.
+
+Estão deliberadamente sem rota:
+
+- PDV e venda rápida;
+- pedidos e orçamento antigo baseado em produtos;
+- importação de produtos por XML fiscal;
+- NF-e, NFC-e, DANFE e controle fiscal;
+- exclusão de vendas históricas.
+
+O histórico de vendas continua disponível apenas para consulta.
+
+## Estrutura principal
 
 ```text
-public/
+app/                    aplicação CodeIgniter
+app/Config/Routes/      mapas explícitos de rotas
+app/Database/           migrations e seeders
+app/Views/              interface atual e futura
+docs/fase-0/            runbooks e decisões da preparação
+public/                 document root do Apache
+tests/app/              testes da aplicação
+tools/                  verificações locais e de CI
+writable/               cache, logs e uploads não versionados
 ```
 
-3. Copie `.env.example` para `.env` e ajuste os dados do banco.
+## Segurança
 
-4. Importe o banco MySQL do ambiente de implantação ou de um backup válido.
+- Rotas mutáveis usam POST e CSRF.
+- Saída de usuário deve ser escapada.
+- Autorização deve negar acesso quando não houver regra definida.
+- Uploads exigem validação de extensão, MIME, tamanho e conteúdo.
+- Senhas, tokens e valores do `.env` não podem aparecer em logs.
+- O document root deve permanecer em `public/`.
 
-5. Garanta permissão de escrita nas pastas:
+## Documentação da Fase 0
 
-```text
-writable/
-public/assets/img/produtos/
-```
+- [Runbook de ambiente, backup e testes](docs/fase-0/README.md)
+- [Plano de migração Bootstrap 5](docs/fase-0/bootstrap5-migration.md)
+- [Exemplo de VirtualHost](docs/fase-0/vhost-local.zaventus.com.conf.example)
 
-6. Acesse a URL configurada no `app.baseURL`.
+## Licenças
 
-## Observações Sobre Banco de Dados
-
-O projeto depende de um banco MySQL/MariaDB com as tabelas do ERP. O repositório não deve ser usado como substituto de backup de banco: dados de clientes, vendas, produtos, contas e fiscal precisam ser preservados por rotina própria.
-
-O sistema possui uma rotina de backup em:
-
-```text
-/configs/backupDataBase
-```
-
-Ela gera um arquivo SQL em:
-
-```text
-writable/backup_mysql/BACKUP_DATABASE_SISTEMA.sql
-```
-
-## Estrutura Principal
-
-```text
-app/Controllers/        Controllers dos módulos do ERP
-app/Models/             Models das tabelas do sistema
-app/Views/              Telas e relatórios
-app/Config/             Configurações da aplicação
-app/ThirdParty/         Bibliotecas embarcadas
-public/                 Document root público
-public/assets/          CSS, JS, imagens e arquivos públicos
-system/                 Núcleo CodeIgniter 4.7.2
-writable/               Logs, cache, uploads, backups e arquivos gerados
-```
-
-## Módulos no Código
-
-Controllers principais:
-
-- `Pdv`, `VendaRapida`, `Vendas`, `Orcamentos`, `Pedidos`
-- `Caixas`, `Lancamentos`, `Retiradas`, `Despesas`, `ContasPagar`, `ContasReceber`
-- `Produtos`, `Reposicoes`, `SaidaDeMercadorias`, `InventarioDoEstoque`, `CategoriasDosProdutos`
-- `Clientes`, `Fornecedores`, `Funcionarios`, `Vendedores`, `Tecnicos`
-- `OrdensDeServicos`, `ServicosMaoDeObra`, `PagamentosDoCliente`
-- `Relatorios`, `RelatorioDRE`
-- `NFe`, `Pdv`, `ControleFiscal`, `ImprimeDanfe`
-- `Login`, `Configs`, `Inicio`
-
-## Segurança e Operação
-
-- Use HTTPS em produção.
-- Mantenha PHP e CodeIgniter atualizados.
-- Restrinja permissões de arquivos sensíveis como `.env`.
-- Faça backup recorrente do banco e dos arquivos enviados.
-- Evite expor a raiz do projeto; o servidor deve apontar para `public/`.
-- Revise permissões dos usuários antes de entregar o sistema a clientes.
-
-## Status Atual
-
-- Framework: CodeIgniter 4.7.2
-- PHP alvo: 8.2+
-- Banco: MySQL/MariaDB
-- Projeto voltado a pequenas empresas com venda, financeiro, estoque, relatórios e fiscal.
-
-## Licença
-
-Este projeto utiliza CodeIgniter, distribuído sob licença MIT. Verifique também as licenças das bibliotecas embarcadas em `app/ThirdParty` e `system/ThirdParty`.
+O sistema Zaventus é software proprietário. CodeIgniter e dependências de
+terceiros mantêm suas respectivas licenças.

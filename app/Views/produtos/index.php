@@ -1,43 +1,9 @@
-<!-- Modal SELECIONA XML -->
-<div class="modal fade" id="modal-seleciona-xml">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h4 class="modal-title">Selecione o XML</h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <form action="/produtos/add_por_xml" method="post" enctype="multipart/form-data">
-                <div class="modal-body">
-                    <div class="row">
-                        <div class="col-lg-12">
-                            <div class="form-group">
-                                <label for="exampleInputFile">Selecione o XML</label>
-                                <div class="input-group">
-                                    <input type="file" name="xml" required="">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="modal-footer justify-content-between">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancelar</button>
-                    <button type="submit" class="btn btn-success">Continuar</button>
-                </div>
-            </form>
-        </div>
-        <!-- /.modal-content -->
-    </div>
-    <!-- /.modal-dialog -->
-</div>
-<!-- /.modal -->
-
 <!-- Content Wrapper. Contains page content -->
 <div class="content-wrapper">
     <!-- Main content -->
     <div class="content">
         <div class="container-fluid">
+            <?php foreach ((array) (session()->getFlashdata('erros_material') ?? []) as $erro): ?><div class="alert alert-danger" role="alert"><?= esc((string) $erro) ?></div><?php endforeach; ?>
             <div class="row" style="margin-bottom: 15px">
                 <div class="col-sm-6">
                     <h6 class="m-0 text-dark"><i class="<?= $titulo['icone'] ?>"></i> <?= $titulo['modulo'] ?></h6>
@@ -58,8 +24,7 @@
                 <div class="card-header">
                     <div class="row">
                         <div class="col-lg-12">
-                            <a href="/produtos/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Novo Produto</a>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#modal-seleciona-xml"><i class="fa fa-plus-circle"></i> Cadastro por XML</button>
+                            <a href="/produtos/create" class="btn btn-primary"><i class="fa fa-plus-circle"></i> Nova matéria-prima</a>
                         </div>
                     </div>
                 </div>
@@ -93,15 +58,15 @@
                                     <tr>
                                         <td><?= $produto['id_produto'] ?></td>
                                         <td class="text-center"><img src="<?= esc(base_url($imagemProduto)) ?>" alt="Imagem do produto" class="foto-cadastro-miniatura foto-produto-miniatura"></td>
-                                        <td><?= esc($produto['nome']) ?></td>
+                                        <td><?= esc($produto['nome']) ?><small class="d-block"><?= esc($produto['observacoes'] ?? '') ?></small><span class="badge badge-<?= (int) ($produto['ativo'] ?? 1) === 1 ? 'success' : 'secondary' ?>"><?= (int) ($produto['ativo'] ?? 1) === 1 ? 'Ativo' : 'Inativo' ?></span></td>
                                         <td>R$ <?= number_format((float) $produto['valor_de_venda'], 2, ',', '.') ?></td>
-                                        <td><?= esc($produto['quantidade']) ?></td>
+                                        <td><?= esc($produto['quantidade']) ?> <?= esc($produto['unidade']) ?><small class="d-block text-muted">Mínimo: <?= esc($produto['quantidade_minima']) ?></small></td>
                                         <td><?= esc(trim((string) $produto['localizacao']) !== '' ? $produto['localizacao'] : 'Não cadastrada') ?></td>
                                         <td><?= esc($produto['codigo_de_barras']) ?></td>
                                         <td>
                                             <a href="/produtos/show/<?= $produto['id_produto'] ?>" class="btn btn-info style-action"><i class="fa fa-folder-open"></i></a>
                                             <a href="/produtos/edit/<?= $produto['id_produto'] ?>" class="btn btn-warning style-action"><i class="fa fa-edit"></i></a>
-                                            <button type="button" class="btn btn-danger style-action" onclick="confirmaAcaoExcluir('Deseja realmente excluir esse produto?', '/produtos/delete/<?= $produto['id_produto'] ?>')"><i class="fa fa-trash"></i></button>
+                                            <?php if ((int) ($produto['ativo'] ?? 1) === 1): ?><form action="/produtos/delete/<?= (int) $produto['id_produto'] ?>" method="post" class="d-inline" onsubmit="return confirm('Inativar esta matéria-prima? O histórico será preservado.');"><?= csrf_field() ?><button type="submit" class="btn btn-outline-secondary style-action" title="Inativar matéria-prima"><i class="fa fa-ban"></i></button></form><?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -138,10 +103,10 @@
                     type: 'success',
                     title: 'Produto cadastrado com sucesso!'
                 })
-            <?php elseif ($alert == "success_delete") : ?>
+            <?php elseif ($alert == "success_inactivate") : ?>
                 Toast.fire({
                     type: 'success',
-                    title: 'Produto excluido com sucesso!'
+                    title: 'Matéria-prima inativada. Para reativar, edite a situação.'
                 })
             <?php elseif ($alert == "success_create_prod_por_xml") : ?>
                 Toast.fire({

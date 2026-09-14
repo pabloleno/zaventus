@@ -212,14 +212,7 @@ class Desenvolvedor extends Controller
             static fn (array $forma): bool => (int) ($forma['id_integracao'] ?? 0) === (int) $integracao['id_integracao']
         ));
         $integracao['formas_vinculadas'] = count($formasVinculadas);
-        $integracao['formas_produtos'] = count(array_filter(
-            $formasVinculadas,
-            static fn (array $forma): bool => (int) ($forma['disponivel_produtos'] ?? 0) === 1
-        ));
-        $integracao['formas_servicos'] = count(array_filter(
-            $formasVinculadas,
-            static fn (array $forma): bool => (int) ($forma['disponivel_servicos'] ?? 0) === 1
-        ));
+        $integracao['formas_servicos'] = count($formasVinculadas);
         $identificadorConfigurado = ! ($integracao['detalhes']['credencial_publica_obrigatoria'] ?? false)
             || ! empty($integracao['credencial_publica']);
         $integracao['pode_testar'] = ($integracao['detalhes']['teste_conexao_suportado'] ?? false)
