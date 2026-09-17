@@ -2,6 +2,8 @@
 
 namespace App\Libraries;
 
+use CodeIgniter\Database\BaseConnection;
+
 class DashboardNegocio
 {
     private $db;
@@ -11,10 +13,10 @@ class DashboardNegocio
     /**
      * Inicializa as dependencias usadas por este componente.
      */
-    public function __construct()
+    public function __construct(?BaseConnection $db = null)
     {
-        $this->db = db_connect();
-        $this->faturamento = new FaturamentoNegocio();
+        $this->db = $db ?? db_connect();
+        $this->faturamento = new FaturamentoNegocio($this->db);
         $this->cobrancas = new CobrancaRecorrente();
     }
 
@@ -25,9 +27,14 @@ class DashboardNegocio
     {
         $inicio = sprintf('%04d-%02d-01', $ano, $mes);
         $final = date('Y-m-t', strtotime($inicio));
-        $faturamentoServicos = $this->faturamento->totalServicos($inicio, $final);
-        $quantidadeServicos = $this->quantidadeServicos($inicio, $final);
+        $servicosConcluidos = $this->faturamento->ordensServicos($inicio, $final);
+        $faturamentoServicos = round(array_sum(array_column($servicosConcluidos, 'valor_total')), 2);
+        $quantidadeServicos = count($servicosConcluidos);
         $contasPendentes = $this->contasPendentes();
+        $atendimento = $this->atendimentoAtual();
+        $orcamentosEmEspera = $atendimento['status']['em_elaboracao'] + $atendimento['status']['aguardando_aprovacao'];
+        $osAbertas = array_sum($atendimento['status']) - $orcamentosEmEspera
+            - $atendimento['status']['concluido'] - $atendimento['status']['cancelado'];
 
         return [
             'periodo' => [
@@ -43,8 +50,10 @@ class DashboardNegocio
             'operacao' => [
                 'os_concretizadas' => $quantidadeServicos,
                 'ticket_servicos' => $this->media($faturamentoServicos, $quantidadeServicos),
-                'os_abertas' => $this->quantidadeOsAbertas(),
-                'atendimento' => $this->atendimentoAtual(),
+                'orcamentos_em_espera' => $orcamentosEmEspera,
+                'valor_orcamentos_em_espera' => bcadd($atendimento['valores']['em_elaboracao'], $atendimento['valores']['aguardando_aprovacao'], 2),
+                'os_abertas' => $osAbertas,
+                'atendimento' => $atendimento,
             ],
             'mensal' => $this->faturamentoMensal($ano),
             'financeiro' => $this->financeiroPorTipo($contasPendentes),
@@ -55,41 +64,38 @@ class DashboardNegocio
     }
 
     /**
-     * Calcula a quantidade de servicos.
+     * Retrato atual de todas as etapas, independente do periodo do faturamento.
+     * Usa a mesma classificacao e os mesmos totais da listagem de atendimento.
      */
-    private function quantidadeServicos(string $inicio, string $final): int
+    private function atendimentoAtual(): array
     {
-        return $this->db->table('ordens_de_servicos')
-            ->where('situacao', 'Concretizada')
-            ->groupStart()->where('deleted_at', null)->orWhere("CAST(deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
-            ->where('data_de_saida >=', $inicio)
-            ->where('data_de_saida <=', $final)
-            ->countAllResults();
-    }
-
-    /**
-     * Calcula a quantidade de ordens de servico em aberto.
-     */
-    private function quantidadeOsAbertas(): int
-    {
-        return $this->db->table('ordens_de_servicos')
-            ->whereIn('situacao', ['Em aberto', 'Em andamento', 'Aberto'])
-            ->groupStart()->where('deleted_at', null)->orWhere("CAST(deleted_at AS CHAR) = '0000-00-00 00:00:00'", null, false)->groupEnd()
-            ->countAllResults();
-    }
-
-    private function atendimentoAtual(): ?array
-    {
-        if (! $this->db->fieldExists('status_operacional', 'ordens_de_servicos')) {
-            return null;
+        $resumo = [
+            'status' => array_fill_keys(array_keys(AtendimentoGrafica::STATUS), 0),
+            'valores' => array_fill_keys(array_keys(AtendimentoGrafica::STATUS), '0.00'),
+            'instalacoes_hoje' => 0,
+            'atrasados' => 0,
+        ];
+        $ordens = $this->db->table('ordens_de_servicos')->where('deleted_at', null)->get()->getResultArray();
+        $itensPorOrdem = [];
+        if ($ordens !== []) {
+            $consultaItens = $this->db->table('servicos_mao_de_obra_da_os')
+                ->whereIn('id_ordem', array_column($ordens, 'id_ordem'));
+            if ($this->db->fieldExists('removido_at', 'servicos_mao_de_obra_da_os')) {
+                $consultaItens->where('removido_at', null);
+            }
+            foreach ($consultaItens->get()->getResultArray() as $item) {
+                $itensPorOrdem[$item['id_ordem']][] = $item;
+            }
         }
-        $resumo = ['status' => array_fill_keys(array_keys(AtendimentoGrafica::STATUS), 0), 'instalacoes_hoje' => 0, 'atrasados' => 0];
         $hoje = date('Y-m-d');
-        foreach ($this->db->table('ordens_de_servicos')->where('deleted_at', null)->get()->getResultArray() as $ordem) {
+        foreach ($ordens as $ordem) {
             $status = AtendimentoGrafica::status($ordem);
             $resumo['status'][$status]++;
+            $total = AtendimentoGrafica::totais($ordem, $itensPorOrdem[$ordem['id_ordem']] ?? [])['total'];
+            $resumo['valores'][$status] = bcadd($resumo['valores'][$status], $total, 2);
             if (! in_array($status, ['concluido', 'cancelado'], true)
-                && ! empty($ordem['previsao_conclusao']) && $ordem['previsao_conclusao'] < $hoje) {
+                && ! empty($ordem['previsao_conclusao']) && ! str_starts_with($ordem['previsao_conclusao'], '0000')
+                && $ordem['previsao_conclusao'] < $hoje) {
                 $resumo['atrasados']++;
             }
             if ($status === 'instalacao_agendada' && substr((string) ($ordem['execucao_prevista'] ?? ''), 0, 10) === $hoje) {

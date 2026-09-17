@@ -3,6 +3,20 @@
     $periodo = $dashboard['periodo'];
     $faturamento = $dashboard['faturamento'];
     $operacao = $dashboard['operacao'];
+    $atendimentoAtual = $operacao['atendimento'];
+    $statusAtuais = $atendimentoAtual['status'];
+    $iconesEtapas = [
+        'em_elaboracao' => 'fas fa-pencil-alt',
+        'aguardando_aprovacao' => 'fas fa-hourglass-half',
+        'aprovado' => 'fas fa-check',
+        'falta_arte' => 'fas fa-palette',
+        'arte_aprovacao' => 'fas fa-palette',
+        'aguardando_producao' => 'fas fa-print',
+        'em_producao' => 'fas fa-print',
+        'pronto' => 'fas fa-box-open',
+        'aguardando_retirada' => 'fas fa-box-open',
+        'instalacao_agendada' => 'fas fa-calendar-day',
+    ];
     $financeiro = $dashboard['financeiro'];
     $movimentacao = $dashboard['movimentacao'];
     $agenda = $dashboard['agenda'];
@@ -51,8 +65,9 @@
                     <span class="dashboard-eyebrow">Visão executiva</span>
                     <h1>Olá, <?= esc($session->get('primeiro_nome')) ?>.</h1>
                     <p>
-                        Orçamentos, serviços e financeiro acompanhados em
+                        Resultados de serviços em
                         <strong><?= esc($meses[$periodo['mes']]) ?> de <?= esc($periodo['ano']) ?></strong>.
+                        Orçamentos, produção e contas pendentes mostram a situação atual de todos os meses.
                     </p>
                     <div class="dashboard-periodo-contexto">
                         <?php if ($periodoAutomatico) : ?>
@@ -111,32 +126,33 @@
     <div class="content">
         <div class="container-fluid">
             <div class="row">
-                <div class="col-xl-3 col-md-6">
-                    <div class="dashboard-kpi dashboard-kpi-total">
+                <div class="col-xl-3 col-md-6 d-flex">
+                    <div class="dashboard-kpi dashboard-kpi-total w-100">
                         <span class="dashboard-kpi-icon"><i class="fas fa-chart-line"></i></span>
                         <span class="dashboard-kpi-label">Faturamento de serviços</span>
                         <strong><?= $moeda($faturamento['servicos']) ?></strong>
                         <small>Somente serviços concretizados no período</small>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="dashboard-kpi dashboard-kpi-produtos">
+                <div class="col-xl-3 col-md-6 d-flex">
+                    <div class="dashboard-kpi dashboard-kpi-produtos w-100">
                         <span class="dashboard-kpi-icon"><i class="fas fa-file-invoice-dollar"></i></span>
                         <span class="dashboard-kpi-label">Orçamentos em espera</span>
-                        <strong><?= (int) $operacao['os_abertas'] ?></strong>
-                        <small>Em aberto ou em andamento</small>
+                        <strong><?= (int) $operacao['orcamentos_em_espera'] ?></strong>
+                        <small><?= $moeda($operacao['valor_orcamentos_em_espera']) ?> · Em elaboração ou aguardando aprovação</small>
+                        <a class="small" href="/ordensDeServicos/orcamentos">Ver orçamentos de todos os meses</a>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="dashboard-kpi dashboard-kpi-servicos">
+                <div class="col-xl-3 col-md-6 d-flex">
+                    <div class="dashboard-kpi dashboard-kpi-servicos w-100">
                         <span class="dashboard-kpi-icon"><i class="fas fa-tools"></i></span>
-                        <span class="dashboard-kpi-label">Serviços efetivados</span>
+                        <span class="dashboard-kpi-label">Serviços concluídos</span>
                         <strong><?= (int) $operacao['os_concretizadas'] ?></strong>
-                        <small>Ticket médio <?= $moeda($operacao['ticket_servicos']) ?></small>
+                        <small>No período · Ticket médio <?= $moeda($operacao['ticket_servicos']) ?></small>
                     </div>
                 </div>
-                <div class="col-xl-3 col-md-6">
-                    <div class="dashboard-kpi dashboard-kpi-financeiro">
+                <div class="col-xl-3 col-md-6 d-flex">
+                    <div class="dashboard-kpi dashboard-kpi-financeiro w-100">
                         <span class="dashboard-kpi-icon"><i class="fas fa-balance-scale"></i></span>
                         <span class="dashboard-kpi-label">Compromissos operacionais</span>
                         <strong><?= $moeda($financeiroOperacionalReceber - $financeiroOperacionalPagar) ?></strong>
@@ -271,24 +287,29 @@
                         <div class="card-header">
                             <div>
                                 <span class="dashboard-card-kicker">Operação atual</span>
-                                <h3 class="card-title">Pontos de atenção</h3>
+                                <h3 class="card-title">Orçamentos e produção</h3>
                             </div>
                         </div>
                         <div class="card-body">
-                            <a href="/ordensDeServicos">
-                                <i class="fas fa-clipboard-list"></i>
-                                <span><strong><?= $operacao['os_abertas'] ?></strong> ordens de serviço abertas</span>
-                            </a>
-                            <?php if (! empty($operacao['atendimento'])) :
-                                $atendimentoAtual = $operacao['atendimento'];
-                                $statusAtuais = $atendimentoAtual['status'];
+                            <p class="small mb-1">
+                                Pendências de todos os meses, com o valor total dos atendimentos em cada etapa.
+                                <strong><?= (int) $operacao['os_abertas'] ?></strong> serviços aprovados ainda não concluídos.
+                            </p>
+                            <?php foreach ($iconesEtapas as $etapa => $iconeEtapa) :
+                                $rotaEtapa = in_array($etapa, ['em_elaboracao', 'aguardando_aprovacao'], true)
+                                    ? '/ordensDeServicos/orcamentos' : '/ordensDeServicos';
                             ?>
-                                <a href="/ordensDeServicos/orcamentos?todos=1&amp;status=aguardando_aprovacao"><i class="fas fa-hourglass-half"></i><span><strong><?= (int) $statusAtuais['aguardando_aprovacao'] ?></strong> aguardando aprovação</span></a>
-                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-palette"></i><span><strong><?= (int) ($statusAtuais['falta_arte'] + $statusAtuais['arte_aprovacao']) ?></strong> em criação ou aprovação de arte</span></a>
-                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-print"></i><span><strong><?= (int) ($statusAtuais['aguardando_producao'] + $statusAtuais['em_producao']) ?></strong> aguardando ou em produção</span></a>
-                                <a href="/ordensDeServicos/orcamentos?todos=1"><i class="fas fa-box-open"></i><span><strong><?= (int) ($statusAtuais['pronto'] + $statusAtuais['aguardando_retirada']) ?></strong> prontos ou aguardando retirada</span></a>
-                                <a href="/ordensDeServicos/orcamentos?todos=1&amp;status=instalacao_agendada"><i class="fas fa-calendar-day"></i><span><strong><?= (int) $atendimentoAtual['instalacoes_hoje'] ?></strong> instalações agendadas para hoje</span></a>
-                            <?php endif; ?>
+                                <a href="<?= $rotaEtapa ?>?status=<?= esc($etapa, 'attr') ?>">
+                                    <i class="<?= esc($iconeEtapa, 'attr') ?>"></i>
+                                    <span>
+                                        <strong><?= (int) $statusAtuais[$etapa] ?></strong> · <?= esc(\App\Libraries\AtendimentoGrafica::STATUS[$etapa]) ?>
+                                        <small class="d-block"><?= $moeda($atendimentoAtual['valores'][$etapa]) ?></small>
+                                        <?php if ($etapa === 'instalacao_agendada') : ?>
+                                            <small class="d-block"><?= (int) $atendimentoAtual['instalacoes_hoje'] ?> para hoje</small>
+                                        <?php endif; ?>
+                                    </span>
+                                </a>
+                            <?php endforeach; ?>
                             <a href="/produtos">
                                 <i class="fas fa-exclamation-triangle"></i>
                                 <span><strong><?= count($produtos_estoque_baixo) ?></strong> matérias-primas no estoque mínimo</span>
